@@ -1,0 +1,10 @@
+bin/
+dtb/
+repo/
+firmware/
+firmware-imx/
+uboot-imx/
+Cortex_M4/
+arm-trusted-firmware/
+imx-mkimage/
+

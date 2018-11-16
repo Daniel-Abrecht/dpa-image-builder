@@ -1,0 +1,149 @@
+#!/bin/sh
+
+set -ex
+
+# Make sure the current working directory is correct
+cd "$(dirname "$0")/.."
+base="$PWD"
+
+# Make sure debootstrap & co is in path, and that the fake mknod noop helper will be used
+PATH="$base/build/bin/:$base/script/:/sbin/:/usr/sbin/:$PATH"
+
+# If not root, fake being root using user namespace. Map root -> user and 1-subuidcount to subuidmin-subuidmax
+if [ $(id -u) != 0 ]
+then
+  exec uexec "$(realpath "$0")" "$@"
+fi
+
+# Set release repo if not already defined
+if [ -z "$RELEASE" ]; then RELEASE=ascii; fi
+if [ -z "$REPO" ]; then REPO=https://pkgmaster.devuan.org/merged/; fi
+if [ -z "$CHROOT_REPO" ]; then CHROOT_REPO="$REPO"; fi
+
+tmp="$base/build/filesystem/"
+
+# Cleanup if any of the remaining steps fails
+cleanup(){
+  set +e
+  rm -rf "$tmp/rootfs" "$tmp/bootfs" "$tmp/downloaded_packages/"
+  rm -f "$tmp/debootstrap.tar.gz"
+}
+trap cleanup EXIT
+
+# Remove old files from previous runs
+rm -rf "$tmp/rootfs" "$tmp/bootfs" "$tmp/downloaded_packages/"
+rm -f "$tmp/rootfs.tar" "$tmp/bootfs.tar" "$tmp/debootstrap.tar.gz" "$tmp/device_nodes"
+
+# Create temporary directories
+mkdir -p "$tmp/rootfs"
+
+sanitize_pkg_list(){
+  tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
+}
+
+packages_second_stage="$(sanitize_pkg_list < include_packages)"
+packages="$(sanitize_pkg_list < include_packages_early)"
+
+# Add packages for different apt transport if any is used
+if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'https'    ; then packages="$packages,apt-transport-https"    ; fi
+if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'tor'      ; then packages="$packages,apt-transport-tor"      ; fi
+if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'spacewalk'; then packages="$packages,apt-transport-spacewalk"; fi
+
+packages="$(echo "$packages" | sanitize_pkg_list)"
+if [ -n "$packages" ]; then packages="--include=$packages"; fi
+
+# Create usable first-stage rootfs
+debootstrap --foreign --arch=arm64 $packages "$RELEASE" "$tmp/rootfs" "$REPO"
+
+if [ -n "$packages_second_stage" ]
+then
+  debootstrap --foreign --arch=arm64 --download-only --include="$packages_second_stage" "$RELEASE" "$tmp/downloaded_packages/" "$REPO"
+  echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_install"
+  cp "$tmp/downloaded_packages/var/cache/apt/archives/"*.deb "$tmp/rootfs/var/cache/apt/archives/"
+fi
+
+# I've seen init not getting unpacked by debootstrap --foreign in devuan beowulf but only after the debootstrap --second stage
+if [ ! -f "$tmp/rootfs/sbin/init" ]
+then
+  echo "Warning: /sbin/init doesn't exist in first-stage debootstraped rootfs yet. Assuming creation in second stage."
+fi
+
+# Extract kernel packages. Properly installing them later is still required.
+for package in kernel/bin/linux-*.deb
+do
+  dpkg -x "$package" "$tmp/rootfs"
+  cp "$package" "$tmp/rootfs/root/"
+done
+
+# Create symlink for /boot/vmlinuz -> vmlinuz-...
+# Note: The image and device tree are later updated using the /etc/kernel/postinst.d/update-zImage script on kernel updates too
+vmlinuz="$(basename "$tmp/rootfs/boot/"vmlinuz-*)"
+ln -sf "$vmlinuz" "$tmp/rootfs/boot/vmlinuz"
+# copy flat device tree binary
+ext="$(printf "%s" "$vmlinuz" | tail -c +9)"
+dtb="linux-image-$ext/freescale/fsl-imx8mq-evk-m4.dtb"
+mkdir -p "$tmp/rootfs/boot/$(dirname "$dtb")"
+cp "$tmp/rootfs/usr/lib/$dtb" "$tmp/rootfs/boot/$dtb"
+# Update flat device tree binary symlink
+ln -sf "$dtb" "$tmp/rootfs/boot/devicetree"
+
+# Add sources.list
+cat > "$tmp/rootfs/etc/apt/sources.list" <<EOF
+deb     $CHROOT_REPO $RELEASE           main
+deb-src $CHROOT_REPO $RELEASE           main
+deb     $CHROOT_REPO $RELEASE-updates   main
+deb-src $CHROOT_REPO $RELEASE-updates   main
+deb     $CHROOT_REPO $RELEASE-security  main
+deb-src $CHROOT_REPO $RELEASE-security  main
+deb     $CHROOT_REPO $RELEASE-backports main
+deb-src $CHROOT_REPO $RELEASE-backports main
+EOF
+
+# Put a script to finish the bootstraping instead of init to finish debootstraping of base packages on first boot
+# The script will move the real init at the correct place afterwards and exec it
+# It will also properly install the kernel packages
+mv "$tmp/rootfs/sbin/init" "$tmp/rootfs/sbin/init_real" || true
+cat >"$tmp/rootfs/sbin/init" <<EOF
+#!/bin/sh
+set -x
+export PATH="/sbin/:/usr/sbin/:/bin/:/usr/bin"
+mount /proc/
+mount -t sysfs sysfs /sys/
+mount -a
+mount -o remount,rw /
+mount -o remount,rw /boot/
+rm "\$0"
+mv "\$0"_real "\$0" # Dont move this after debootstrap, it will loop endlessly amongst other things.
+/debootstrap/debootstrap --second-stage
+dpkg -i /root/linux-*.deb
+rm /root/linux-*.deb
+sync
+umount /boot
+umount /proc
+umount /sys
+mount -o remount,ro /
+exec "\$0" "\$@"
+EOF
+chmod +x "$tmp/rootfs/sbin/init"
+
+# Copy some config files and stuff into the rootfs
+# Note: The /etc/fstab is generated in assemble_image.sh
+cp -R "$base/rootfs_custom_files/"* "$tmp/rootfs/"
+
+# Create boot.scr from boot.txt
+rm -f "$tmp/rootfs/boot/boot.scr"
+./uboot/bin/mkimage_uboot -A arm -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
+
+# TODO: Get rid of this and let ubuut do the decompressing
+gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"
+
+# Split /boot and /
+mv "$tmp/rootfs/boot" "$tmp/bootfs"
+mkdir "$tmp/rootfs/boot"
+
+# Create tar archives and remove tared directories
+cd "$tmp/rootfs"
+tar cf "$tmp/rootfs-$RELEASE.tar" .
+cd "$tmp/bootfs"
+tar cf "$tmp/bootfs-$RELEASE.tar" .
+cd "$base"

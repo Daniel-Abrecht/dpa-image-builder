@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -x
+
+# inctall remaining packages
+apt-get install -y $(cat /root/packages_to_install)
+dpkg-reconfigure locales
+
+# set root password
+passwd
+
+# clean apt cache
+apt-get clean
+
+# Remove one time script
+set +x
+rm /etc/rc.local
+cat >/etc/rc.local <<EOF
+#!/bin/sh
+exit 0
+EOF
+exit 0

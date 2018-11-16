@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -ex
+
+vmlinuz="vmlinuz-$1"
+dtb="linux-image-$1/freescale/fsl-imx8mq-evk-m4.dtb"
+
+# Update /boot/zImage -> vmlinuz symlink
+ln -sf "$vmlinuz" /boot/zImage
+
+# Copy flat device tree binary
+mkdir -p "/boot/$(dirname "$dtb")"
+cp "/usr/lib/$dtb" "/boot/$dtb"
+
+# Update flat device tree binary symlink
+ln -sf "$dtb" /boot/devicetree
