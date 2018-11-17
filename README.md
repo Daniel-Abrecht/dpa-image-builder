@@ -28,7 +28,7 @@ make
 make IMGSIZE=32GB RELEASE=ascii REPO=http://pkgmaster.devuan.org/merged/ CHROOT_REPO=http://pkgmaster.devuan.org/merged/
 ```
 
-You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu, gcc-arm-none-eabi, and probably a few more for this to work.
+You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu, gcc-arm-none-eabi, libext2fs-dev, libtar-dev, and probably a few more for this to work.
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
