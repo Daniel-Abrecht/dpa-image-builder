@@ -36,15 +36,35 @@ You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu,
 | RELEASE | ascii | The release to debootstrap |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
+| IMAGE_NAME | devuan-$(RELEASE)-librem5-devkit-base.img | The name of the image |
 
 You can change RELEASE and it will do everithing necessary to create the image for the other release.
 To change the IMGSIZE, you need to delete the image in bin/.
-To change REPO and CHROOT, remove the build/filesystem directory.
+To change REPO and CHROOT, remove the build/filesystem directory, or the rootfs and bootfs tar archives in it.
+There are also make targets for this.
 
-When in doubt, and you want to bootstrap the image again, you can also just delete bin/ and build/.
+## Other useful make targets
 
-You may not want to run ```make clean```, because that cleans up everything, including all repos and so on,
-and it takes forever to download and compile that all again.
+| Name | Purpose |
+| ---- | ------- |
+| bootloader | builds the uboot bootloader at uboot/bin/uboot_firmware_and_dtb.bin |
+| linux | builds the kernel packages |
+| RELEASE=ascii clean-fs | Removes the tar archives which contain the bootstrapped rootfs and bootfs of the specified release |
+| RELEASE=ascii emulate | Uses the image and kernel last built and tries to start it using qemu-system-aarch64. This works a lot different than how the devkit or phone would do it, but it is useful to check if the bootstrapping and init scripts work. |
+| clean-fs-all | Removes the whole build/filesystem folder. This is enough for most purposes. |
+| RELEASE=ascii clean-image | Removes the image for the release specified. |
+| clean-fs | Removes all images in the bin/ folder |
+| repo | Clones all repositories into repo/* |
+| repo@reponame | Clones the specified repository to repo/reponame |
+| clean-build	| remove all build files. (the files in build/, bin/ etc.) |
+| clean-repo | Completely removes all repositories |
+| clean-repo@reponame | Completly removes repo/reponame |
+| reset-repo | Remove all files in the repos except .git, cleanly check them out again from the local repo in .git, and update them if possible |
+| reset-repo@reponame | same as the above, but for a speciffic repo |
+| clean-all | short for clean-repo and clean-build, removes pretty much everithing. |
+| reset | Short for reset-repo and clean-build, mostly the same as clean-all, but doesn't require downloading all repos again |
+
+The urls and reponame of all used repositories can be found in the src/repositories.mk file.
 
 ## Modifying the image
 
