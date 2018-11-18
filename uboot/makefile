@@ -41,7 +41,7 @@ firmware/bl31.bin: repo/arm-trusted-firmware/.repo firmware/.dir
 	cp "repo/arm-trusted-firmware/build/imx8mq/release/bl31.bin" "firmware/"
 
 $(NONFREE_FIRMWARE_CRAP): repo/firmware-imx/.repo
-	tail -n +712 "$^" | ( cd "repo/firmware-imx/" <&- && tar xjvf -; )
+	tail -n +712 repo/firmware-imx/firmware-imx-*.bin | ( cd "repo/firmware-imx/" <&- && tar xjvf -; )
 	cp "repo"/firmware-imx/firmware-imx-7.2/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem.bin "firmware/"
 	cp "repo"/firmware-imx/firmware-imx-7.2/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem.bin "firmware/"
 	cp "repo"/firmware-imx/firmware-imx-7.2/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem.bin "firmware/"
