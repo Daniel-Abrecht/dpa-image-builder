@@ -7,8 +7,8 @@ base="$PWD"
 
 tmp="$(mktemp -d)"
 
-if [ -z "$RELEASE" ]; then RELEASE="ascii.img"; fi
-IMAGE_NAME="devuan-$RELEASE-imx8-base.img"
+if [ -z "$RELEASE" ]; then RELEASE="ascii"; fi
+if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="devuan-$RELEASE-librem5-devkit-base.img"; fi
 
 # Some programs like sfdisk are in /sbin/, but they work just fine as non-root on an image
 PATH="$base/build/bin/:$base/script/:/sbin/:/usr/sbin/:$PATH"
@@ -126,4 +126,4 @@ writeTar2Ext "$rootdev" < "$tmp/fstab.tar"
 umount_wait
 
 # Copy finished image
-cp "$tmp/$IMAGE_NAME" bin/
+cp "$tmp/$IMAGE_NAME" "bin/$IMAGE_NAME"

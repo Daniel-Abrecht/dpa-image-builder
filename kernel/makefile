@@ -1,19 +1,23 @@
+
 all: bin/.done
 
-linux/.git:
-	git clone -b imx_4.9.51_imx8m_beta https://source.codeaurora.org/external/imx/linux-imx linux
+include ../src/make-helper-functions.mk
 
-linux/.config: linux/.git
-	cp kernel_config linux/.config
+repo: repo/linux/.repo
 
-bin/.done: linux/.git linux/.config
-	make -C linux -j 9 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- deb-pkg
-	mkdir -p bin
-	cp linux-libc-*.deb bin/linux-libc.deb
-	cp linux-image-*.deb bin/linux-image.deb
-	cp linux-headers-*.deb bin/linux-headers.deb
-	rm linux-*
+repo/linux/.config: repo/linux/.repo
+	cp kernel_config repo/linux/.config
+
+bin/.done: repo/linux/.repo repo/linux/.config bin/.dir
+	make -C repo/linux -j 9 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- deb-pkg
+	cp repo/linux-libc-*.deb bin/linux-libc.deb
+	cp repo/linux-image-*.deb bin/linux-image.deb
+	cp repo/linux-headers-*.deb bin/linux-headers.deb
+	rm repo/linux-*
 	touch bin/.done
 
-clean:
-	rm -rf linux linux-* bin
+clean-repo: clean-repo@linux
+reset-repo: reset-repo@linux
+
+clean-build:
+	rm -rf bin
