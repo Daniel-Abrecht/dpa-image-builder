@@ -1,39 +1,4 @@
 
-repo/fuseloop/.repo:
-	git clone https://github.com/jmattsson/fuseloop.git repo/fuseloop
-	touch "$@"
-
-repo/usernsexec/.repo:
-	git clone https://github.com/Daniel-Abrecht/usernsexec.git repo/usernsexec
-	touch "$@"
-
-repo/tar2ext/.repo:
-	git clone https://github.com/Daniel-Abrecht/tar2ext.git repo/tar2ext
-	touch "$@"
-
-repo/uboot-imx/.repo:
-	git clone -b pureos-patches https://source.puri.sm/Librem5/uboot-imx.git "repo/uboot-imx/"
-	touch "$@"
-
-repo/Cortex_M4/.repo:
-	#git clone git@code.puri.sm:Angus_Ainslie/Cortex_M4.git # That was probably an internal repo
-	git clone https://source.puri.sm/Librem5/Cortex_M4.git "repo/Cortex_M4/"
-	touch "$@"
-
-repo/arm-trusted-firmware/.repo:
-	#git clone https://github.com/ARM-software/arm-trusted-firmware.git # TODO: Check this out from master once imx8mq gets merged.
-	git clone -b imx_4.9.51_imx8m_beta https://source.codeaurora.org/external/imx/imx-atf "repo/arm-trusted-firmware/"
-	touch "$@"
-
-repo/imx-mkimage/.repo:
-	git clone https://source.codeaurora.org/external/imx/imx-mkimage -b imx_4.9.51_imx8m_beta "repo/imx-mkimage/"
-	touch "$@"
-
-# TODO: get this to work with mainline
-repo/linux/.repo:
-	git clone -b imx_4.9.51_imx8m_beta https://source.codeaurora.org/external/imx/linux-imx repo/linux
-	touch "$@"
-
 # TODO: get rid of this firmware crap, it's not FOSS!!!
 repo/firmware-imx/.repo: repo/firmware-imx/.dir
 	set -e; \

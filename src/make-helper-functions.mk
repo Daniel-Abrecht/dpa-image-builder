@@ -1,7 +1,28 @@
 
+default_target: all
+
 project_root := $(dir $(lastword $(MAKEFILE_LIST)))..
 
+VARS_OLD := $(.VARIABLES)
+
+ifeq ($(shell test -e "$(project_root)/config/defaults.mk" && echo -n yes),yes)
+include $(project_root)/config/defaults.mk
+endif
+
+ifeq ($(shell test -e "$(project_root)/config/$(CONFIG).mk" && echo -n yes),yes)
+include $(project_root)/config/$(CONFIG).mk
+endif
+
+ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
+include $(project_root)/config/userdefined.mk
+endif
+
+CONFIG_VARS = $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES))
+unexport VARS_OLD
+
 include $(project_root)/src/repositories.mk
+
+
 
 %/.dir: # We don't care if the directory gets modified, only if it exists or not. Let's check a dummy file instead
 	mkdir -p "$(dir $@)"
@@ -10,6 +31,11 @@ include $(project_root)/src/repositories.mk
 clean:
 	! echo -n "Please use one of:\n * make clean-build\t# remove all build files\n * make clean-repo\t# remove the downloaded repos\n * make reset-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# do all of the above\n * make reset # do all of the above, but keep the repos\n"
 
+repo/%/.repo:
+	branch="$(repo-branch@$(patsubst repo/%/.repo,%,$@))"; \
+	source="$(repo-source@$(patsubst repo/%/.repo,%,$@))"; \
+	git clone -b "$$branch" "$$source" "$(dir $@)"
+	touch "$@"
 
 repo@%:
 	make repo/$(patsubst repo@%,%,$@)/.repo
@@ -28,6 +54,11 @@ reset-repo@%:
 	  git reset --hard; \
 	  touch .repo; \
 	fi
+
+list-config-settings:
+	$(foreach VAR,$(CONFIG_VARS), \
+	  echo "$(VAR)=$($(VAR))"; \
+	)
 
 clean-all: clean-repo clean-build
 reset: reset-repo clean-build
