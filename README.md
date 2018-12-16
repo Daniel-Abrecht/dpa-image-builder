@@ -64,8 +64,8 @@ There are also make targets for this.
 | clean-all | short for clean-repo and clean-build, removes pretty much everithing. |
 | reset | Short for reset-repo and clean-build, mostly the same as clean-all, but doesn't require downloading all repos again |
 | config-list | List all config variables, this includes the repo urls and branches |
-| CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file $CONF, which defaults to userdefined |
-| CONF=userdefined config-unset@variable-name | Remove variable from file $CONF |
+| CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF.mk, which defaults to userdefined |
+| CONF=userdefined config-unset@variable-name | Remove variable from file conf/$CONF.mk |
 
 The urls and reponame of all used repositories as well as the defaults of most variables can be found in the config/ directory, with the exception of the imx firmware from nxp, which is still in src/repositories.mk.
 

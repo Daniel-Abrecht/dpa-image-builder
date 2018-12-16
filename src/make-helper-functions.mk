@@ -25,7 +25,7 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-CONFIG_VARS = $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES)))
+CONFIG_VARS = $(sort $(filter-out $(VARS_OLD) VARS_OLD CONFIG_VARS,$(.VARIABLES)))
 unexport VARS_OLD
 
 CONF = userdefined
@@ -75,7 +75,7 @@ config-set@%:
 	fi
 	@ V="$(patsubst config-set@%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk" 2>&-; \
-	echo "$$V = \"$(TO)\"" >> $(project_root)/config/$(CONF).mk
+	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF).mk
 
 config-unset@%:
 	@ V="$(patsubst config-unset@%,%,$@)"; \
