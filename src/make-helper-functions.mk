@@ -5,8 +5,16 @@ project_root := $(dir $(lastword $(MAKEFILE_LIST)))..
 
 VARS_OLD := $(.VARIABLES)
 
+ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
+include $(project_root)/config/userdefined.mk
+endif
+
 ifeq ($(shell test -e "$(project_root)/config/defaults.mk" && echo -n yes),yes)
 include $(project_root)/config/defaults.mk
+endif
+
+ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
+include $(project_root)/config/userdefined.mk
 endif
 
 ifeq ($(shell test -e "$(project_root)/config/$(CONFIG).mk" && echo -n yes),yes)
@@ -17,8 +25,10 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-CONFIG_VARS = $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES))
+CONFIG_VARS = $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES)))
 unexport VARS_OLD
+
+CONF = userdefined
 
 include $(project_root)/src/repositories.mk
 
@@ -55,10 +65,21 @@ reset-repo@%:
 	  touch .repo; \
 	fi
 
-list-config-settings:
-	$(foreach VAR,$(CONFIG_VARS), \
-	  echo "$(VAR)=$($(VAR))"; \
-	)
+config-list:
+	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
+
+config-set@%:
+	@ if [ -z "$(TO)" ]; \
+	  then echo "Usage: config-set@variablename TO=new_value"; \
+	  false; \
+	fi
+	@ V="$(patsubst config-set@%,%,$@)"; \
+	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk" 2>&-; \
+	echo "$$V = \"$(TO)\"" >> $(project_root)/config/$(CONF).mk
+
+config-unset@%:
+	@ V="$(patsubst config-unset@%,%,$@)"; \
+	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk"
 
 clean-all: clean-repo clean-build
 reset: reset-repo clean-build
