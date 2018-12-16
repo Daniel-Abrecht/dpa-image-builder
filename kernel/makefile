@@ -5,10 +5,13 @@ all: bin/.done
 repo: repo/linux/.repo
 
 repo/linux/.config: repo/linux/.repo
-	cp kernel_config repo/linux/.config
+	if [ -f "configs/$(KERNEL_CONFIG_TARGET)" ] && [ ! -f "repo/linux/arch/arm64/configs/$(KERNEL_CONFIG_TARGET)_defconfig" ]; \
+	  then cp "configs/$(KERNEL_CONFIG_TARGET)" "repo/linux/arch/arm64/configs/$(KERNEL_CONFIG_TARGET)_defconfig"; \
+	fi
+	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) $(KERNEL_CONFIG_TARGET)_defconfig
 
 bin/.done: repo/linux/.repo repo/linux/.config bin/.dir
-	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- deb-pkg
+	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) deb-pkg
 	cp repo/linux-libc-*.deb bin/linux-libc.deb
 	cp repo/linux-image-*.deb bin/linux-image.deb
 	cp repo/linux-headers-*.deb bin/linux-headers.deb

@@ -1,7 +1,5 @@
 include src/make-helper-functions.mk
 
-IMAGE_NAME = devuan-$(RELEASE)-librem5-devkit-base.img
-
 all: bin/$(IMAGE_NAME)
 
 bootloader: uboot/bin/uboot_firmware_and_dtb.bin

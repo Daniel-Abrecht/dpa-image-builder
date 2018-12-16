@@ -17,8 +17,8 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-ifeq ($(shell test -e "$(project_root)/config/$(CONFIG).mk" && echo -n yes),yes)
-include $(project_root)/config/$(CONFIG).mk
+ifeq ($(shell test -e "$(project_root)/config/board-$(BOARD).mk" && echo -n yes),yes)
+include $(project_root)/config/board-$(BOARD).mk
 endif
 
 ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
@@ -73,16 +73,42 @@ config-list:
 	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
 
 config-after-update@%:
+	@ set -e; \
 	case "$(patsubst config-after-update@%,%,$@)" in \
-	  "IMGSIZE"    ) make clean-image ;; \
-	  "REPO"       ) make clean-fs ;; \
-	  "CHROOT_REPO") make clean-fs ;; \
-	  "IMAGE_NAME" ) make clean-image ;; \
-	  "repo-branch@"*) make "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
-	  "repo-source@"*) make "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
+	  "IMGSIZE"    ) $(MAKE) clean-image ;; \
+	  "REPO"       ) $(MAKE) clean-fs ;; \
+	  "CHROOT_REPO") $(MAKE) clean-fs ;; \
+	  "IMAGE_NAME" ) $(MAKE) clean-image ;; \
+	  "BOARD"      ) \
+	    for V in $$( ( \
+	      grep -o '^[a-zA-Z0-9_@-]*' "$(project_root)/config/board-$(BOARD).mk"; \
+	      grep -o '^[a-zA-Z0-9_@-]*' "$(project_root)/config/board-$(OLD_VALUE).mk" \
+	    ) | sort -u; ); \
+	    do \
+	    $(MAKE) "config-after-update@$$V"; \
+	    done; \
+	  ;; \
+	  "repo-branch@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
+	  "repo-source@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
+	  "UBOOT_DTB" | "UBOOT_CONFIG_TARGET" | "repo-source@uboot" | "repo-branch@uboot") \
+	    $(MAKE) -C "$(project_root)/uboot/" clean-build \
+	  ;; \
+	  "KERNEL_CONFIG_TARGET" | "repo-source@linux" | "repo-branch@linux") \
+	    $(MAKE) -C "$(project_root)/kernel/" clean-build \
+	  ;; \
 	esac
 
-config-set@%:
+config-pre-set-check@%:
+	@case "$(patsubst config-pre-set-check@%,%,$@)" in \
+	  "BOARD") \
+	     if [ ! -f "$(project_root)/config/board-$(TO).mk" ]; then \
+	       echo "There is no config/board-$(TO).mk config file." >&2; \
+	       false; \
+	     fi; \
+	   ;; \
+	esac
+
+config-set@%: config-pre-set-check@%
 	@ if [ -z "$(TO)" ]; \
 	  then echo "Usage: config-set@variablename TO=new_value"; \
 	  false; \
@@ -90,12 +116,12 @@ config-set@%:
 	V="$(patsubst config-set@%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk" 2>&-; \
 	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF).mk
-	$(MAKE) "config-after-update@$(patsubst config-set@%,%,$@)"
+	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-set@%,%,$@))" "config-after-update@$(patsubst config-set@%,%,$@)"
 
 config-unset@%:
 	V="$(patsubst config-unset@%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk"
-	$(MAKE) "config-after-update@$(patsubst config-unset@%,%,$@)"
+	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset@%,%,$@))" "config-after-update@$(patsubst config-unset@%,%,$@)"
 
 clean-all: clean-repo clean-build
 reset: reset-repo clean-build

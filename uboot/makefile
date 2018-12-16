@@ -1,6 +1,6 @@
 include ../src/make-helper-functions.mk
 
-BOOTLOADER_COMPONENTS += dtb/fsl-imx8mq-evk.dtb
+BOOTLOADER_COMPONENTS += dtb/$(UBOOT_DTB)
 BOOTLOADER_COMPONENTS += firmware/u-boot-nodtb.bin
 BOOTLOADER_COMPONENTS += firmware/u-boot-spl.bin
 BOOTLOADER_COMPONENTS += firmware/m4.bin
@@ -23,18 +23,20 @@ repo: \
   repo/arm-trusted-firmware/.repo \
   repo/firmware-imx/.repo
 
-repo/uboot-imx/.built: repo/uboot-imx/.repo dtb/.dir bin/.dir firmware/.dir
-	$(MAKE) -C "repo/uboot-imx" ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- imx8mq_evk_defconfig
-	$(MAKE) -C "repo/uboot-imx" ARCH=arm CROSS_COMPILE=aarch64-linux-gnu-
-	touch repo/uboot-imx/.built
+repo/uboot/.built: repo/uboot/.repo dtb/.dir bin/.dir firmware/.dir
+	$(MAKE) -C "repo/uboot" ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) $(UBOOT_CONFIG_TARGET)
+	$(MAKE) -C "repo/uboot" ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER)
+	cp "repo/uboot/u-boot-nodtb.bin" "firmware/"
+	cp "repo/uboot/spl/u-boot-spl.bin" "firmware/"
+	cp "repo/uboot/tools/mkimage" "bin/mkimage_uboot"
+	cp "repo/uboot/arch/arm/dts/"*.dtb "dtb/"
+	touch repo/uboot/.built
 
-dtb/%.dtb: repo/uboot-imx/.built
-	cp "repo/uboot-imx/arch/arm/dts/"*.dtb "dtb/"
-	
-firmware/u-boot-nodtb.bin firmware/u-boot-spl.bin bin/mkimage_uboot: repo/uboot-imx/.built
-	cp "repo/uboot-imx/u-boot-nodtb.bin" "firmware/"
-	cp "repo/uboot-imx/spl/u-boot-spl.bin" "firmware/"
-	cp "repo/uboot-imx/tools/mkimage" "bin/mkimage_uboot"
+dtb/%.dtb: repo/uboot/.built
+	true
+
+firmware/u-boot-nodtb.bin firmware/u-boot-spl.bin bin/mkimage_uboot: repo/uboot/.built
+	true
 
 firmware/m4.bin: repo/Cortex_M4/.repo firmware/.dir
 	$(MAKE) -C "repo/Cortex_M4/"
@@ -42,7 +44,7 @@ firmware/m4.bin: repo/Cortex_M4/.repo firmware/.dir
 
 
 firmware/bl31.bin: repo/arm-trusted-firmware/.repo firmware/.dir
-	$(MAKE) -C "repo/arm-trusted-firmware/" PLAT=imx8mq CROSS_COMPILE=aarch64-linux-gnu- bl31
+	$(MAKE) -C "repo/arm-trusted-firmware/" PLAT=imx8mq CROSS_COMPILE=$(CROSS_COMPILER) bl31
 	cp "repo/arm-trusted-firmware/build/imx8mq/release/bl31.bin" "firmware/"
 
 $(NONFREE_FIRMWARE_CRAP): repo/firmware-imx/.repo
@@ -59,8 +61,8 @@ bin/uboot_firmware_and_dtb.bin: $(BOOTLOADER_COMPONENTS) | repo/imx-mkimage/.rep
 	$(MAKE) -C "repo"/imx-mkimage/ SOC=iMX8M flash_hdmi_spl_uboot
 	cp "repo/imx-mkimage/iMX8M/flash.bin" "bin/uboot_firmware_and_dtb.bin"
 
-clean-repo: clean-repo@uboot-imx clean-repo@Cortex_M4 clean-repo@arm-trusted-firmware clean-repo@imx-mkimage clean-repo@firmware-imx
-reset-repo: reset-repo@uboot-imx reset-repo@Cortex_M4 reset-repo@arm-trusted-firmware reset-repo@imx-mkimage
+clean-repo: clean-repo@uboot clean-repo@Cortex_M4 clean-repo@arm-trusted-firmware clean-repo@imx-mkimage clean-repo@firmware-imx
+reset-repo: reset-repo@uboot reset-repo@Cortex_M4 reset-repo@arm-trusted-firmware reset-repo@imx-mkimage
 
 clean-build:
-	rm -rf "firmware" "dtb" "bin" repo/uboot-imx/.built
+	rm -rf "firmware" "dtb" "bin" repo/uboot/.built

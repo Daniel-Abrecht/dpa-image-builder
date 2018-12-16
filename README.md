@@ -21,7 +21,7 @@ actually works.
 
 Everithing in this repo is designed to work without root. I haven't testet if it even works when run as root.
 
-Creating an image in bin/devuan-$RELEASE-imx8-base.img
+Creating an image in bin/devuan-$(RELEASE)-librem5-$(BOARD)-base.img
 ```
 make
 # Same as:
@@ -32,6 +32,7 @@ You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu,
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
+| BOARD | imx8 | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
 | IMGSIZE | 32GB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | RELEASE | ascii | The release to debootstrap |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
