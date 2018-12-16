@@ -25,7 +25,7 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-CONFIG_VARS = $(sort $(filter-out $(VARS_OLD) VARS_OLD CONFIG_VARS,$(.VARIABLES)))
+CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES)))
 unexport VARS_OLD
 
 CONF = userdefined
@@ -56,11 +56,15 @@ clean-repo@%:
 reset-repo@%:
 	set -e; \
 	repo="repo/$(patsubst reset-repo@%,%,$@)"; \
+	source="$(repo-source@$(patsubst reset-repo@%,%,$@))"; \
+	branch="$(repo-branch@$(patsubst reset-repo@%,%,$@))"; \
 	if [ -d "$$repo/.git" ]; \
 	then \
 	  cd "$$repo"; \
 	  find -maxdepth 1 -not -name .git -not -name . -exec rm -rf {} \;; \
-	  git pull || true; \
+	  git remote set-url origin "$$source"; \
+	  git fetch || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
+	  git checkout "$$branch" >/dev/null; \
 	  git reset --hard; \
 	  touch .repo; \
 	fi
@@ -68,18 +72,30 @@ reset-repo@%:
 config-list:
 	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
 
+config-after-update@%:
+	case "$(patsubst config-after-update@%,%,$@)" in \
+	  "IMGSIZE"    ) make clean-image ;; \
+	  "REPO"       ) make clean-fs ;; \
+	  "CHROOT_REPO") make clean-fs ;; \
+	  "IMAGE_NAME" ) make clean-image ;; \
+	  "repo-branch@"*) make "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
+	  "repo-source@"*) make "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
+	esac
+
 config-set@%:
 	@ if [ -z "$(TO)" ]; \
 	  then echo "Usage: config-set@variablename TO=new_value"; \
 	  false; \
 	fi
-	@ V="$(patsubst config-set@%,%,$@)"; \
+	V="$(patsubst config-set@%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk" 2>&-; \
 	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF).mk
+	$(MAKE) "config-after-update@$(patsubst config-set@%,%,$@)"
 
 config-unset@%:
-	@ V="$(patsubst config-unset@%,%,$@)"; \
+	V="$(patsubst config-unset@%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk"
+	$(MAKE) "config-after-update@$(patsubst config-unset@%,%,$@)"
 
 clean-all: clean-repo clean-build
 reset: reset-repo clean-build
