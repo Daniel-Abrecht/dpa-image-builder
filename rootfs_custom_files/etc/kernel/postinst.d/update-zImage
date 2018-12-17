@@ -3,7 +3,7 @@
 set -ex
 
 vmlinuz="vmlinuz-$1"
-dtb="linux-image-$1/freescale/fsl-imx8mq-evk-m4.dtb"
+dtb="linux-image-$1/$(cat $tmp/rootfs/etc/dtb_file)"
 
 # Update /boot/zImage -> vmlinuz symlink
 ln -sf "$vmlinuz" /boot/zImage

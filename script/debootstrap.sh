@@ -19,6 +19,7 @@ fi
 if [ -z "$RELEASE" ]; then RELEASE=ascii; fi
 if [ -z "$REPO" ]; then REPO=https://pkgmaster.devuan.org/merged/; fi
 if [ -z "$CHROOT_REPO" ]; then CHROOT_REPO="$REPO"; fi
+if [ -z "$KERNEL_DTB" ]; then echo "Pleas set KERNEL_DTB" >2; exit 1; fi
 
 tmp="$base/build/filesystem/"
 
@@ -81,7 +82,9 @@ vmlinuz="$(basename "$tmp/rootfs/boot/"vmlinuz-*)"
 ln -sf "$vmlinuz" "$tmp/rootfs/boot/vmlinuz"
 # copy flat device tree binary
 ext="$(printf "%s" "$vmlinuz" | tail -c +9)"
-dtb="linux-image-$ext/freescale/fsl-imx8mq-evk-m4.dtb"
+# Write dtb file to use to etc/dtb_file, for later use in later kernel updates
+echo "$KERNEL_DTB" > "$tmp/rootfs/etc/dtb_file"
+dtb="linux-image-$ext/$(cat $tmp/rootfs/etc/dtb_file)"
 mkdir -p "$tmp/rootfs/boot/$(dirname "$dtb")"
 cp "$tmp/rootfs/usr/lib/$dtb" "$tmp/rootfs/boot/$dtb"
 # Update flat device tree binary symlink

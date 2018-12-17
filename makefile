@@ -42,7 +42,7 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
 build/filesystem/rootfs-$(RELEASE).tar: kernel/bin/linux-image.deb uboot/bin/uboot_firmware_and_dtb.bin build/bin/usernsexec include_packages include_packages_early rootfs_custom_files/ bin/.dir
-	RELEASE="$(RELEASE)" REPO="$(REPO)" CHROOT_REPO="$(CHROOT_REPO)" ./script/debootstrap.sh
+	RELEASE="$(RELEASE)" REPO="$(REPO)" CHROOT_REPO="$(CHROOT_REPO)" KERNEL_DTB="$(KERNEL_DTB)" ./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \
   build/bin/fuseloop \

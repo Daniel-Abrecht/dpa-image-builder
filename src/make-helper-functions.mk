@@ -78,6 +78,7 @@ config-after-update@%:
 	  "IMGSIZE"    ) $(MAKE) clean-image ;; \
 	  "REPO"       ) $(MAKE) clean-fs ;; \
 	  "CHROOT_REPO") $(MAKE) clean-fs ;; \
+	  "KERNEL_DTB" ) $(MAKE) clean-fs ;; \
 	  "IMAGE_NAME" ) $(MAKE) clean-image ;; \
 	  "BOARD"      ) \
 	    for V in $$( ( \
