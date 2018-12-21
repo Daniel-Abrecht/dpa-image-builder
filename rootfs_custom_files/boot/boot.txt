@@ -1,3 +1,5 @@
+# Derived from: https://source.puri.sm/Librem5/image-builder/blob/d421431f87bd0a4da987bc33746fc382b45d811a/data/boot-imx8.txt.in
+
 setenv initrd_high 0xffffffff
 a_base=0x80000000
 a_script=0x80800000
@@ -7,7 +9,7 @@ a_ramdisk=0x83800000
 a_initrd=0x83a00000
 a_reset_cause_marker=0x80000080
 a_reset_cause=0x80000084
-dtbname=##DTBNAME##
+dtbname=devicetree
 
 console=ttymxc0
 dtype=mmc
@@ -28,11 +30,11 @@ if itest.s x${bootpart} == x ; then
 fi
 
 
-if ext2load ${dtype} ${disk}:${bootpart} ${a_fdt} ${bootdir}dtbs/${dtbname} ; then
+if ext2load ${dtype} ${disk}:${bootpart} ${a_fdt} ${bootdir}${dtbname} ; then
 	fdt addr ${a_fdt}
 	setenv fdt_high 0xffffffff
 else
-	echo "!!!! Error loading ${bootdir}dtbs/${dtbname}";
+	echo "!!!! Error loading ${bootdir}${dtbname}";
 	exit;
 fi
 
