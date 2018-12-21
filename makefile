@@ -42,7 +42,7 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
 build/filesystem/rootfs-$(RELEASE).tar: kernel/bin/linux-image.deb uboot/bin/uboot_firmware_and_dtb.bin build/bin/usernsexec include_packages include_packages_early rootfs_custom_files/ bin/.dir
-	RELEASE="$(RELEASE)" REPO="$(REPO)" CHROOT_REPO="$(CHROOT_REPO)" KERNEL_DTB="$(KERNEL_DTB)" ./script/debootstrap.sh
+	./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \
   build/bin/fuseloop \
@@ -50,7 +50,7 @@ bin/$(IMAGE_NAME): \
   build/filesystem/rootfs-$(RELEASE).tar \
   uboot/bin/uboot_firmware_and_dtb.bin \
   kernel/bin/linux-image.deb
-	IMGSIZE=$(IMGSIZE) RELEASE=$(RELEASE) IMAGE_NAME=$(IMAGE_NAME) ./script/assemble_image.sh
+	./script/assemble_image.sh
 
 always:
 
@@ -75,4 +75,4 @@ clean-build:
 	rm -rf bin/ build/
 
 emulate: bin/$(IMAGE_NAME) kernel/bin/linux-image.deb
-	qemu-system-aarch64 -M virt -cpu cortex-a53 -m 3G -kernel repo/linux/debian/tmp/boot/vmlinuz-* -append "root=/dev/vda3" -drive if=none,file=bin/$(IMAGE_NAME),format=raw,id=hd -device virtio-blk-device,drive=hd -nographic
+	qemu-system-aarch64 -M virt -cpu cortex-a53 -m 3G -kernel repo/linux/debian/tmp/boot/vmlinuz-* -append "root=/dev/vda3" -drive if=none,file=bin/"$(IMAGE_NAME)",format=raw,id=hd -device virtio-blk-device,drive=hd -nographic

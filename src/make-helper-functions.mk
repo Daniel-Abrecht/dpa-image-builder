@@ -26,7 +26,8 @@ include $(project_root)/config/userdefined.mk
 endif
 
 CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES)))
-unexport VARS_OLD
+IMGSIZE := $(shell echo "$(IMGSIZE)" | sed 's/\s*//g')
+export $(CONFIG_VARS)
 
 CONF = userdefined
 
