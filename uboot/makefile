@@ -30,6 +30,7 @@ repo/uboot/.built: repo/uboot/.repo dtb/.dir bin/.dir firmware/.dir
 	cp "repo/uboot/spl/u-boot-spl.bin" "firmware/"
 	cp "repo/uboot/tools/mkimage" "bin/mkimage_uboot"
 	cp "repo/uboot/arch/arm/dts/"*.dtb "dtb/"
+	rm -f "mkimage_imx8"
 	touch repo/uboot/.built
 
 dtb/%.dtb: repo/uboot/.built
@@ -41,7 +42,6 @@ firmware/u-boot-nodtb.bin firmware/u-boot-spl.bin bin/mkimage_uboot: repo/uboot/
 firmware/m4.bin: repo/Cortex_M4/.repo firmware/.dir
 	$(MAKE) -C "repo/Cortex_M4/"
 	cp "repo/Cortex_M4/m4.bin" "firmware"
-
 
 firmware/bl31.bin: repo/arm-trusted-firmware/.repo firmware/.dir
 	$(MAKE) -C "repo/arm-trusted-firmware/" PLAT=imx8mq CROSS_COMPILE=$(CROSS_COMPILER) bl31
