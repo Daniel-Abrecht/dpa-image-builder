@@ -1,4 +1,4 @@
-BOARD = imx8
+BOARD = devkit
 IMGSIZE = 32GB # Note: 1GB = 1000MB, 1GiB=1024MiB 
 RELEASE = ascii
 REPO = http://pkgmaster.devuan.org/merged/
