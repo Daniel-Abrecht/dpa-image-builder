@@ -30,7 +30,6 @@ repo/uboot/.built: repo/uboot/.repo dtb/.dir bin/.dir firmware/.dir
 	cp "repo/uboot/spl/u-boot-spl.bin" "firmware/"
 	cp "repo/uboot/tools/mkimage" "bin/mkimage_uboot"
 	cp "repo/uboot/arch/arm/dts/"*.dtb "dtb/"
-	rm -f "mkimage_imx8"
 	touch repo/uboot/.built
 
 dtb/%.dtb: repo/uboot/.built

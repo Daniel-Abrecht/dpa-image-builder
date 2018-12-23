@@ -31,7 +31,7 @@ You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu,
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
-| BOARD | imx8 | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
+| BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
 | IMGSIZE | 32GB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | RELEASE | ascii | The release to debootstrap |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
