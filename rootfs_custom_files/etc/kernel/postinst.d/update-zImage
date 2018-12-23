@@ -3,7 +3,7 @@
 set -ex
 
 vmlinuz="vmlinuz-$1"
-dtb="linux-image-$1/$(cat $tmp/rootfs/etc/dtb_file)"
+dtb="linux-image-$1/$(cat /etc/dtb_file)"
 
 # Update /boot/zImage -> vmlinuz symlink
 ln -sf "$vmlinuz" /boot/zImage

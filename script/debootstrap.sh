@@ -82,9 +82,7 @@ vmlinuz="$(basename "$tmp/rootfs/boot/"vmlinuz-*)"
 ln -sf "$vmlinuz" "$tmp/rootfs/boot/vmlinuz"
 # copy flat device tree binary
 ext="$(printf "%s" "$vmlinuz" | tail -c +9)"
-# Write dtb file to use to etc/dtb_file, for later use in later kernel updates
-echo "$KERNEL_DTB" > "$tmp/rootfs/etc/dtb_file"
-dtb="linux-image-$ext/$(cat $tmp/rootfs/etc/dtb_file)"
+dtb="linux-image-$ext/$KERNEL_DTB"
 mkdir -p "$tmp/rootfs/boot/$(dirname "$dtb")"
 cp "$tmp/rootfs/usr/lib/$dtb" "$tmp/rootfs/boot/$dtb"
 # Update flat device tree binary symlink
