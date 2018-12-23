@@ -30,9 +30,9 @@ unit: sectors
 # Protective partition for Cortex M4 firmware and ARM trusted platform + uboot bootloader
 start=4, size=2044, type=da
 # /boot/ partition
-start=2048, size=256MiB, type=83, bootable
+start=2048, size=256MiB, type=83, name=boot, bootable
 # / partition, use remaining space
-type=83
+type=83, name=root
 EOF
 
 # Get partition offsets
@@ -95,32 +95,12 @@ dd conv=notrunc,sync if=uboot/firmware/m4.bin of="$bootloaderdev" bs=1024
 dd conv=notrunc,sync if=uboot/bin/uboot_firmware_and_dtb.bin of="$bootloaderdev" bs=1024 seek=31
 
 # Format partitions
-mkfs.ext2 "$bootdev"
-mkfs.ext4 -E discard "$rootdev"
-
-UUID_boot="$(/sbin/tune2fs -l "$bootdev" | grep 'Filesystem UUID' | grep -o '[^ ]*$')"
-UUID_root="$(/sbin/tune2fs -l "$rootdev" | grep 'Filesystem UUID' | grep -o '[^ ]*$')"
-
-(
-  cd "$tmp"
-  mkdir etc
-  cat >etc/fstab <<EOF
-# <file system>		<mount point>	<type>	<options>				<dump>  <pass>
-proc			/proc		proc	nosuid,noexec,nodev,hidepid=2		0	0
-UUID=$UUID_root		/		ext4	discard,relatime,errors=remount-ro	0	1
-UUID=$UUID_boot		/boot		ext2    ro,relatime				0	1
-tmpfs			/tmp		tmpfs	defaults,noexec,nosuid,nodev		0	0
-EOF
-  rm -f fstab.tar
-  tar cf fstab.tar ./etc/fstab
-  rm etc/fstab
-  rmdir etc
-)
+mkfs.ext2 -L boot "$bootdev"
+mkfs.ext4 -L root -E discard "$rootdev"
 
 # Write rootfs to partitions
 writeTar2Ext "$bootdev" < build/filesystem/bootfs-$RELEASE.tar
 writeTar2Ext "$rootdev" < build/filesystem/rootfs-$RELEASE.tar
-writeTar2Ext "$rootdev" < "$tmp/fstab.tar"
 
 # Unmount & remove fuse loop devices
 umount_wait
