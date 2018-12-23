@@ -90,54 +90,35 @@ cp "$tmp/rootfs/usr/lib/$dtb" "$tmp/rootfs/boot/$dtb"
 # Update flat device tree binary symlink
 ln -sf "$dtb" "$tmp/rootfs/boot/devicetree"
 
-# Add sources.list
-cat > "$tmp/rootfs/etc/apt/sources.list" <<EOF
-deb     $CHROOT_REPO $RELEASE           main
-deb-src $CHROOT_REPO $RELEASE           main
-deb     $CHROOT_REPO $RELEASE-updates   main
-deb-src $CHROOT_REPO $RELEASE-updates   main
-deb     $CHROOT_REPO $RELEASE-security  main
-deb-src $CHROOT_REPO $RELEASE-security  main
-deb     $CHROOT_REPO $RELEASE-backports main
-deb-src $CHROOT_REPO $RELEASE-backports main
-EOF
-
-# Put a script to finish the bootstraping instead of init to finish debootstraping of base packages on first boot
-# The script will move the real init at the correct place afterwards and exec it
-# It will also properly install the kernel packages
 mv "$tmp/rootfs/sbin/init" "$tmp/rootfs/sbin/init_real" || true
-cat >"$tmp/rootfs/sbin/init" <<EOF
-#!/bin/sh
-set -x
-export PATH="/sbin/:/usr/sbin/:/bin/:/usr/bin"
-mount /proc/
-mount -t sysfs sysfs /sys/
-mount -a
-mount -o remount,rw /
-mount -o remount,rw /boot/
-rm "\$0"
-mv "\$0"_real "\$0" # Dont move this after debootstrap, it will loop endlessly amongst other things.
-/debootstrap/debootstrap --second-stage
-dpkg -i /root/linux-*.deb
-rm /root/linux-*.deb
-sync
-umount /boot
-umount /proc
-umount /sys
-mount -o remount,ro /
-exec "\$0" "\$@"
-EOF
-chmod +x "$tmp/rootfs/sbin/init"
 
-# Copy some config files and stuff into the rootfs
 # Note: The /etc/fstab is generated in assemble_image.sh
-cp -R "$base/rootfs_custom_files/"* "$tmp/rootfs/"
+(
+  cd "$base/rootfs_custom_files/"
+  find | while IFS= read -r file
+  do
+    if [ -d "$file" ]
+    then
+      mkdir -p "$file"
+      continue
+    fi
+    dir="$tmp/rootfs/$(dirname "$file")"
+    mkdir -p "$dir"
+    case "$file" in
+      *.in)
+        target="$dir/$(basename "$file" .in)"
+        envsubst <"$file" >"$target"
+      ;;
+      *) cp "$file" "$dir" ;;
+    esac
+  done
+)
 
 # Create boot.scr from boot.txt
 rm -f "$tmp/rootfs/boot/boot.scr"
 ./uboot/bin/mkimage_uboot -A arm -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
 
-# TODO: Get rid of this and let ubuut do the decompressing
+# TODO: Get rid of this and let uboot do the decompressing
 gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"
 
 # Split /boot and /
