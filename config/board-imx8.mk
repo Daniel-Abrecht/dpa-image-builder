@@ -10,3 +10,6 @@ KERNEL_DTB = freescale/fsl-imx8mq-evk-m4.dtb
 
 repo-branch@linux = imx_4.9.51_imx8m_beta
 repo-source@linux = https://source.codeaurora.org/external/imx/linux-imx
+
+repo-branch@imx-mkimage = imx_4.9.51_imx8m_beta
+repo-source@imx-mkimage = https://source.codeaurora.org/external/imx/imx-mkimage

@@ -10,3 +10,6 @@ KERNEL_DTB = freescale/emcraft-imx8-som.dtb
 
 repo-branch@linux = imx8-4.18-wip
 repo-source@linux = https://source.puri.sm/Librem5/linux-emcraft.git
+
+repo-branch@imx-mkimage = imx-mkimage-emcraft
+repo-source@imx-mkimage = ../../.git

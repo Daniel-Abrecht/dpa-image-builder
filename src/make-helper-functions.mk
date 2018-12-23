@@ -45,7 +45,7 @@ clean:
 repo/%/.repo:
 	branch="$(repo-branch@$(patsubst repo/%/.repo,%,$@))"; \
 	source="$(repo-source@$(patsubst repo/%/.repo,%,$@))"; \
-	git clone -b "$$branch" "$$source" "$(dir $@)"
+	mkdir -p "$(dir $@)" && cd "$(dir $@)" && git clone -b "$$branch" "$$source" .
 	touch "$@"
 
 repo@%:
@@ -66,6 +66,8 @@ reset-repo@%:
 	  git remote set-url origin "$$source"; \
 	  git fetch || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
 	  git checkout "$$branch" >/dev/null; \
+	  git reset --hard; \
+	  git merge; \
 	  git reset --hard; \
 	  touch .repo; \
 	fi

@@ -22,6 +22,3 @@ repo-source@Cortex_M4 = https://source.puri.sm/Librem5/Cortex_M4.git
 
 repo-branch@arm-trusted-firmware = imx_4.9.51_imx8m_beta
 repo-source@arm-trusted-firmware = https://source.codeaurora.org/external/imx/imx-atf
-
-repo-branch@imx-mkimage = imx_4.9.51_imx8m_beta
-repo-source@imx-mkimage = https://source.codeaurora.org/external/imx/imx-mkimage
