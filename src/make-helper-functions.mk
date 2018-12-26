@@ -3,7 +3,7 @@ default_target: all
 
 project_root := $(dir $(lastword $(MAKEFILE_LIST)))..
 
-VARS_OLD := $(.VARIABLES)
+VARS_OLD := $(subst %,,$(subst *,,$(.VARIABLES)))
 
 ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
 include $(project_root)/config/userdefined.mk
@@ -25,7 +25,7 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(.VARIABLES)))
+CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(.VARIABLES)))))
 IMGSIZE := $(shell echo "$(IMGSIZE)" | sed 's/\s*//g')
 export $(CONFIG_VARS)
 
@@ -35,7 +35,7 @@ include $(project_root)/src/repositories.mk
 
 
 
-%/.dir: # We don't care if the directory gets modified, only if it exists or not. Let's check a dummy file instead
+%/.dir:
 	mkdir -p "$(dir $@)"
 	touch "$@"
 
