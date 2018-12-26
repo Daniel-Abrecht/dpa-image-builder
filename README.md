@@ -85,16 +85,17 @@ To do things after the first boot, add them to the rootfs_custom_files/etc/rc.lo
 
 ## Other important stuff
 
-There are currently 5 Proprietary binary blobs from nxp contained in the final uboot binary with non-free licenses, probably all for similar things, namely:
+There are currently 5 Proprietary binary blobs from nxp contained in the final uboot binary with non-free licenses:
  * lpddr4_pmu_train_1d_dmem.bin
  * lpddr4_pmu_train_1d_imem.bin
  * lpddr4_pmu_train_2d_dmem.bin
  * lpddr4_pmu_train_2d_imem.bin
  * signed_hdmi_imx8m.bin
- 
-I have yet to check if these firmware blobs are all really necessary, or if they can be removed somehow.
-I haven't asked purism about them yet, so I don't know if they intend to remove them at some point or not.
-Everything else uses common open source licenses though.
+
+One of the lpddr4_\*.bin files is required for training the DDR PHY. The HDMI bin file is for DRM HDMI signals.
+All of the lpddr4_\*.bin firmware files are currently needed to build uboot and thus the image.
+Purism wants to attempt to remove all proprietary firmwares from their images as time permitts. I'll try
+to apply the same changes to my build scripts once that happens.
 
 The license in this repository only applies to the files in this repository.
 Other repositories loaded by these scripts often use different licenses,
