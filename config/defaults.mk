@@ -1,5 +1,5 @@
 BOARD = devkit
-IMGSIZE = 32GB # Note: 1GB = 1000MB, 1GiB=1024MiB 
+IMGSIZE = 4GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
 RELEASE = ascii
 REPO = http://pkgmaster.devuan.org/merged/
 CHROOT_REPO = $(REPO)

@@ -13,8 +13,8 @@ dtbname=devicetree
 
 console=ttymxc0
 dtype=mmc
-rfspart=2
-disk=1
+rfspart=3
+disk=0
 root=/dev/mmcblk${disk}p${rfspart}
 
 if ext2load ${dtype} ${disk}:1 ${a_script} uEnv.txt ; then
@@ -26,9 +26,12 @@ if itest.s x == x${bootdir} ; then
 fi
 
 if itest.s x${bootpart} == x ; then
-	bootpart=1
+	bootpart=${mmcpart}
 fi
 
+if itest.s x${bootpart} == x ; then
+	bootpart=2
+fi
 
 if ext2load ${dtype} ${disk}:${bootpart} ${a_fdt} ${bootdir}${dtbname} ; then
 	fdt addr ${a_fdt}

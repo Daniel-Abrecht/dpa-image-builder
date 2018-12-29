@@ -24,6 +24,7 @@ repo: \
   repo/firmware-imx/.repo
 
 repo/uboot/.built: repo/uboot/.repo dtb/.dir bin/.dir firmware/.dir
+	sed -i 's/#define\s*CONFIG_SYS_MMC_IMG_LOAD_PART\s.*/#define CONFIG_SYS_MMC_IMG_LOAD_PART\t2/' repo/uboot/include/configs/imx8m_som.h # TODO: do this properly & add a better way for env vars required at boot time
 	$(MAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) $(UBOOT_CONFIG_TARGET)
 	$(MAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER)
 	cp repo/uboot/u-boot-nodtb.bin firmware/
@@ -33,10 +34,10 @@ repo/uboot/.built: repo/uboot/.repo dtb/.dir bin/.dir firmware/.dir
 	touch repo/uboot/.built
 
 dtb/%.dtb: repo/uboot/.built
-	true
+	@true
 
 firmware/u-boot-nodtb.bin firmware/u-boot-spl.bin bin/mkimage_uboot: repo/uboot/.built
-	true
+	@true
 
 firmware/m4.bin: repo/Cortex_M4/.repo firmware/.dir
 	$(MAKE) -C repo/Cortex_M4/
