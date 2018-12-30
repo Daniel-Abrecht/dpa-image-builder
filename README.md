@@ -1,22 +1,22 @@
 # librem5 devkit image build scripts
 
-While waiting for the devkit to arrive, I've written a few buildscripts to
-create a devuan image based on the ones from purism: https://source.puri.sm/Librem5/image-builder
+I've written a few buildscripts to create my own, devuan image based on the ones from purism: https://source.puri.sm/Librem5/image-builder
 
 I do a few things differently though, and I didn't reuse any code from their image-builder repo,
 with the exception of the uboot boot script at rootfs_custom_files/boot/boot.txt.
 
 I did this to get a devuan image for the devkit, and to gain a better understanding
 of the boot process and the components used. I also wanted to make sure that I
-can compile everything myself. Note that there are still a few proprietary firmware
-blobs from nxp for the hdmi/display I'd like to get rid of.
+can compile everything myself and that I will have a booting image once the phone arrives.
 
-I have never actually tried to run the build scripts from purism, but it they should
+I have never actually tried to run the build scripts from purism, but they should
 mostly work for devuan too, aside from a few systemd specific things, mostly in
 root.sh, which would probably have to be changed.
 
-Please note that since I don't have the devkit yet, I have no idea if the image
-actually works.
+The image does boot, but only from emmc when flashed using uuu, and an uart connection
+is currently needed to see any of the output, since the screen doesn't work yet.
+I currently do the second stage bootstraping and the final setup on the board,
+and it takes forever. There is still a lot to do.
 
 ## Usage
 
@@ -32,7 +32,7 @@ You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu,
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
 | BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
-| IMGSIZE | 32GB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
+| IMGSIZE | 4GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | RELEASE | ascii | The release to debootstrap |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
@@ -55,6 +55,7 @@ There are also make targets for that.
 | config-list | List all config variables, this includes the repo urls and branches |
 | CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF.mk, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
 | CONF=userdefined config-unset@variable-name | Remove variable from file conf/$CONF.mk. This will also clean up or reset images and repos as needed. |
+| uuu-flash | flash the image to emmc0 using uuu |
 | bootloader | builds the uboot bootloader at uboot/bin/uboot_firmware_and_dtb.bin |
 | linux | builds the kernel packages |
 | clean-fs | Removes the tar archives which contain the bootstrapped rootfs and bootfs of the current release |
