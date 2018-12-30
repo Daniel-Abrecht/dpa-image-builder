@@ -18,6 +18,26 @@ is currently needed to see any of the output, since the screen doesn't work yet.
 I currently do the second stage bootstraping and the final setup on the board,
 and it takes forever. There is still a lot to do.
 
+# Required packages & programs
+
+You need the following packages for this to work:
+ * make
+ * gcc,
+ * gcc-aarch64-linux-gnu,
+ * gcc-arm-none-eabi
+ * libext2fs-dev (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
+ * libtar-dev
+ * bison
+ * flex
+ * device-tree-compiler
+ * comerr-dev
+ * jq
+ * uidmap
+
+For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
+Just make sure uu is in your path when flashing the image. I've just copied the
+built binaries to /usr/local: `cp uuu/uuu /usr/local/bin/; cp libuuu/libuuu* /usr/local/lib/;`
+
 ## Usage
 
 Everithing in this repo is designed to work without root. I haven't testet if it even works when run as root.
@@ -26,8 +46,6 @@ Creating an image in bin/devuan-$(RELEASE)-librem5-$(BOARD)-base.img
 ```
 make
 ```
-
-You may have to install a few packages such as make, gcc, gcc-aarch64-linux-gnu, gcc-arm-none-eabi, libext2fs-dev, libtar-dev, and probably a few more for this to work.
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
