@@ -41,7 +41,15 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
-build/filesystem/rootfs-$(RELEASE).tar: kernel/bin/linux-image.deb uboot/bin/uboot_firmware_and_dtb.bin build/bin/usernsexec include_packages include_packages_early rootfs_custom_files/ bin/.dir
+build/filesystem/rootfs-$(RELEASE).tar: \
+  kernel/bin/linux-image.deb \
+  uboot/bin/uboot_firmware_and_dtb.bin \
+  build/bin/usernsexec \
+  packages_install_debootstrap \
+  packages_install_target \
+  packages_download_only \
+  rootfs_custom_files/ \
+  bin/.dir
 	./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \

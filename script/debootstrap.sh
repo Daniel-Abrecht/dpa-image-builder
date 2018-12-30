@@ -12,7 +12,7 @@ PATH="$base/build/bin/:$base/script/:/sbin/:/usr/sbin/:$PATH"
 # If not root, fake being root using user namespace. Map root -> user and 1-subuidcount to subuidmin-subuidmax
 if [ $(id -u) != 0 ]
 then
-  exec uexec "$(realpath "$0")" "$@"
+  exec uexec --allow-setgroups "$(realpath "$0")" "$@"
 fi
 
 # Set release repo if not already defined
@@ -26,14 +26,14 @@ tmp="$base/build/filesystem/"
 # Cleanup if any of the remaining steps fails
 cleanup(){
   set +e
-  rm -rf "$tmp/rootfs" "$tmp/bootfs" "$tmp/downloaded_packages/"
-  rm -f "$tmp/debootstrap.tar.gz"
+  if [ -n "$urandompid" ]; then kill "$urandompid" || true; fi
+  rm -rf "$tmp/rootfs" "$tmp/bootfs"
 }
 trap cleanup EXIT
 
 # Remove old files from previous runs
-rm -rf "$tmp/rootfs" "$tmp/bootfs" "$tmp/downloaded_packages/"
-rm -f "$tmp/rootfs.tar" "$tmp/bootfs.tar" "$tmp/debootstrap.tar.gz" "$tmp/device_nodes"
+rm -rf "$tmp/rootfs" "$tmp/bootfs"
+rm -f "$tmp/rootfs.tar" "$tmp/bootfs.tar" "$tmp/device_nodes"
 
 # Create temporary directories
 mkdir -p "$tmp/rootfs"
@@ -42,8 +42,11 @@ sanitize_pkg_list(){
   tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
 }
 
-packages_second_stage="$(sanitize_pkg_list < include_packages)"
-packages="$(sanitize_pkg_list < include_packages_early)"
+packages_download_only="$(sanitize_pkg_list < packages_download_only)"
+packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
+packages="$(sanitize_pkg_list < packages_install_debootstrap)"
+
+packages="$packages,fakechroot"
 
 # Add packages for different apt transport if any is used
 if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'https'    ; then packages="$packages,apt-transport-https"    ; fi
@@ -56,39 +59,26 @@ if [ -n "$packages" ]; then packages="--include=$packages"; fi
 # Create usable first-stage rootfs
 debootstrap --foreign --arch=arm64 $packages "$RELEASE" "$tmp/rootfs" "$REPO"
 
-if [ -n "$packages_second_stage" ]
-then
-  debootstrap --foreign --arch=arm64 --download-only --include="$packages_second_stage" "$RELEASE" "$tmp/downloaded_packages/" "$REPO"
-  echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_install"
-  cp "$tmp/downloaded_packages/var/cache/apt/archives/"*.deb "$tmp/rootfs/var/cache/apt/archives/"
-fi
+touch "$tmp/rootfs/dev/null" # yes, this is a really bad idea, but hacking together a fuse file system just for this is overkill. Also, unionfs-fuse won't work here (fuse default is mounting as nodev), and there is no way to create a proper device file.
+chmod 666 "$tmp/rootfs/dev/null"
+mkdir "$tmp/rootfs/root/helper"
+echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mknod" # Don't worry about this, on boot, the kernel mounts /dev as devtmpfs before calling init anyway
+echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mount"
+chmod +x "$tmp/rootfs/root/helper/"*
 
-# I've seen init not getting unpacked by debootstrap --foreign in devuan beowulf but only after the debootstrap --second stage
-if [ ! -f "$tmp/rootfs/sbin/init" ]
-then
-  echo "Warning: /sbin/init doesn't exist in first-stage debootstraped rootfs yet. Assuming creation in second stage."
-fi
+# Apt needs urandom for gpgv, so I have to fake it...
+mkfifo "$tmp/rootfs/dev/urandom"
+(
+  set +ex
+  while true
+  do
+    dd bs=1 if=/dev/urandom of="$tmp/rootfs/dev/urandom"
+  done
+) & urandompid=$!
 
-# Extract kernel packages. Properly installing them later is still required.
-for package in kernel/bin/linux-*.deb
-do
-  dpkg -x "$package" "$tmp/rootfs"
-  cp "$package" "$tmp/rootfs/root/"
-done
+chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
-# Create symlink for /boot/vmlinuz -> vmlinuz-...
-# Note: The image and device tree are later updated using the /etc/kernel/postinst.d/update-zImage script on kernel updates too
-vmlinuz="$(basename "$tmp/rootfs/boot/"vmlinuz-*)"
-ln -sf "$vmlinuz" "$tmp/rootfs/boot/vmlinuz"
-# copy flat device tree binary
-ext="$(printf "%s" "$vmlinuz" | tail -c +9)"
-dtb="linux-image-$ext/$KERNEL_DTB"
-mkdir -p "$tmp/rootfs/boot/$(dirname "$dtb")"
-cp "$tmp/rootfs/usr/lib/$dtb" "$tmp/rootfs/boot/$dtb"
-# Update flat device tree binary symlink
-ln -sf "$dtb" "$tmp/rootfs/boot/devicetree"
-
-mv "$tmp/rootfs/sbin/init" "$tmp/rootfs/sbin/init_real" || true
+cp kernel/bin/linux-*.deb "$tmp/rootfs/root/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 (
@@ -112,6 +102,23 @@ mv "$tmp/rootfs/sbin/init" "$tmp/rootfs/sbin/init_real" || true
   done
 )
 
+# Install kernel
+chroot_qemu_static.sh "$tmp/rootfs/" /bin/sh - <<EOF
+dpkg -i /root/linux-*.deb
+EOF
+
+echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_install"
+
+# Download extra packages
+(
+  echo apt-get update
+  IFS=", "
+  for package in $packages_second_stage $packages_download_only
+  do
+    echo apt-get -d -y install "$package"
+  done
+) | chroot_qemu_static.sh "$tmp/rootfs/" /bin/sh -
+
 # Create boot.scr from boot.txt
 rm -f "$tmp/rootfs/boot/boot.scr"
 ./uboot/bin/mkimage_uboot -A arm -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
@@ -122,6 +129,10 @@ gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"
 # Split /boot and /
 mv "$tmp/rootfs/boot" "$tmp/bootfs"
 mkdir "$tmp/rootfs/boot"
+
+rm -rf "$tmp/rootfs/root/helper"
+rm "$tmp/rootfs/dev/null"
+rm "$tmp/rootfs/dev/urandom"
 
 # Create tar archives and remove tared directories
 cd "$tmp/rootfs"
