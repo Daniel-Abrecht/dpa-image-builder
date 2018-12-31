@@ -111,6 +111,8 @@ echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_inst
 
 # Download extra packages
 (
+  set +x
+  echo set -ex
   echo apt-get update
   IFS=", "
   for package in $packages_second_stage $packages_download_only
@@ -126,13 +128,15 @@ rm -f "$tmp/rootfs/boot/boot.scr"
 # TODO: Get rid of this and let uboot do the decompressing
 gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"
 
+rm -f "$tmp/rootfs/etc/hostname"
+
 # Split /boot and /
 mv "$tmp/rootfs/boot" "$tmp/bootfs"
 mkdir "$tmp/rootfs/boot"
 
 rm -rf "$tmp/rootfs/root/helper"
-rm "$tmp/rootfs/dev/null"
-rm "$tmp/rootfs/dev/urandom"
+rm -f "$tmp/rootfs/dev/null"
+rm -f "$tmp/rootfs/dev/urandom"
 
 # Create tar archives and remove tared directories
 cd "$tmp/rootfs"

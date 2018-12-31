@@ -1,5 +1,5 @@
 
-UBOOT_CONFIG_TARGET = imx8m_lpddr4_3gb_som_defconfig
+UBOOT_CONFIG_TARGET = librem5_devkit_base_defconfig
 UBOOT_DTB = librem5-evk.dtb
 
 repo-branch@uboot = devkit-wip
