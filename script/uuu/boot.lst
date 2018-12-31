@@ -1,0 +1,10 @@
+uuu_version 1.0.1
+
+SDP: boot -f ../uboot/bin/uboot_firmware_and_dtb.bin
+SDPU: delay 1000
+SDPU: write -f ../uboot/bin/uboot_firmware_and_dtb.bin -offset 0x57c00
+SDPU: jump
+SDPU: delay 1000
+FB: ucmd setenv mmcdev 0
+FB: acmd run mmcboot
+FB: Done

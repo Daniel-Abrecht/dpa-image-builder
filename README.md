@@ -73,7 +73,9 @@ There are also make targets for that.
 | config-list | List all config variables, this includes the repo urls and branches |
 | CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF.mk, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
 | CONF=userdefined config-unset@variable-name | Remove variable from file conf/$CONF.mk. This will also clean up or reset images and repos as needed. |
+| uuu-% | This target uses scripts in script/uuu/%.lst. They're preprocessed with envsubst before use. They boot the last built bootloader (uboot/bin/uboot_firmware_and_dtb.bin) before doing anything else. |
 | uuu-flash | flash the image to emmc0 using uuu |
+| uuu-boot | Just boot using uboot bootloader from uboot/bin/uboot_firmware_and_dtb.bin |
 | bootloader | builds the uboot bootloader at uboot/bin/uboot_firmware_and_dtb.bin |
 | linux | builds the kernel packages |
 | clean-fs | Removes the tar archives which contain the bootstrapped rootfs and bootfs of the current release |
