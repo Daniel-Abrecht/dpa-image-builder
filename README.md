@@ -15,8 +15,7 @@ root.sh, which would probably have to be changed.
 
 The image does boot, but only from emmc when flashed using uuu, and an uart connection
 is currently needed to see any of the output, since the screen doesn't work yet.
-I currently do the second stage bootstraping and the final setup on the board,
-and it takes forever. There is still a lot to do.
+There is still a lot to do.
 
 # Required packages & programs
 
@@ -32,6 +31,7 @@ You need the following packages for this to work:
  * device-tree-compiler
  * comerr-dev
  * jq
+ * qemu-user-static (for /usr/bin/qemu-aarch64-static)
  * uidmap
 
 For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
@@ -97,9 +97,10 @@ The urls and reponame of all used repositories as well as the defaults of most v
 ## Modifying the image
 
 To add any files to the image, just add them to the rootfs_custom_files folder.
-To install any additional packages, add them to the include_packages file.
+To install any additional packages, add them to the packages_install_target file.
 These package will be installed after the first boot.
-To install any packages even earlier with the debootstrap, add them to the include_packages_early file.
+To install any packages even earlier with the debootstrap, add them to the packages_install_debootstrap file.
+To only download packages so they could be installed later without an internet connection, add them to the packages_download_only file.
 To do things after the first boot, add them to the rootfs_custom_files/etc/rc.local file.
 
 ## Other important stuff
@@ -121,6 +122,6 @@ Other repositories loaded by these scripts often use different licenses,
 and the parts of the files generated using these sources in turn have the license restrictions
 that come with the corresponding sources applied to them.
 
-Things unpacked after the first stage of debootstrapping currently don't have acls applied to them.
+Things unpacked after the debootstrapping currently don't have acls applied to them.
 I don't know if any package unpacked at that stage would have them otherwise, but it's something I should
 fix eventually and which should be kept in mind when adding packages to that phase of debootstrapping.
