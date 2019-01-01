@@ -60,10 +60,11 @@ bin/$(IMAGE_NAME): \
   kernel/bin/linux-image.deb
 	./script/assemble_image.sh
 
-uuu-%: script/uuu/%.lst bin/$(IMAGE_NAME) uboot/bin/uboot_firmware_and_dtb.bin
+uuu-%: script/uuu/%.lst uboot/bin/uboot_firmware_and_dtb.bin
+	# The sed stuff allows escaping $ using $$ in envsubst
 	set -e; \
 	tmplstfile="$$(mktemp -p build --suffix .lst)"; \
-	envsubst <"$<" >"$$tmplstfile"; \
+	sed 's/\$$\$$/\x1/g' <"$<" | envsubst | sed 's/\x1/\$$/g' >"$$tmplstfile"; \
 	uuu "$$tmplstfile"; \
 	rm "$$tmplstfile"
 

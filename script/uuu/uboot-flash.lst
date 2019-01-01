@@ -1,0 +1,20 @@
+uuu_version 1.0.1
+
+SDP: boot -f ../uboot/bin/uboot_firmware_and_dtb.bin
+SDPU: delay 1000
+SDPU: write -f ../uboot/bin/uboot_firmware_and_dtb.bin -offset 0x57c00
+SDPU: jump
+SDPU: delay 1000
+FB: ucmd setenv fastboot_dev mmc
+FB: ucmd setenv mmcdev 0
+# Commented, because flashes to offset 66*512 on first partition of mmc (which has offset 4*512 in my images) instead of mmc0:0!?!
+# FB: flash bootloader ../uboot/bin/uboot_firmware_and_dtb.bin
+# Workarround:
+FB: ucmd setenv fastboot_buffer 0x43000000
+FB: download -f ../uboot/bin/uboot_firmware_and_dtb.bin
+FB: ucmd setexpr flash_block_count 0x$${fastboot_bytes} + 0x1FF
+FB: ucmd setexpr flash_block_count 0x$${flash_block_count} / 0x200
+FB: ucmd mmc dev 0 0
+FB: ucmd echo mmc write $${fastboot_buffer} 0x42 0x$${flash_block_count}
+FB: ucmd mmc write $${fastboot_buffer} 0x42 0x$${flash_block_count}
+FB: Done

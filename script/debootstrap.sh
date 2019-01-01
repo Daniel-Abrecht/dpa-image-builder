@@ -95,7 +95,8 @@ cp kernel/bin/linux-*.deb "$tmp/rootfs/root/"
     case "$file" in
       *.in)
         target="$dir/$(basename "$file" .in)"
-        envsubst <"$file" >"$target"
+        # The sed stuff allows escaping $ using $$
+        sed 's/\$\$/\x1/g' <"$file" | envsubst | sed 's/\x1/\$/g' >"$target"
       ;;
       *) cp "$file" "$dir" ;;
     esac
