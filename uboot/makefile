@@ -17,8 +17,10 @@ NONFREE_FIRMWARE_CRAP += firmware/signed_hdmi_imx8m.bin
 BOOTLOADER_COMPONENTS += $(NONFREE_FIRMWARE_CRAP)
 
 all: bin/uboot_firmware_and_dtb.bin
+	@true
 
 config: repo/uboot/.config
+	@true
 
 repo: \
   repo/Cortex_M4/.repo \
@@ -29,7 +31,6 @@ repo/uboot/.config: repo/uboot/.repo
 	$(MAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) $(UBOOT_CONFIG_TARGET)
 
 repo/uboot/.built: repo/uboot/.repo repo/uboot/.config dtb/.dir bin/.dir firmware/.dir
-	sed -i 's/#define\s*CONFIG_SYS_MMC_IMG_LOAD_PART\s.*/#define CONFIG_SYS_MMC_IMG_LOAD_PART\t2/' repo/uboot/include/configs/imx8m_som.h # TODO: do this properly & add a better way for env vars required at boot time
 	$(MAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER)
 	cp repo/uboot/u-boot-nodtb.bin firmware/
 	cp repo/uboot/spl/u-boot-spl.bin firmware/

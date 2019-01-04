@@ -5,7 +5,7 @@ set -xe
 cd "$(dirname "$0")/.."
 base="$PWD"
 
-tmp="$(mktemp -d)"
+tmp="$(mktemp -d -p build)"
 
 if [ -z "$RELEASE" ]; then RELEASE="ascii"; fi
 if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="devuan-$RELEASE-librem5-devkit-base.img"; fi

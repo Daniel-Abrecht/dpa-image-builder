@@ -1,0 +1,19 @@
+uuu_version 1.0.1
+
+SDP: boot -f ../uboot/bin/uboot_firmware_and_dtb.bin
+SDPU: delay 1000
+SDPU: write -f ../uboot/bin/uboot_firmware_and_dtb.bin -offset 0x57c00
+SDPU: jump
+SDPU: delay 1000
+FB: ucmd setenv fastboot_dev mmc
+FB: ucmd setenv mmcdev 0
+FB: ucmd setenv kernel 0x80800000
+FB: ucmd setenv fdt 0x83000000
+FB: ucmd setenv fastboot_buffer $${kernel}
+FB: download -f vmlinux
+FB: ucmd setenv fastboot_buffer $${fdt}
+FB: download -f dtb
+FB: ucmd setenv bootargs "$$bootargs console=ttymxc0,115200 vmalloc=400M"
+FB: ucmd setenv bootargs "$$bootargs cma=256M consoleblank=0 root=/dev/mmcblk0p3 rootwait"
+FB: acmd booti $${kernel} - $${fdt}
+FB: Done
