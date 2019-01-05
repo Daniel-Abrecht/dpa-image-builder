@@ -11,14 +11,16 @@ export PATH='/root/helper/:/sbin:/usr/sbin:/bin:/usr/bin'
 rootfs="$1"
 shift
 
-cp /usr/bin/qemu-aarch64-static "$rootfs"/usr/bin/qemu-aarch64-static || true
+qemu_aarch64_static_binary="$(which qemu-aarch64-static qemu-aarch64 | head -n 1)"
+
+cp "$qemu$qemu_aarch64_static_binary" "$rootfs$qemu_aarch64_static_binary" || true
 
 if [ "$AARCH64_EXECUTABLE" = yes ]
 then
   chroot "$rootfs" "$@"
 else
   dpkg -x "$rootfs"/var/cache/apt/archives/libfakechroot*.deb "$rootfs"
-  chroot "$rootfs" /usr/bin/qemu-aarch64-static -E LD_PRELOAD=/usr/lib/aarch64-linux-gnu/fakechroot/libfakechroot.so -E FAKECHROOT_ELFLOADER=/usr/bin/qemu-aarch64-static /bin/sh -c "exec $*"
+  chroot "$rootfs" "$qemu_aarch64_static_binary" -E LD_PRELOAD=/usr/lib/aarch64-linux-gnu/fakechroot/libfakechroot.so -E FAKECHROOT_ELFLOADER="$qemu_aarch64_static_binary" /bin/sh -c "exec $*"
 fi
 
-rm -f "$rootfs"/usr/bin/qemu-aarch64-static
+rm -f "$rootfs$qemu_aarch64_static_binary"

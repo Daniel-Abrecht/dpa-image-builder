@@ -34,8 +34,10 @@ You need the following packages for this to work:
  * qemu-user-static (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * uidmap
 
-Installing qemu-user-binfmt on non-aarch64 hosts is not necessary, but recommended.
+Setting up binfmt-misc on non-aarch64 hosts is not necessary, but recommended.
 It may speed up the build process and make the bootstrapping more reliable.
+It should happen automatically if you install qemu-user-static.
+Don't install qemu-user-binfmt, it's qemu-user binaries arent statically built and won't work for this.
 
 For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
 Just make sure uu is in your path when flashing the image. I've just copied the
