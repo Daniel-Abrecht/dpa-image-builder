@@ -33,6 +33,9 @@ CONF = userdefined
 
 include $(project_root)/src/repositories.mk
 
+SETUPBUILDENV := \
+  PATH="/helper/bin:$$PWD/script/:/sbin:/usr/sbin:$$PATH:$$PWD/build/bin:$$PWD/bin";
+
 ifeq (x$(shell echo 'int main(){}' | $(CROSS_COMPILER)gcc -static -x c - -o .aarch64test &>/dev/null; sleep 0.1; ./.aarch64test &>/dev/null; echo $$?; rm -f .aarch64test), x0)
 # This usually means binfmt-misc (qemu-user-binfmt in devuan) is set up, (or we are really on aarch64)
 export AARCH64_EXECUTABLE := yes

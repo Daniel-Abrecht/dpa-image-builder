@@ -21,6 +21,9 @@ clean-image-all:
 clean-image:
 	rm -f "bin/$(IMAGE_NAME)"
 
+enter-buildenv:
+	$(SETUPBUILDENV) "$(SHELL)"
+
 uboot/bin/uboot_firmware_and_dtb.bin:
 	$(MAKE) -C uboot
 

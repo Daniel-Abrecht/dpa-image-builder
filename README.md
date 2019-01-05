@@ -84,6 +84,7 @@ There are also make targets for that.
 | uuu-test-uboot@image | Just boot using uboot bootloader from bin/$(IMAGE_NAME). (doesn't quiet work as intended yet) |
 | uuu-test-kernel | Just boot using kernel from .(kernel/bin/linux-image-*.deb. (doesn't quiet work as intended yet) |
 | bootloader | builds the uboot bootloader at uboot/bin/uboot_firmware_and_dtb.bin |
+| enter-buildenv | Setup environment & PATH most scripts of this repo use & execute $SHELL (unfortunately, make sets thet to sh...) |
 | linux | builds the kernel packages |
 | clean-fs | Removes the tar archives which contain the bootstrapped rootfs and bootfs of the current release |
 | emulate | Works with BOARD=imx8 only. Uses the image and kernel last built and tries to start it using qemu-system-aarch64. This works a lot different than how the devkit or phone would do it, but it is useful to check if the bootstrapping and init scripts work. |
