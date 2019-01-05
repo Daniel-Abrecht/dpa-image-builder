@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -z "$AARCH64_EXECUTABLE" ]
+  then echo "Warning: AARCH64_EXECUTABLE is not set! (Note: This script is expected to be called by the make file)" >&2
+fi
+
 set -ex
 
 # Make sure the current working directory is correct
@@ -46,7 +50,11 @@ packages_download_only="$(sanitize_pkg_list < packages_download_only)"
 packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
 packages="$(sanitize_pkg_list < packages_install_debootstrap)"
 
-packages="$packages,fakechroot"
+packages="$packages"
+
+if [ "$AARCH64_EXECUTABLE" != yes ]
+  then packages="$packages,fakechroot"
+fi
 
 # Add packages for different apt transport if any is used
 if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'https'    ; then packages="$packages,apt-transport-https"    ; fi

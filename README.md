@@ -31,8 +31,11 @@ You need the following packages for this to work:
  * device-tree-compiler
  * comerr-dev
  * jq
- * qemu-user-static (for /usr/bin/qemu-aarch64-static)
+ * qemu-user-static (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * uidmap
+
+Installing qemu-user-binfmt on non-aarch64 hosts is not necessary, but recommended.
+It may speed up the build process and make the bootstrapping more reliable.
 
 For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
 Just make sure uu is in your path when flashing the image. I've just copied the
