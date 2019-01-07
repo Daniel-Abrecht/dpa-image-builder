@@ -9,13 +9,16 @@ a_ramdisk=0x83800000
 a_initrd=0x83a00000
 a_reset_cause_marker=0x80000080
 a_reset_cause=0x80000084
-dtbname=devicetree
 
 console=ttymxc0
 dtype=mmc
 rfspart=3
 disk=0
 root=/dev/mmcblk${disk}p${rfspart}
+
+if itest.s "x${dtbname}" == "x"; then
+	dtbname=devicetree
+fi
 
 if itest.s x${bootpart} == x ; then
 	bootpart=${mmcpart}

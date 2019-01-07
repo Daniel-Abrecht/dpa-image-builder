@@ -3,6 +3,9 @@ include ../src/make-helper-functions.mk
 all: bin/.done
 	@true
 
+config: repo/linux/.config
+	@true
+
 repo: repo/linux/.repo
 	@true
 
