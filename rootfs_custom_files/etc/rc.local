@@ -1,17 +1,6 @@
 #!/bin/sh
 
-set -x
-
-# install remaining packages
-apt-get --no-download update
-apt-get --no-download -y install $(cat /root/packages_to_install)
-dpkg-reconfigure locales
-
-# set root password
-passwd
-
-# clean apt cache
-#apt-get clean
+/root/first_boot_setup.sh
 
 # Remove one time script
 set +x

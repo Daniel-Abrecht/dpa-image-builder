@@ -50,7 +50,7 @@ packages_download_only="$(sanitize_pkg_list < packages_download_only)"
 packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
 packages="$(sanitize_pkg_list < packages_install_debootstrap)"
 
-packages="$packages"
+packages="$packages,dpkg-dev"
 
 if [ "$AARCH64_EXECUTABLE" != yes ]
   then packages="$packages,fakechroot"
@@ -86,7 +86,7 @@ mkfifo "$tmp/rootfs/dev/urandom"
 
 chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
-cp kernel/bin/linux-*.deb "$tmp/rootfs/root/"
+cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 (
@@ -111,24 +111,16 @@ cp kernel/bin/linux-*.deb "$tmp/rootfs/root/"
   done
 )
 
-# Install kernel
-chroot_qemu_static.sh "$tmp/rootfs/" /bin/sh - <<EOF
-dpkg -i /root/linux-*.deb
-EOF
-
+# Packages to install on device
 echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_install"
 
-# Download extra packages
+# Do some stuff inside the chroot
 (
-  set +x
-  echo set -ex
-  echo apt-get update
-  IFS=", "
-  for package in $packages_second_stage $packages_download_only
-  do
-    echo apt-get -d -y install "$package"
-  done
-) | chroot_qemu_static.sh "$tmp/rootfs/" /bin/sh -
+  cp script/rootfs_setup.sh "$tmp/rootfs/root/rootfs_setup.sh"
+  export packages="$packages_second_stage $packages_download_only"
+  chroot_qemu_static.sh "$tmp/rootfs/" /root/rootfs_setup.sh
+  rm "$tmp/rootfs/root/rootfs_setup.sh"
+)
 
 # Create boot.scr from boot.txt
 rm -f "$tmp/rootfs/boot/boot.scr"
