@@ -111,7 +111,7 @@ To install any additional packages, add them to the packages_install_target file
 These package will be installed after the first boot.
 To install any packages even earlier with the debootstrap, add them to the packages_install_debootstrap file.
 To only download packages so they could be installed later without an internet connection, add them to the packages_download_only file.
-To do things after the first boot, add them to the rootfs_custom_files/etc/rc.local file.
+To do things after the first boot, add them to the `rootfs_custom_files/root/first_boot_setup.sh` file. It's called from `rootfs_custom_files/etc/rc.local` file.
 
 ## Other important stuff
 
