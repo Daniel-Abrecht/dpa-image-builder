@@ -9,7 +9,7 @@ dtb="linux-image-$1/$(cat /etc/dtb_file)"
 ln -sf "$vmlinuz" /boot/vmlinuz
 
 if [ -f "/boot/initrd.img-$1" ]
-  then ln -sf "/boot/initrd.img-$1" /boot/initramfs
+  then ln -sf "initrd.img-$1" /boot/initramfs
 fi
 
 # Copy flat device tree binary
