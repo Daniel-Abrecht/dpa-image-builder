@@ -1,3 +1,14 @@
-ifupdown
-net-tools
+# Required by rootfs_setup.sh and first_boot_setup.sh
+dpkg-dev
+initramfs-tools
+
+# For getting dialogs when we install or reconfigure stuff later on the device
 dialog
+
+# Other useful stuff which is needed before first boot
+ifupdown
+
+# Other useful stuff
+net-tools
+file
+less

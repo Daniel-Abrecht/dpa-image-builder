@@ -8,6 +8,10 @@ dtb="linux-image-$1/$(cat /etc/dtb_file)"
 # Update /boot/vmlinuz symlink
 ln -sf "$vmlinuz" /boot/vmlinuz
 
+if [ -f "/boot/initrd.img-$1" ]
+  then ln -sf "/boot/initrd.img-$1" /boot/initramfs
+fi
+
 # Copy flat device tree binary
 mkdir -p "/boot/$(dirname "$dtb")"
 cp "/usr/lib/$dtb" "/boot/$dtb"

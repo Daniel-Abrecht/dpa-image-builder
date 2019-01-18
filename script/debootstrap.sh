@@ -43,14 +43,12 @@ rm -f "$tmp/rootfs.tar" "$tmp/bootfs.tar" "$tmp/device_nodes"
 mkdir -p "$tmp/rootfs"
 
 sanitize_pkg_list(){
-  tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
+  sed 's/#.*//' | tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
 }
 
 packages_download_only="$(sanitize_pkg_list < packages_download_only)"
 packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
 packages="$(sanitize_pkg_list < packages_install_debootstrap)"
-
-packages="$packages,dpkg-dev"
 
 if [ "$AARCH64_EXECUTABLE" != yes ]
   then packages="$packages,fakechroot"
@@ -124,7 +122,7 @@ echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_inst
 
 # Create boot.scr from boot.txt
 rm -f "$tmp/rootfs/boot/boot.scr"
-./uboot/bin/mkimage_uboot -A arm -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
+./uboot/bin/mkimage_uboot -A arm64 -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
 
 # TODO: Get rid of this and let uboot do the decompressing
 gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"

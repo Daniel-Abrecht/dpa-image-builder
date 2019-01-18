@@ -1,64 +1,47 @@
 # Derived from: https://source.puri.sm/Librem5/image-builder/blob/d421431f87bd0a4da987bc33746fc382b45d811a/data/boot-imx8.txt.in
 
 setenv initrd_high 0xffffffff
-a_base=0x80000000
 a_script=0x80800000
-a_Image=0x80800000
+a_image=0x80800000
 a_fdt=0x83000000
-a_ramdisk=0x83800000
-a_initrd=0x83a00000
-a_reset_cause_marker=0x80000080
-a_reset_cause=0x80000084
+a_initramfs=0x83a00000
 
-console=ttymxc0
-dtype=mmc
-rfspart=3
-disk=0
-root=/dev/mmcblk${disk}p${rfspart}
+if itest.s "x${dtbname}"   == "x"; then dtbname=devicetree; fi
+if itest.s "x${bootpart}"  == "x"; then bootpart="${mmcpart}"; fi
+if itest.s "x${bootpart}"  == "x"; then bootpart=2; fi
+if itest.s "x${bootdir}"   == "x"; then bootdir=/; fi
+if itest.s "x${console}"   == "x"; then console=ttymxc0; fi
+if itest.s "x${dtype}"     == "x"; then dtype=mmc; fi
+if itest.s "x${rfspart}"   == "x"; then rfspart=3; fi
+if itest.s "x${disk}"      == "x"; then disk="${mmcdev}"; fi
+if itest.s "x${disk}"      == "x"; then disk=0; fi
+if itest.s "x${root}"      == "x"; then root="/dev/mmcblk${disk}p${rfspart}"; fi
+if itest.s "x${kernel}"    == "x"; then kernel=vmlinux; fi
+if itest.s "x${initramfs}" == "x"; then initramfs=initramfs; fi
+if itest.s "x${cma}"       == "x"; then cma=256M; fi
+if itest.s "x${vmalloc}"   == "x"; then vmalloc=400M; fi
 
-if itest.s "x${dtbname}" == "x"; then
-	dtbname=devicetree
+if ext2load "${dtype}" "${disk}:${bootpart}" "${a_script}" "uEnv.txt"
+then
+  env import -t "${a_script}" "${filesize}"
 fi
 
-if itest.s x${bootpart} == x ; then
-	bootpart=${mmcpart}
-fi
-
-if ext2load ${dtype} ${disk}:${bootpart} ${a_script} uEnv.txt ; then
-    env import -t ${a_script} ${filesize}
-fi
-
-if itest.s x == x${bootdir} ; then
-	bootdir=/
-fi
-
-if itest.s x${bootpart} == x ; then
-	bootpart=2
-fi
-
-if ext2load ${dtype} ${disk}:${bootpart} ${a_fdt} ${bootdir}${dtbname} ; then
-	fdt addr ${a_fdt}
-	setenv fdt_high 0xffffffff
+if ext2load "${dtype}" "${disk}:${bootpart}" "${a_fdt}" "${bootdir}${dtbname}"; then
+  fdt addr "${a_fdt}"
+  setenv fdt_high 0xffffffff
 else
-	echo "!!!! Error loading ${bootdir}${dtbname}";
-	exit;
+  echo "!!!! Error loading ${bootdir}${dtbname}";
+  exit;
 fi
 
 fdt resize
-if itest.s "x" != "x${cmd_custom}" ; then
-	run cmd_custom
+
+if itest.s "x" != "x${cmd_custom}"
+then
+  run cmd_custom
 fi
 
-## HDMI ##
-if itest.s "xoff" == "x$fb_hdmi" ; then
-	setenv bootargs $bootargs video=HDMI-A-1:d
-else
-	if itest.s "x" != "x$force_edid" ; then
-		echo "------ forcing EDID to /lib/firmware/$force_edid"
-		setenv bootargs $bootargs drm_kms_helper.edid_firmware=$force_edid
-	fi
-fi
-
+# TODO: use UUID + GPT
 if itest.s "x" == "x${root}"; then
 	part uuid ${dtype} ${disk}:${rfspart} uuid
 	if itest.s "x" != "x${uuid}"; then
@@ -70,35 +53,29 @@ if itest.s "x" == "x${root}"; then
 	fi
 fi
 
-if itest.s "x" == "x$cma" ; then
-	cma=256M
+if itest.s "x" != "x$show_fdt"
+then
+  fdt print /
 fi
 
-if itest.s "x" == "x$vmalloc" ; then
-	vmalloc=400M
+if itest.s "x" != "x$show_env"
+then
+  printenv
 fi
 
-if itest.s "x" != "x$show_fdt" ; then
-	fdt print /
-fi
-
-if itest.s "x" != "x$show_env" ; then
-	printenv
+if itest.s "x$noinitramfs" == "x"
+then
+  if ext2load "${dtype}" "${disk}:${bootpart}" "${a_initramfs}" "${bootdir}${initramfs}"
+  then
+    setenv bootargs "$bootargs initrd=${a_initramfs},0x${filesize}"
+  fi
 fi
 
 setenv bootargs "$bootargs console=${console},115200 vmalloc=${vmalloc}"
 setenv bootargs "$bootargs cma=${cma} consoleblank=0 root=${root} rootwait"
 
-if itest.s "x" != "x${loglevel}" ; then
-	setenv bootargs ${bootargs} loglevel=${loglevel}
-fi
-
-if itest *${a_reset_cause_marker} == 12345678 ; then
-	setexpr.l reset_cause *${a_reset_cause}
-	setenv bootargs $bootargs reset_cause=0x${reset_cause}
-fi
-
-if ext2load ${dtype} ${disk}:${bootpart} ${a_Image} ${bootdir}vmlinux; then
-	booti ${a_Image} - ${a_fdt}
+if ext2load "${dtype}" "${disk}:${bootpart}" "${a_image}" "${bootdir}${kernel}"
+then
+  booti "${a_image}" - "${a_fdt}"
 fi
 echo "Error loading kernel image"
