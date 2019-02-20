@@ -30,7 +30,6 @@ tmp="$base/build/filesystem/"
 # Cleanup if any of the remaining steps fails
 cleanup(){
   set +e
-  if [ -n "$urandompid" ]; then kill "$urandompid" || true; fi
   rm -rf "$tmp/rootfs" "$tmp/bootfs"
 }
 trap cleanup EXIT
@@ -72,19 +71,11 @@ echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mknod" # Don't worry about this, on b
 echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mount"
 chmod +x "$tmp/rootfs/root/helper/"*
 
-# Apt needs urandom for gpgv, so I have to fake it...
-mkfifo "$tmp/rootfs/dev/urandom"
-(
-  set +ex
-  while true
-  do
-    dd bs=1 if=/dev/urandom of="$tmp/rootfs/dev/urandom"
-  done
-) & urandompid=$!
-
 chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
-cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/"
+mkdir "$tmp/rootfs/root/temp-repo/"
+cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/temp-repo/"
+cp chroot-build-helper/bin/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 (
@@ -120,13 +111,7 @@ echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_inst
   rm "$tmp/rootfs/root/rootfs_setup.sh"
 )
 
-# Create boot.scr from boot.txt
-rm -f "$tmp/rootfs/boot/boot.scr"
-./uboot/bin/mkimage_uboot -A arm64 -T script -O linux -d "$tmp/rootfs/boot/boot.txt" "$tmp/rootfs/boot/boot.scr"
-
-# TODO: Get rid of this and let uboot do the decompressing
-gzip -d < "$tmp/rootfs/boot/vmlinuz" > "$tmp/rootfs/boot/vmlinux"
-
+# Cleanup
 rm -f "$tmp/rootfs/etc/hostname"
 
 # Split /boot and /

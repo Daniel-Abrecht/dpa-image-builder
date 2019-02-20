@@ -8,6 +8,9 @@ bootloader: uboot/bin/uboot_firmware_and_dtb.bin
 linux: kernel/bin/linux-image.deb
 	@true
 
+extra_packages:
+	$(MAKE) -C chroot-build-helper
+
 clean-fs-all:
 	rm -rf build/filesystem
 
@@ -56,6 +59,7 @@ build/filesystem/rootfs-$(RELEASE).tar: \
   packages_download_only \
   rootfs_custom_files/ \
   bin/.dir
+	$(MAKE) extra_packages
 	./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \

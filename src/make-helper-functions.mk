@@ -1,7 +1,9 @@
 
 default_target: all
 
-project_root := $(dir $(lastword $(MAKEFILE_LIST)))..
+.SECONDARY:
+
+project_root := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))..)
 
 VARS_OLD := $(subst %,,$(subst *,,$(.VARIABLES)))
 
@@ -34,7 +36,7 @@ CONF = userdefined
 include $(project_root)/src/repositories.mk
 
 SETUPBUILDENV := \
-  PATH="/helper/bin:$$PWD/script/:/sbin:/usr/sbin:$$PATH:$$PWD/build/bin:$$PWD/bin";
+  export PATH="/helper/bin:$(project_root)/script/:/sbin:/usr/sbin:$$PATH:$(project_root)/build/bin:$(project_root)/bin";
 
 ifeq (x$(shell echo 'int main(){}' | $(CROSS_COMPILER)gcc -static -x c - -o .aarch64test &>/dev/null; sleep 0.3; ./.aarch64test &>/dev/null; echo $$?; rm -f .aarch64test), x0)
 # This usually means binfmt-misc (qemu-user-binfmt in devuan) is set up, (or we are really on aarch64)

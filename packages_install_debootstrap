@@ -1,3 +1,7 @@
+# Needed to install the kernel & bootloader
+u-boot-tools
+# flash-kernel # Uncomment once librem 5 support is in the official repos
+
 # Required by rootfs_setup.sh and first_boot_setup.sh
 dpkg-dev
 initramfs-tools
