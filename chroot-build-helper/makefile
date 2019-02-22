@@ -4,6 +4,11 @@ CURDIR=$(realpath .)
 
 TARGETS = deb-flash-kernel
 
+# Packages using seccomp will hang qemu-user, so let's replace them
+CHROOT_DUMMY_PACKAGES += man-db
+
+CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix -dummy_99_all.deb,$(CHROOT_DUMMY_PACKAGES)))
+
 all: $(addprefix build@,$(TARGETS))
 
 repo: \
@@ -12,17 +17,25 @@ repo: \
 build@%: bin/%/.build
 	@true
 
-build-env/$(RELEASE): build-env/.dir
+dummy-packages/%-dummy_99_all.deb: dummy-packages/%
+	cd "$(dir $<)"; equivs-build "$(notdir $<)"
+
+build-env/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	mkdir -p "$@.tmp"
 	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/$@.tmp"
-	$(SETUPBUILDENV) uexec --allow-setgroups debootstrap --foreign --arch=arm64 --include='build-essential,dh-make,debhelper,devscripts,fakeroot' "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)"
-	mkdir -p "$@.tmp/root/helper"
+	$(SETUPBUILDENV) uexec --allow-setgroups debootstrap --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)"
+	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs"
+	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
+	# Stub things which won't work in a chroot
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
+	# Stub man stuff, because it may use seccomp, would hand qemu-user-static :(
 	touch "$@.tmp/dev/null"
 	chmod 666 "$@.tmp/dev/null"
 	chmod +x "$@.tmp/root/helper/mknod" "$@.tmp/root/helper/mount"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
+	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
+	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot
 	printf "deb %s %s main\ndeb-src %s %s main" "$(REPO)" "$(RELEASE)" "$(REPO)" "$(RELEASE)" >"$@.tmp/etc/apt/sources.list"
 	mv "$@.tmp" "$@"
 

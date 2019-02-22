@@ -1,0 +1,4 @@
+# If there are packages in a local repo, prefer them
+Package: *
+Pin: origin ""
+Pin-Priority: 1500
