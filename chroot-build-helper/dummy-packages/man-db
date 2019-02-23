@@ -1,0 +1,9 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+
+Package: man-db-dummy
+Version: 99:99
+Provides: man-db
+Architecture: all
+Description: Dummy man-db package to work around qemu-user seccomp lockup

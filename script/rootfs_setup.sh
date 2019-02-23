@@ -11,6 +11,8 @@ cat > /root/apt-tmp.conf <<EOF
 Dir::Etc::sourcelist "/root/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
+APT::Get::AllowUnauthenticated "true";
+Acquire::AllowInsecureRepositories "true";
 EOF
 export APT_CONFIG=/root/apt-tmp.conf
 
@@ -33,7 +35,7 @@ EOF
 # Update package list, update everything, install kernel & other custom packages and clean apt cache (remove no longer needed packages)
 apt-get update
 apt-get -y dist-upgrade
-apt-get -y --allow-unauthenticated install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u)
+apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u)
 rm -rf /root/temp-repo/
 apt-get clean
 
@@ -75,6 +77,7 @@ Dir::Etc::sourcelist "/root/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
 APT::Get::AllowUnauthenticated "true";
+Acquire::AllowInsecureRepositories "true";
 EOF
 
 # Update package list of local repo
