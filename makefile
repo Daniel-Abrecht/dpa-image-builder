@@ -84,7 +84,7 @@ uuu-do-%: script/uuu/%.lst
 uuu-uboot-do-%: script/uuu/%.lst uboot/bin/uboot_firmware_and_dtb.bin
 	$(MAKE) UBOOT_BIN=uboot/bin/uboot_firmware_and_dtb.bin uuu-do-$(patsubst uuu-uboot-do-%,%,$@)
 
-uuu-image-do-%: script/uuu/%.lst bin/$(IMAGE_NAME)
+uuu-image-do-%: script/uuu/%.lst
 	# To determine the real size of the uboot binary is too complicated
 	# instead, let's just assume 2MB are enough, its usually ~1M.
 	# That's no problem for booting, just don't flash it.

@@ -13,6 +13,8 @@ Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
 APT::Get::AllowUnauthenticated "true";
 Acquire::AllowInsecureRepositories "true";
+Dpkg::Options:: "--force-confdef";
+Dpkg::Options:: "--force-confold";
 EOF
 export APT_CONFIG=/root/apt-tmp.conf
 
@@ -31,6 +33,8 @@ EOF
   gzip -k Packages
   xz -k Packages
 )
+
+export DEBIAN_FRONTEND=noninteractive
 
 # Update package list, update everything, install kernel & other custom packages and clean apt cache (remove no longer needed packages)
 apt-get update

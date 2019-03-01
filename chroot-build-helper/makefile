@@ -47,7 +47,7 @@ build-env/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(RELEASE)
 
 bin/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
-	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(RELEASE)" sh -c "cd /root/$(notdir $(<:build-env/$(RELEASE)/root/%/src/.source=%))/src/; apt-get update; apt-get -y build-dep .; debuild -uc -us"
+	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(RELEASE)" sh -c "cd /root/$(notdir $(<:build-env/$(RELEASE)/root/%/src/.source=%))/src/; apt-get update; apt-get -y build-dep .; debuild -b -us -uc"
 	mkdir -p "$(dir $@)"
 	cp "$(<:%/src/.source=%)"/*.deb "$(dir $@)"/
 	touch "$@"

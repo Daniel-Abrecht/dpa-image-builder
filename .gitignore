@@ -3,3 +3,4 @@ bin/
 repo/
 config/userdefined.mk
 mkimage_imx8
+*.deb
