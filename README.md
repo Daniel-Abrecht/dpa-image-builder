@@ -100,6 +100,7 @@ There are also make targets for that.
 | reset-repo@reponame | same as the above, but for a speciffic repo |
 | clean-all | short for clean-repo and clean-build, removes pretty much everithing. |
 | reset | Short for reset-repo and clean-build, mostly the same as clean-all, but doesn't require downloading all repos again |
+| chroot@path/to/env | Chroot to a directory. Useful to look into a build environment in chroot-build-helper/build-env/*/ and similar stuff. |
 
 The urls and reponame of all used repositories as well as the defaults of most variables can be found in the config/ directory, with the exception of the imx firmware from nxp, which is still in src/repositories.mk.
 
