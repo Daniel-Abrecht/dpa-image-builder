@@ -1,5 +1,12 @@
 #!/bin/sh
 
+rootfs="$1"
+shift
+
+# Only one user at a time allowed
+(
+flock 9 || exit 1
+
 cleanup(){
   if [ -n "$urandom_PID" ]
   then
@@ -25,9 +32,6 @@ set -ex
 
 export PATH='/root/helper/:/sbin:/usr/sbin:/bin:/usr/bin'
 export LANG=C LC_ALL=C
-
-rootfs="$1"
-shift
 
 qemu_aarch64_static_binary="$(which qemu-aarch64-static qemu-aarch64 | head -n 1)"
 
@@ -75,4 +79,4 @@ fi
 
 rm -f "$rootfs$qemu_aarch64_static_binary"
 
-exit 0
+) 9>"$rootfs/chroot_access_lock"

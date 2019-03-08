@@ -129,14 +129,17 @@ repo: always \
 clean-repo: clean-repo@fuseloop clean-repo@usernsexec clean-repo@tar2ext
 	$(MAKE) -C uboot clean-repo
 	$(MAKE) -C kernel clean-repo
+	$(MAKE) -C chroot-build-helper clean-repo
 
 reset-repo: reset-repo@fuseloop reset-repo@usernsexec reset-repo@tar2ext
 	$(MAKE) -C uboot reset-repo
 	$(MAKE) -C kernel reset-repo
+	$(MAKE) -C chroot-build-helper reset-repo
 
 clean-build:
 	$(MAKE) -C uboot clean-build
 	$(MAKE) -C kernel clean-build
+	$(MAKE) -C chroot-build-helper clean-build
 	rm -rf bin/ build/
 
 emulate: bin/$(IMAGE_NAME) kernel/bin/linux-image.deb

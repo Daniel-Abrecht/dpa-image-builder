@@ -39,7 +39,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Update package list, update everything, install kernel & other custom packages and clean apt cache (remove no longer needed packages)
 apt-get update
 apt-get -y dist-upgrade
-apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u)
+apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u | grep -v Auto-Built-debug-symbols)
 rm -rf /root/temp-repo/
 apt-get clean
 

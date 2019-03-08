@@ -51,9 +51,8 @@ endif
 
 chroot@%:
 	$(SETUPBUILDENV) \
-	export PROMPT_COMMAND="export PS1=\"$@ (\u)> \""; \
-	$PROMPT_COMMAND; \
-        uexec --allow-setgroups chroot_qemu_static.sh "$(realpath $(patsubst chroot@%,%,$@))" /bin/bash
+	export PROMPT_COMMAND="export PS1='$@ (\u)> '"; \
+	uexec --allow-setgroups chroot_qemu_static.sh "$(realpath $(patsubst chroot@%,%,$@))" /bin/bash
 
 clean:
 	! echo -n "Please use one of:\n * make clean-build\t# remove all build files\n * make clean-repo\t# remove the downloaded repos\n * make reset-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# do all of the above\n * make reset # do all of the above, but keep the repos\n"

@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Output on LCD
+#exec 0<>/dev/tty1
+#exec >&0 2>&0
+
+# If there are problems with clicking stuff, make sure /dev/console
+# isn't /dev/tty1 and nothing else has /dev/tty1 opened!!!
+#/usr/bin/console-keyboard-multiplexer /root/first_boot_setup.sh
+
 /root/first_boot_setup.sh
 
 # Remove one time script

@@ -6,6 +6,9 @@ u-boot-tools
 dpkg-dev
 initramfs-tools
 
+# Do make the text readable
+console-setup
+
 # For getting dialogs when we install or reconfigure stuff later on the device
 dialog
 

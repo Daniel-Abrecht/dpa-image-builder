@@ -16,3 +16,15 @@ repo-source@imx-mkimage = ../../.git
 
 repo-branch@flash-kernel = devkit
 repo-source@flash-kernel = https://source.puri.sm/dorota.czaplejewicz/flash-kernel.git
+
+repo-branch@libttymultiplex = master
+repo-source@libttymultiplex = https://github.com/Daniel-Abrecht/libttymultiplex.git
+
+repo-branch@console-keyboard-multiplexer = master
+repo-source@console-keyboard-multiplexer = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
+
+repo-branch@console-keyboard-basic = master
+repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-keyboard-basic.git
+
+repo-branch@consolation = master
+repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
