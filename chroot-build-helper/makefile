@@ -43,9 +43,11 @@ build-env/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	chmod 666 "$@.tmp/dev/null"
 	chmod +x "$@.tmp/root/helper/mknod" "$@.tmp/root/helper/mount"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
+	printf "deb %s %s main\ndeb-src %s %s main\n" "$(REPO)" "$(RELEASE)" "$(REPO)" "$(RELEASE)" >"$@.tmp/etc/apt/sources.list"
+	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot
-	printf "deb %s %s main\ndeb-src %s %s main\ndeb file:///root/devrepo/ ./\n" "$(REPO)" "$(RELEASE)" "$(REPO)" "$(RELEASE)" >"$@.tmp/etc/apt/sources.list"
+	printf "deb file:///root/devrepo/ ./\n" "$(REPO)" "$(RELEASE)" "$(REPO)" "$(RELEASE)" >>"$@.tmp/etc/apt/sources.list"
 	mv "$@.tmp" "$@"
 
 build-env/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(RELEASE)
