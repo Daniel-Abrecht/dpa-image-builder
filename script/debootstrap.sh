@@ -75,7 +75,7 @@ chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
 mkdir "$tmp/rootfs/root/temp-repo/"
 cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/temp-repo/"
-cp chroot-build-helper/bin/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
+cp chroot-build-helper/bin/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 (

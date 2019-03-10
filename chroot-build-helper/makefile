@@ -22,7 +22,7 @@ deb-console-keyboard-multiplexer: deb-libttymultiplex deb-console-keyboard-basic
 repo: \
   repo/flash-kernel/.repo
 
-build@%: bin/%/.build
+build@%: bin/$(RELEASE)/%/.build
 	@true
 
 dummy-packages/%-dummy_99_all.deb: dummy-packages/%
@@ -56,7 +56,7 @@ build-env/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(RELEASE)
 	cp -r "$(dir $<)" "$(dir $@)"
 	touch "$@"
 
-bin/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
+bin/$(RELEASE)/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(RELEASE)" sh -c "\
 	  set -ex; \
@@ -72,7 +72,7 @@ bin/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
 	  cp ../*.deb /root/devrepo/; \
 	"
 	mkdir -p "$(dir $@)"
-	cp "$(<:%/src/.source=%)"/*.deb "$(dir $@)"/
+	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
 	touch "$@"
 
 clean-repo: clean-repo@flash-kernel
@@ -82,4 +82,4 @@ clean-buildenv:
 	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/"
 
 clean-build:
-	rm -rf bin/
+	rm -rf bin/$(RELEASE)
