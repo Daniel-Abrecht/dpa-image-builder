@@ -26,3 +26,5 @@ unset APT_CONFIG
 
 # Remove this script
 rm "$0"
+
+chvt 1

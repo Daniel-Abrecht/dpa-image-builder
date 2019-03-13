@@ -1,14 +1,13 @@
-#!/bin/sh
+#!/bin/sh -l
 
-# Output on LCD
-#exec 0<>/dev/tty1
-#exec >&0 2>&0
+exec 0<>/dev/tty9
+exec 1>&0
+exec 2>&0
 
-# If there are problems with clicking stuff, make sure /dev/console
-# isn't /dev/tty1 and nothing else has /dev/tty1 opened!!!
-#/usr/bin/console-keyboard-multiplexer /root/first_boot_setup.sh
-
-/root/first_boot_setup.sh
+chvt 9
+env - LC_ALL=C.UTF-8 TERM=linux \
+  PATH=/sbin:/usr/sbin:/bin/:/usr/bin/ \
+  setsid -c console-keyboard-multiplexer /root/first_boot_setup.sh
 
 # Remove one time script
 set +x
