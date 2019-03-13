@@ -79,7 +79,7 @@ clean-repo: clean-repo@flash-kernel
 reset-repo: reset-repo@flash-kernel
 
 clean-buildenv:
-	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/"
+	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/$(RELEASE)"
 
 clean-build:
 	rm -rf bin/$(RELEASE)

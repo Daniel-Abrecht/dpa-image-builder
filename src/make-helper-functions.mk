@@ -27,6 +27,14 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
+ifdef REPO-$(RELEASE)
+  REPO = $(REPO-$(RELEASE))
+endif
+
+ifdef CHROOT_REPO-$(RELEASE)
+  CHROOT_REPO = $(CHROOT_REPO-$(RELEASE))
+endif
+
 CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(.VARIABLES)))))
 IMGSIZE := $(shell echo "$(IMGSIZE)" | sed 's/\s*//g')
 export $(CONFIG_VARS)

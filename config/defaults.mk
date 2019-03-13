@@ -4,6 +4,15 @@ RELEASE = ascii
 REPO = http://pkgmaster.devuan.org/merged/
 CHROOT_REPO = $(REPO)
 
+REPO-devuan = http://pkgmaster.devuan.org/merged/
+REPO-debian = http://deb.debian.org/debian
+
+REPO-ascii = $(REPO-devuan)
+REPO-beowulf = $(REPO-devuan)
+
+REPO-stretch = $(REPO-debian)
+REPO-buster = $(REPO-debian)
+
 IMAGE_NAME = devuan-$(RELEASE)-librem5-$(BOARD)-base.img
 
 CROSS_COMPILER = aarch64-linux-gnu-
