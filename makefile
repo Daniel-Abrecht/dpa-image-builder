@@ -91,11 +91,16 @@ uuu-image-do-%: script/uuu/%.lst
 	# A bigger size will fail to download, the offset wraps around...
 	# (may be mitigateable by increasing the buffer size)
 	set -e; \
-	uboot="build/extracted_uboot"; \
-	cleanup(){ rm -f "$$uboot"; }; \
-	cleanup; \
-	trap cleanup EXIT; \
-	dd if="bin/$(IMAGE_NAME)" of="$$uboot" bs=512 skip=66 count=4000; \
+        if [ "$(IMAGE_UBOOT_UNFLASHABLE)" = "1" ]; \
+	then \
+	  uboot="uboot/bin/uboot_firmware_and_dtb.bin"; \
+	else \
+	  uboot="build/extracted_uboot"; \
+	  cleanup(){ rm -f "$$uboot"; }; \
+	  cleanup; \
+	  trap cleanup EXIT; \
+	  dd if="bin/$(IMAGE_NAME)" of="$$uboot" bs=512 skip=66 count=4000; \
+	fi; \
 	$(MAKE) UBOOT_BIN="$$uboot" uuu-do-$(patsubst uuu-image-do-%,%,$@)
 
 uuu-test-uboot: uuu-uboot-do-test-uboot

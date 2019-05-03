@@ -78,7 +78,7 @@ There are also make targets for that.
 | config-list | List all config variables, this includes the repo urls and branches |
 | CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF.mk, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
 | CONF=userdefined config-unset@variable-name | Remove variable from file conf/$CONF.mk. This will also clean up or reset images and repos as needed. |
-| uuu-flash | flash the image to emmc0 using uuu |
+| uuu-flash | flash the image to emmc0 using uuu. You can specify a different image using IMAGE_NAME. If this image doesn't have an uboot usable for flashing, use IMAGE_UBOOT_UNFLASHABLE=1 to use the uboot from uboot/bin/uboot_firmware_and_dtb.bin instead for that step. |
 | uuu-uboot-flash | flash uboot (doesn't include m4) |
 | uuu-test-uboot | Just boot using uboot bootloader from uboot/bin/uboot_firmware_and_dtb.bin (doesn't quiet work as intended yet) |
 | uuu-test-uboot@image | Just boot using uboot bootloader from bin/$(IMAGE_NAME). (doesn't quiet work as intended yet) |
