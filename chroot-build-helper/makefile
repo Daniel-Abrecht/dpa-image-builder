@@ -5,6 +5,7 @@ CURDIR=$(realpath .)
 TARGETS += deb-flash-kernel
 TARGETS += deb-consolation
 TARGETS += deb-libttymultiplex
+TARGETS += deb-libconsolekeyboard
 TARGETS += deb-console-keyboard-basic
 TARGETS += deb-console-keyboard-multiplexer
 
@@ -17,7 +18,8 @@ CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix -dummy_99_
 
 all: $(addprefix build@,$(TARGETS))
 
-deb-console-keyboard-multiplexer: deb-libttymultiplex deb-console-keyboard-basic
+deb-console-keyboard-basic: deb-libconsolekeyboard
+deb-console-keyboard-multiplexer: deb-libconsolekeyboard deb-libttymultiplex deb-console-keyboard-basic
 
 repo: \
   repo/flash-kernel/.repo

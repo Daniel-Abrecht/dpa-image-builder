@@ -23,6 +23,9 @@ repo-source@libttymultiplex = https://github.com/Daniel-Abrecht/libttymultiplex.
 repo-branch@console-keyboard-multiplexer = master
 repo-source@console-keyboard-multiplexer = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
 
+repo-branch@libconsolekeyboard = libconsolekeyboard
+repo-source@libconsolekeyboard = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
+
 repo-branch@console-keyboard-basic = master
 repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-keyboard-basic.git
 
