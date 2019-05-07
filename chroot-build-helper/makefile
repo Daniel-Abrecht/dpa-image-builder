@@ -67,6 +67,7 @@ bin/$(RELEASE)/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
 	  dpkg-scanpackages -m . > Packages; \
 	  gzip -k Packages; \
 	  xz -k Packages; \
+	  dpkg --remove \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$') || true; \
 	  cd /root/$(notdir $(<:build-env/$(RELEASE)/root/%/src/.source=%))/src/; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \

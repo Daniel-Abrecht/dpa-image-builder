@@ -2,6 +2,7 @@
 
 set -ex
 
+export DEBCONF_FORCE_DIALOG=1
 export APT_CONFIG=/root/apt-tmp.conf
 
 # install remaining packages
