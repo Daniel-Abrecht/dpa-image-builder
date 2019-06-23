@@ -117,7 +117,7 @@ uuu-flash uuu-flash@image: uuu-image-do-flash
 
 uuu-test-kernel: kernel/bin/linux-image.deb
 	ar p kernel/bin/linux-image.deb data.tar.xz | tar xJ --wildcards './boot/vmlinuz-*' -O | gunzip > build/vmlinux
-	ar p kernel/bin/linux-image.deb data.tar.xz | tar xJ --wildcards './usr/lib/linux-image-*/freescale/librem5-evk-lcdonly.dtb' -O > build/dtb
+	ar p kernel/bin/linux-image.deb data.tar.xz | tar xJ --wildcards './usr/lib/linux-image-*/$(KERNEL_DTB)' -O > build/dtb
 	$(MAKE) uuu-uboot-do-test-kernel || true
 	rm build/vmlinux
 	rm build/dtb

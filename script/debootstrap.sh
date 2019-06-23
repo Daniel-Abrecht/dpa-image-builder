@@ -95,6 +95,10 @@ cp chroot-build-helper/bin/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
         # The sed stuff allows escaping $ using $$
         sed 's/\$\$/\x1/g' <"$file" | envsubst | sed 's/\x1/\$/g' >"$target"
       ;;
+      *.rm)
+        target="$dir/$(basename "$file" .rm)"
+	rm "$target"
+      ;;
       *) cp "$file" "$dir" ;;
     esac
   done
