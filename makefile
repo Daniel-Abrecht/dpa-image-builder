@@ -12,11 +12,11 @@ extra_packages:
 	$(MAKE) -C chroot-build-helper
 
 clean-fs-all:
-	rm -rf build/filesystem
+	rm -rf build/$(RELEASE)/filesystem
 
 clean-fs:
-	rm -rf "build/filesystem/bootfs-$(RELEASE).tar"
-	rm -rf "build/filesystem/rootfs-$(RELEASE).tar"
+	rm -rf "build/$(RELEASE)/filesystem/bootfs.tar"
+	rm -rf "build/$(RELEASE)/filesystem/rootfs.tar"
 
 clean-image-all:
 	rm -f bin/*.img
@@ -50,7 +50,7 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
-build/filesystem/rootfs-$(RELEASE).tar: \
+build/$(RELEASE)/filesystem/rootfs.tar: \
   kernel/bin/linux-image.deb \
   uboot/bin/uboot_firmware_and_dtb.bin \
   build/bin/usernsexec \
@@ -65,7 +65,7 @@ build/filesystem/rootfs-$(RELEASE).tar: \
 bin/$(IMAGE_NAME): \
   build/bin/fuseloop \
   build/bin/writeTar2Ext \
-  build/filesystem/rootfs-$(RELEASE).tar \
+  build/$(RELEASE)/filesystem/rootfs.tar \
   uboot/bin/uboot_firmware_and_dtb.bin \
   kernel/bin/linux-image.deb
 	./script/assemble_image.sh

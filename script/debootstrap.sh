@@ -25,7 +25,7 @@ if [ -z "$REPO" ]; then REPO=https://pkgmaster.devuan.org/merged/; fi
 if [ -z "$CHROOT_REPO" ]; then CHROOT_REPO="$REPO"; fi
 if [ -z "$KERNEL_DTB" ]; then echo "Pleas set KERNEL_DTB" >2; exit 1; fi
 
-tmp="$base/build/filesystem/"
+tmp="$base/build/$RELEASE/filesystem/"
 
 # Cleanup if any of the remaining steps fails
 cleanup(){
@@ -128,7 +128,7 @@ rm -f "$tmp/rootfs/dev/urandom"
 
 # Create tar archives and remove tared directories
 cd "$tmp/rootfs"
-tar cf "$tmp/rootfs-$RELEASE.tar" .
+tar cf "$tmp/rootfs.tar" .
 cd "$tmp/bootfs"
-tar cf "$tmp/bootfs-$RELEASE.tar" .
+tar cf "$tmp/bootfs.tar" .
 cd "$base"

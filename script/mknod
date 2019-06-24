@@ -1,7 +1,1 @@
-#!/bin/sh
-
-cd "$(dirname "$0")/.."
-
-if [ -d "build/filesystem/" ]
-  then printf "%s\n" "$*" >> "build/filesystem/device_nodes"
-fi
+#!/bin/true

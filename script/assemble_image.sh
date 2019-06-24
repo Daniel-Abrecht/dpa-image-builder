@@ -99,8 +99,8 @@ mkfs.ext2 -L boot "$bootdev"
 mkfs.ext4 -L root -E discard "$rootdev"
 
 # Write rootfs to partitions
-writeTar2Ext "$bootdev" < build/filesystem/bootfs-$RELEASE.tar
-writeTar2Ext "$rootdev" < build/filesystem/rootfs-$RELEASE.tar
+writeTar2Ext "$bootdev" < build/$RELEASE/filesystem/bootfs.tar
+writeTar2Ext "$rootdev" < build/$RELEASE/filesystem/rootfs.tar
 
 # Unmount & remove fuse loop devices
 umount_wait
