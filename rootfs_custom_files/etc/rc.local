@@ -4,6 +4,8 @@ exec 0<>/dev/tty9
 exec 1>&0
 exec 2>&0
 
+printf '\033%%G' >/dev/tty9
+
 chvt 9
 env - LC_ALL=C.UTF-8 TERM=linux \
   PATH=/sbin:/usr/sbin:/bin/:/usr/bin/ \

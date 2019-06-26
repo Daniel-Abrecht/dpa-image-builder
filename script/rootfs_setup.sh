@@ -21,8 +21,8 @@ export APT_CONFIG=/root/apt-tmp.conf
 # Use bootstrapping repos for this
 cat >/root/temporary-local-repo.list <<EOF
 deb $REPO $RELEASE          main
-deb $REPO $RELEASE-updates  main
-deb $REPO $RELEASE-security main
+#deb $REPO $RELEASE-updates  main
+#deb $REPO $RELEASE-security main
 
 deb file:///root/temp-repo/ ./
 EOF
