@@ -12,7 +12,7 @@ repo-branch@linux = imx8-5.2-devkit
 repo-source@linux = https://source.puri.sm/Librem5/linux-next.git
 
 repo-branch@imx-mkimage = imx-mkimage-emcraft
-repo-source@imx-mkimage = ../../.git
+repo-source@imx-mkimage = https://github.com/Daniel-Abrecht/librem5-image-builder.git
 
 repo-branch@flash-kernel = devkit
 repo-source@flash-kernel = https://source.puri.sm/dorota.czaplejewicz/flash-kernel.git
