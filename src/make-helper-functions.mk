@@ -46,7 +46,7 @@ include $(project_root)/src/repositories.mk
 SETUPBUILDENV := \
   export PATH="/helper/bin:$(project_root)/script/:/sbin:/usr/sbin:$$PATH:$(project_root)/build/bin:$(project_root)/bin";
 
-ifeq (x$(shell echo 'int main(){}' | $(CROSS_COMPILER)gcc -static -x c - -o .aarch64test &>/dev/null; sleep 0.3; ./.aarch64test &>/dev/null; echo $$?; rm -f .aarch64test), x0)
+ifeq (x$(shell echo 'int main(){}' | $(CROSS_COMPILER)gcc -static -x c - -o .aarch64test &>/dev/null; sync .; sleep 0.5; sync .; ./.aarch64test &>/dev/null; echo $$?), x0)
 # This usually means binfmt-misc (qemu-user-binfmt in devuan) is set up, (or we are really on aarch64)
 export AARCH64_EXECUTABLE := yes
 else

@@ -4,3 +4,4 @@ repo/
 config/userdefined.mk
 mkimage_imx8
 *.deb
+.aarch64test
