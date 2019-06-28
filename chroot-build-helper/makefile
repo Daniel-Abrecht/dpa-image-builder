@@ -24,13 +24,13 @@ deb-console-keyboard-multiplexer: deb-libconsolekeyboard deb-libttymultiplex deb
 repo: \
   repo/flash-kernel/.repo
 
-build@%: bin/$(RELEASE)/%/.build
+build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
 	@true
 
 dummy-packages/%-dummy_99_all.deb: dummy-packages/%
 	cd "$(dir $<)"; equivs-build "$(notdir $<)"
 
-build-env/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
+build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	mkdir -p "$@.tmp"
 	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/$@.tmp"
 	$(SETUPBUILDENV) uexec --allow-setgroups debootstrap --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)"
@@ -52,15 +52,15 @@ build-env/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	printf "deb file:///root/devrepo/ ./\n" "$(REPO)" "$(RELEASE)" "$(REPO)" "$(RELEASE)" >>"$@.tmp/etc/apt/sources.list"
 	mv "$@.tmp" "$@"
 
-build-env/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(RELEASE)
+build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(dir $<)" "$(dir $@)"
 	touch "$@"
 
-bin/$(RELEASE)/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
+bin/$(DISTRO)/$(RELEASE)/deb-%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
-	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(RELEASE)" sh -c "\
+	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)" sh -c "\
 	  set -ex; \
 	  cd /root/devrepo/; \
 	  rm -f Packages Packages.gz Packages.xz; \
@@ -68,7 +68,7 @@ bin/$(RELEASE)/deb-%/.build: build-env/$(RELEASE)/root/%/src/.source
 	  gzip -k Packages; \
 	  xz -k Packages; \
 	  dpkg --remove \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$') || true; \
-	  cd /root/$(notdir $(<:build-env/$(RELEASE)/root/%/src/.source=%))/src/; \
+	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source=%))/src/; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
 	  debuild -b -us -uc; \
@@ -82,7 +82,9 @@ clean-repo: clean-repo@flash-kernel
 reset-repo: reset-repo@flash-kernel
 
 clean-buildenv:
-	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/$(RELEASE)"
+	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
+	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
+	rmdir "$(CURDIR)/build-env/" || true
 
 clean-build:
 	rm -rf bin/$(RELEASE)

@@ -27,12 +27,20 @@ ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),ye
 include $(project_root)/config/userdefined.mk
 endif
 
-ifdef REPO-$(RELEASE)
-  REPO = $(REPO-$(RELEASE))
+ifdef REPO-$(DISTRO)
+  REPO = $(REPO-$(DISTRO))
 endif
 
-ifdef CHROOT_REPO-$(RELEASE)
-  CHROOT_REPO = $(CHROOT_REPO-$(RELEASE))
+ifdef REPO-$(DISTRO)-$(RELEASE)
+  REPO = $(REPO-$(DISTRO)-$(RELEASE))
+endif
+
+ifdef CHROOT_REPO-$(DISTRO)
+  CHROOT_REPO = $(CHROOT_REPO-$(DISTRO))
+endif
+
+ifdef CHROOT_REPO-$(DISTRO)-$(RELEASE)
+  CHROOT_REPO = $(CHROOT_REPO-$(DISTRO)-$(RELEASE))
 endif
 
 CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(.VARIABLES)))))

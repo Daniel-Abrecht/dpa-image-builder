@@ -56,7 +56,8 @@ make
 | -------- | ------- | ----------- |
 | BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
 | IMGSIZE | 4GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
-| RELEASE | ascii | The release to debootstrap |
+| DISTRO | devuan | The distribution |
+| RELEASE | beowulf | The release of the disribution to debootstrap |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
 | IMAGE_NAME | devuan-$(RELEASE)-librem5-$(BOARD)-base.img | The name of the image |

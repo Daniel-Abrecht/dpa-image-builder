@@ -20,12 +20,13 @@ then
 fi
 
 # Set release repo if not already defined
+if [ -z "$DISTRO" ]; then DISTRO=devuan; fi
 if [ -z "$RELEASE" ]; then RELEASE=ascii; fi
 if [ -z "$REPO" ]; then REPO=https://pkgmaster.devuan.org/merged/; fi
 if [ -z "$CHROOT_REPO" ]; then CHROOT_REPO="$REPO"; fi
 if [ -z "$KERNEL_DTB" ]; then echo "Pleas set KERNEL_DTB" >2; exit 1; fi
 
-tmp="$base/build/$RELEASE/filesystem/"
+tmp="$base/build/$DISTRO/$RELEASE/"
 
 # Cleanup if any of the remaining steps fails
 cleanup(){
@@ -75,7 +76,7 @@ chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
 mkdir "$tmp/rootfs/root/temp-repo/"
 cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/temp-repo/"
-cp chroot-build-helper/bin/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
+cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/temp-repo/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 (
