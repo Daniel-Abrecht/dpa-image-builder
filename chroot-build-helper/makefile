@@ -87,4 +87,6 @@ clean-buildenv:
 	rmdir "$(CURDIR)/build-env/" || true
 
 clean-build:
-	rm -rf bin/$(RELEASE)
+	rm -rf bin/$(DISTRO)/$(RELEASE)
+	rmdir bin/$(DISTRO)/ || true
+	rmdir bin || true
