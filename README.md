@@ -21,8 +21,8 @@ There is still a lot to do.
 
 You need the following packages for this to work:
  * make
- * gcc,
- * gcc-aarch64-linux-gnu,
+ * gcc
+ * gcc-aarch64-linux-gnu
  * gcc-arm-none-eabi
  * libext2fs-dev (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
  * libtar-dev
@@ -31,8 +31,10 @@ You need the following packages for this to work:
  * device-tree-compiler
  * comerr-dev
  * jq
+ * debootstrap
  * qemu-user-static (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * uidmap
+ * binfmt-support (optional)
 
 Setting up binfmt-misc on non-aarch64 hosts is not necessary, but recommended.
 It may speed up the build process and make the bootstrapping more reliable.
