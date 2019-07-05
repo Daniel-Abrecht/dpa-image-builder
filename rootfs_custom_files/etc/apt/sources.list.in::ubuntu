@@ -1,0 +1,9 @@
+deb     $CHROOT_REPO $RELEASE           main universe
+deb-src $CHROOT_REPO $RELEASE           main universe
+deb     $CHROOT_REPO $RELEASE-updates   main universe
+deb-src $CHROOT_REPO $RELEASE-updates   main universe
+deb     $CHROOT_REPO $RELEASE-backports main universe
+deb-src $CHROOT_REPO $RELEASE-backports main universe
+deb     $CHROOT_REPO $RELEASE-security  main universe
+deb-src $CHROOT_REPO $RELEASE-security  main universe
+

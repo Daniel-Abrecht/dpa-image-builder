@@ -1,0 +1,7 @@
+deb     $CHROOT_REPO $RELEASE           main
+deb-src $CHROOT_REPO $RELEASE           main
+deb     $CHROOT_REPO $RELEASE-updates   main
+deb-src $CHROOT_REPO $RELEASE-updates   main
+deb     $CHROOT_REPO $RELEASE-backports main
+deb-src $CHROOT_REPO $RELEASE-backports main
+

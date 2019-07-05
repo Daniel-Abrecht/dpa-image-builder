@@ -6,10 +6,12 @@ REPO = http://pkgmaster.devuan.org/merged/
 CHROOT_REPO = $(REPO)
 
 REPO-devuan = http://pkgmaster.devuan.org/merged/
-REPO-debian = http://deb.debian.org/debian
+REPO-debian = http://deb.debian.org/debian/
+REPO-ubuntu = http://ports.ubuntu.com/ubuntu-ports/
 
 DEFAULT_RELEASE-devuan = beowulf
 DEFAULT_RELEASE-debian = buster
+DEFAULT_RELEASE-ubuntu = disco
 
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-librem5-$(BOARD)-base.img
 

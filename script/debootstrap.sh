@@ -48,6 +48,7 @@ sanitize_pkg_list(){
 
 packages_download_only="$(sanitize_pkg_list < packages_download_only)"
 packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
+packages_early="$(sanitize_pkg_list < packages_install_early)"
 packages="$(sanitize_pkg_list < packages_install_debootstrap)"
 
 if [ "$AARCH64_EXECUTABLE" != yes ]
@@ -83,24 +84,31 @@ cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/te
   cd "$base/rootfs_custom_files/"
   find | while IFS= read -r file
   do
-    if [ -d "$file" ]
+    file="$(printf "%s" "$file" | sed 's|::[^/]*$||')"
+    source="$file"
+    if   [ -e "$file::$DISTRO-$RELEASE" ]
+      then source="$file::$DISTRO-$RELEASE"
+    elif [ -e "$file::$DISTRO" ]
+      then source="$file::$DISTRO"
+    fi
+    if [ -d "$source" ]
     then
-      mkdir -p "$file"
+      mkdir -p "$tmp/rootfs/$source"
       continue
     fi
-    dir="$tmp/rootfs/$(dirname "$file")"
+    dir="$tmp/rootfs/$(dirname "$source")"
     mkdir -p "$dir"
     case "$file" in
       *.in)
         target="$dir/$(basename "$file" .in)"
         # The sed stuff allows escaping $ using $$
-        sed 's/\$\$/\x1/g' <"$file" | envsubst | sed 's/\x1/\$/g' >"$target"
+        sed 's/\$\$/\x1/g' <"$source" | envsubst | sed 's/\x1/\$/g' >"$target"
       ;;
       *.rm)
         target="$dir/$(basename "$file" .rm)"
 	rm "$target"
       ;;
-      *) cp "$file" "$dir" ;;
+      *) cp "$source" "$dir" ;;
     esac
   done
 )
@@ -108,10 +116,18 @@ cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/te
 # Packages to install on device
 echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_install"
 
+# Temporary source list
+(
+  CHROOT_REPO="$REPO" ./script/getrfsfile.sh "etc/apt/sources.list"
+  echo
+  echo 'deb file:///root/temp-repo/ ./'
+) >"$tmp/rootfs/root/temporary-local-repo.list"
+
 # Do some stuff inside the chroot
 (
   cp script/rootfs_setup.sh "$tmp/rootfs/root/rootfs_setup.sh"
   export packages="$packages_second_stage $packages_download_only"
+  export install_packages="$packages_early"
   chroot_qemu_static.sh "$tmp/rootfs/" /root/rootfs_setup.sh
   rm "$tmp/rootfs/root/rootfs_setup.sh"
 )

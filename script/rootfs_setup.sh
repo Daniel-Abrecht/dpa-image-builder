@@ -18,15 +18,6 @@ Dpkg::Options:: "--force-confold";
 EOF
 export APT_CONFIG=/root/apt-tmp.conf
 
-# Use bootstrapping repos for this
-cat >/root/temporary-local-repo.list <<EOF
-deb $REPO $RELEASE          main
-#deb $REPO $RELEASE-updates  main
-#deb $REPO $RELEASE-security main
-
-deb file:///root/temp-repo/ ./
-EOF
-
 (
   cd /root/temp-repo/
   dpkg-scanpackages -m . > Packages
@@ -51,6 +42,7 @@ dpkg-reconfigure $(dpkg-query -f '${db:Status-Abbrev} ${binary:Package}\n' -W li
 # download packages
 (
   IFS=", "
+  apt-get -y install $install_packages
   for package in $packages
   do
     apt-get -d -y install "$package"
@@ -86,3 +78,6 @@ EOF
 
 # Update package list of local repo
 apt-get update
+
+# In case the C.UTF-8 locale wasn't generated yet. Usually not that important though
+locale-gen || true
