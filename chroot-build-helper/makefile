@@ -21,8 +21,10 @@ all: $(addprefix build@,$(TARGETS))
 deb-console-keyboard-basic: deb-libconsolekeyboard
 deb-console-keyboard-multiplexer: deb-libconsolekeyboard deb-libttymultiplex deb-console-keyboard-basic
 
-repo: \
-  repo/flash-kernel/.repo
+pkg-repo@deb-%: repo@%
+	@true
+
+repo: $(addprefix pkg-repo@,$(TARGETS))
 
 build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
 	@true
@@ -78,8 +80,15 @@ bin/$(DISTRO)/$(RELEASE)/deb-%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src
 	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
 	touch "$@"
 
-clean-repo: clean-repo@flash-kernel
-reset-repo: reset-repo@flash-kernel
+pkg-clean-repo@deb-%: clean-repo@%
+	@true
+
+clean-repo: $(addprefix pkg-clean-repo@,$(TARGETS))
+
+pkg-reset-repo@deb-%: reset-repo@%
+	@true
+
+reset-repo: $(addprefix pkg-reset-repo@,$(TARGETS))
 
 clean-buildenv:
 	$(SETUPBUILDENV) uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"

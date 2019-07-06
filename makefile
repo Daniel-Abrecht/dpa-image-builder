@@ -130,6 +130,7 @@ repo: always \
   repo/tar2ext/.repo
 	$(MAKE) -C uboot repo
 	$(MAKE) -C kernel repo
+	$(MAKE) -C chroot-build-helper repo
 
 clean-repo: clean-repo@fuseloop clean-repo@usernsexec clean-repo@tar2ext
 	$(MAKE) -C uboot clean-repo
