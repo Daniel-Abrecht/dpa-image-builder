@@ -96,10 +96,7 @@ reset-repo@%:
 	  find -maxdepth 1 -not -name .git -not -name . -exec rm -rf {} \;; \
 	  git remote set-url origin "$$source"; \
 	  git fetch || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
-	  git checkout "$$branch" >/dev/null; \
-	  git reset --hard; \
-	  git merge; \
-	  git reset --hard; \
+	  git reset --hard "origin/$$branch" >/dev/null; \
 	  touch .repo; \
 	fi
 
