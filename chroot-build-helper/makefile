@@ -47,7 +47,7 @@ build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	chmod 666 "$@.tmp/dev/null"
 	chmod +x "$@.tmp/root/helper/mknod" "$@.tmp/root/helper/mount"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
-	CHROOT_REPO="$$REPO" ../script/getrfsfile.sh "etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
+	CHROOT_REPO="$$REPO" ../script/getrfsfile.sh "rootfs_custom_files/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot

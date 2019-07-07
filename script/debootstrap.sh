@@ -22,11 +22,13 @@ fi
 # Set release repo if not already defined
 if [ -z "$DISTRO" ]; then DISTRO=devuan; fi
 if [ -z "$RELEASE" ]; then RELEASE=ascii; fi
+if [ -z "$VARIANT" ]; then VARIANT=base; fi
+if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="$DISTRO-$RELEASE-librem5-devkit-$(VARIANT).img"; fi
 if [ -z "$REPO" ]; then REPO=https://pkgmaster.devuan.org/merged/; fi
 if [ -z "$CHROOT_REPO" ]; then CHROOT_REPO="$REPO"; fi
 if [ -z "$KERNEL_DTB" ]; then echo "Pleas set KERNEL_DTB" >2; exit 1; fi
 
-tmp="$base/build/$DISTRO/$RELEASE/"
+tmp="$base/build/$IMAGE_NAME/"
 
 # Cleanup if any of the remaining steps fails
 cleanup(){
@@ -46,10 +48,34 @@ sanitize_pkg_list(){
   sed 's/#.*//' | tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
 }
 
-packages_download_only="$(sanitize_pkg_list < packages_download_only)"
-packages_second_stage="$(sanitize_pkg_list < packages_install_target)"
-packages_early="$(sanitize_pkg_list < packages_install_early)"
-packages="$(sanitize_pkg_list < packages_install_debootstrap)"
+packages=
+packages_early=
+packages_second_stage=
+packages_download_only=
+
+mkdir -p "$tmp/rootfs/root/post_debootstrap/"
+
+i=0
+for spec in "default" "default::$VARIANT" "$DISTRO-$RELEASE::$VARIANT" "$DISTRO-$RELEASE" "$DISTRO::$VARIANT" "$DISTRO"
+do
+  i="$(expr "$i" + 1)"
+  packages_base="packages/$spec/"
+  if [ -f "$packages_base/install_debootstrap" ]
+    then packages="$packages $(sanitize_pkg_list < "$packages_base/install_debootstrap")"
+  fi
+  if [ -f "$packages_base/download" ]
+    then packages_download_only="$packages_download_only $(sanitize_pkg_list < "$packages_base/download")"
+  fi
+  if [ -f "$packages_base/install_early" ]
+    then packages_early="$packages_early $(sanitize_pkg_list < "$packages_base/install_early")"
+  fi
+  if [ -f "$packages_base/install_second_stage" ]
+    then packages_second_stage="$packages_second_stage $(sanitize_pkg_list < "$packages_base/install_second_stage")"
+  fi
+  if [ -x "$packages_base/post_debootstrap" ]
+    then cp "$packages_base/post_debootstrap" "$tmp/rootfs/root/post_debootstrap/$i-$spec.sh"
+  fi
+done
 
 if [ "$AARCH64_EXECUTABLE" != yes ]
   then packages="$packages,fakechroot"
@@ -85,16 +111,22 @@ cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/te
   find | while IFS= read -r file
   do
     file="$(printf "%s" "$file" | sed 's|::[^/]*$||')"
-    source="$file"
-    if   [ -e "$file::$DISTRO-$RELEASE" ]
+    if   [ -e "$file::$DISTRO-$RELEASE::$VARIANT" ]
+      then source="$file::$DISTRO-$RELEASE::$VARIANT"
+    elif [ -e "$file::$DISTRO-$RELEASE" ]
       then source="$file::$DISTRO-$RELEASE"
+    elif [ -e "$file::$DISTRO::$VARIANT" ]
+      then source="$file::$DISTRO::$VARIANT"
     elif [ -e "$file::$DISTRO" ]
       then source="$file::$DISTRO"
+    elif [ -e "$file::$VARIANT" ]
+      then source="$file::$VARIANT"
+    elif [ -e "$file" ]
+      then source="$file"
+      else continue
     fi
     if [ -d "$source" ]
-    then
-      mkdir -p "$tmp/rootfs/$source"
-      continue
+      then continue
     fi
     dir="$tmp/rootfs/$(dirname "$source")"
     mkdir -p "$dir"
@@ -118,7 +150,11 @@ echo "$packages_second_stage" | tr ',' '\n' > "$tmp/rootfs/root/packages_to_inst
 
 # Temporary source list
 (
-  CHROOT_REPO="$REPO" ./script/getrfsfile.sh "etc/apt/sources.list"
+  export CHROOT_REPO="$REPO" 
+  ./script/getrfsfile.sh "rootfs_custom_files/etc/apt/sources.list"
+  for file in "rootfs_custom_files/etc/apt/sources.list.d/"*
+    do ./script/getrfsfile.sh "$(printf "%s" "$file" | sed 's|::[^/]*$||')" || true
+  done
   echo
   echo 'deb file:///root/temp-repo/ ./'
 ) >"$tmp/rootfs/root/temporary-local-repo.list"

@@ -35,12 +35,20 @@ ifdef REPO-$(DISTRO)-$(RELEASE)
   REPO = $(REPO-$(DISTRO)-$(RELEASE))
 endif
 
+ifdef REPO-$(DISTRO)-$(RELEASE)-$(VARIANT)
+  REPO = $(REPO-$(DISTRO)-$(RELEASE)-$(VARIANT))
+endif
+
 ifdef CHROOT_REPO-$(DISTRO)
   CHROOT_REPO = $(CHROOT_REPO-$(DISTRO))
 endif
 
 ifdef CHROOT_REPO-$(DISTRO)-$(RELEASE)
   CHROOT_REPO = $(CHROOT_REPO-$(DISTRO)-$(RELEASE))
+endif
+
+ifdef CHROOT_REPO-$(DISTRO)-$(RELEASE)-$(VARIANT)
+  CHROOT_REPO = $(CHROOT_REPO-$(DISTRO)-$(RELEASE)-$(VARIANT))
 endif
 
 CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(.VARIABLES)))))

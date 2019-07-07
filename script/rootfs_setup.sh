@@ -27,6 +27,14 @@ export APT_CONFIG=/root/apt-tmp.conf
 
 export DEBIAN_FRONTEND=noninteractive
 
+# run post_debootstrap scripts
+for pdscript in /root/post_debootstrap/*
+do
+  if [ -x "$pdscript" ]
+    then "$pdscript"
+  fi
+done
+
 # Update package list, update everything, install kernel & other custom packages and clean apt cache (remove no longer needed packages)
 apt-get update
 apt-get -y dist-upgrade
@@ -43,6 +51,7 @@ dpkg-reconfigure $(dpkg-query -f '${db:Status-Abbrev} ${binary:Package}\n' -W li
 (
   IFS=", "
   apt-get -y install $install_packages
+  apt-get clean
   for package in $packages
   do
     apt-get -d -y install "$package"

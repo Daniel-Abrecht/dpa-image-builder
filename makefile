@@ -15,8 +15,8 @@ clean-fs-all:
 	rm -rf build/
 
 clean-fs:
-	rm -rf "build/$(DISTRO)/$(RELEASE)/bootfs.tar"
-	rm -rf "build/$(DISTRO)/$(RELEASE)/rootfs.tar"
+	rm -rf "build/$(IMAGE_NAME)/bootfs.tar"
+	rm -rf "build/$(IMAGE_NAME)/rootfs.tar"
 
 clean-image-all:
 	rm -f bin/*.img
@@ -50,13 +50,10 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
-build/$(DISTRO)/$(RELEASE)/rootfs.tar: \
+build/$(IMAGE_NAME)/rootfs.tar: \
   kernel/bin/linux-image.deb \
   uboot/bin/uboot_firmware_and_dtb.bin \
   build/bin/usernsexec \
-  packages_install_debootstrap \
-  packages_install_target \
-  packages_download_only \
   rootfs_custom_files/ \
   bin/.dir
 	$(MAKE) extra_packages
@@ -65,7 +62,7 @@ build/$(DISTRO)/$(RELEASE)/rootfs.tar: \
 bin/$(IMAGE_NAME): \
   build/bin/fuseloop \
   build/bin/writeTar2Ext \
-  build/$(DISTRO)/$(RELEASE)/rootfs.tar \
+  build/$(IMAGE_NAME)/rootfs.tar \
   uboot/bin/uboot_firmware_and_dtb.bin \
   kernel/bin/linux-image.deb
 	./script/assemble_image.sh

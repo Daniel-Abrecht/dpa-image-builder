@@ -9,7 +9,8 @@ tmp="$(mktemp -d -p build)"
 
 if [ -z "$DISTRO" ]; then DISTRO="devuan"; fi
 if [ -z "$RELEASE" ]; then RELEASE="ascii"; fi
-if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="$DISTRO-$RELEASE-librem5-devkit-base.img"; fi
+if [ -z "$VARIANT" ]; then VARIANT="base"; fi
+if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="$DISTRO-$RELEASE-librem5-devkit-$(VARIANT).img"; fi
 
 # Some programs like sfdisk are in /sbin/, but they work just fine as non-root on an image
 PATH="$base/build/bin/:$base/script/:/sbin/:/usr/sbin/:$PATH"
@@ -100,8 +101,8 @@ mkfs.ext2 -L boot "$bootdev"
 mkfs.ext4 -L root -E discard "$rootdev"
 
 # Write rootfs to partitions
-writeTar2Ext "$bootdev" < build/$DISTRO/$RELEASE/bootfs.tar
-writeTar2Ext "$rootdev" < build/$DISTRO/$RELEASE/rootfs.tar
+writeTar2Ext "$bootdev" < "build/$IMAGE_NAME/bootfs.tar"
+writeTar2Ext "$rootdev" < "build/$IMAGE_NAME/rootfs.tar"
 
 # Unmount & remove fuse loop devices
 umount_wait

@@ -20,6 +20,7 @@ cleanup(){
     true <"$rootfs/dev/zero"
     rm "$rootfs/dev/zero"
   fi
+  rm -f "$rootfs"/usr/sbin/policy-rc.d
 }
 trap cleanup EXIT TERM INT
 
@@ -67,6 +68,11 @@ then
   ) & zero_PID=$!
 fi
 
+cat >"$rootfs"/usr/sbin/policy-rc.d <<EOF
+#!/bin/sh
+exit 101
+EOF
+chmod +x "$rootfs"/usr/sbin/policy-rc.d
 
 # Enter the chroot
 if [ "$AARCH64_EXECUTABLE" = yes ]
@@ -78,5 +84,6 @@ else
 fi
 
 rm -f "$rootfs$qemu_aarch64_static_binary"
+rm -f "$rootfs"/usr/sbin/policy-rc.d
 
 ) 9>"$rootfs/chroot_access_lock"

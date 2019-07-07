@@ -1,7 +1,8 @@
 BOARD = devkit
-IMGSIZE = 4GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
+IMGSIZE = 3GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
 DISTRO = devuan
 RELEASE = $(DEFAULT_RELEASE-$(DISTRO))
+VARIANT = base
 REPO = http://pkgmaster.devuan.org/merged/
 CHROOT_REPO = $(REPO)
 
@@ -13,7 +14,7 @@ DEFAULT_RELEASE-devuan = beowulf
 DEFAULT_RELEASE-debian = buster
 DEFAULT_RELEASE-ubuntu = disco
 
-IMAGE_NAME = $(DISTRO)-$(RELEASE)-librem5-$(BOARD)-base.img
+IMAGE_NAME = $(DISTRO)-$(RELEASE)-librem5-$(BOARD)-$(VARIANT).img
 
 CROSS_COMPILER = aarch64-linux-gnu-
 
