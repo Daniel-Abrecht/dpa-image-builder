@@ -5,3 +5,6 @@ u-boot-tools
 # Required by rootfs_setup.sh and first_boot_setup.sh
 dpkg-dev
 initramfs-tools
+
+# Needed by current flash-kernel version, remove once everything is mainline
+file
