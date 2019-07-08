@@ -5,6 +5,9 @@ UBOOT_DTB = librem5-evk.dtb
 repo-branch@uboot = devkit-wip
 repo-source@uboot = https://source.puri.sm/Librem5/uboot-imx.git
 
+repo-branch@mesa = pureos/purple
+repo-source@mesa = https://source.puri.sm/Librem5/mesa.git
+
 KERNEL_CONFIG_TARGET = librem5-devkit
 KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb
 
@@ -31,3 +34,7 @@ repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-k
 
 repo-branch@consolation = master
 repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
+
+no-custom-mesa-devuan-ascii = 1
+no-custom-mesa-debian-stretch = 1
+no-custom-mesa-ubuntu-xenial = 1

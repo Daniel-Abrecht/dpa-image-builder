@@ -9,6 +9,10 @@ TARGETS += deb-libconsolekeyboard
 TARGETS += deb-console-keyboard-basic
 TARGETS += deb-console-keyboard-multiplexer
 
+ifndef no-custom-mesa-$(DISTRO)-$(RELEASE)
+  TARGETS += deb-mesa
+endif
+
 TARGETS += $(CROSSBUILD_SOURCE_PACKAGES)
 
 # Packages using seccomp will hang qemu-user, so let's replace them
@@ -40,12 +44,13 @@ build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
 	# Stub things which won't work in a chroot
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
+	chmod +x "$@.tmp/root/helper/mknod"
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
+	chmod +x "$@.tmp/root/helper/mount"
 	printf 'APT::Get::AllowUnauthenticated "true";\nAcquire::AllowInsecureRepositories "true";' >"$@.tmp/etc/apt/apt.conf.d/80localnocheck"
 	# Stub man stuff, because it may use seccomp, would hand qemu-user-static :(
 	touch "$@.tmp/dev/null"
 	chmod 666 "$@.tmp/dev/null"
-	chmod +x "$@.tmp/root/helper/mknod" "$@.tmp/root/helper/mount"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
 	CHROOT_REPO="$$REPO" ../script/getrfsfile.sh "rootfs_custom_files/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	$(SETUPBUILDENV) uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update

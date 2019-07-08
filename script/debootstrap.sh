@@ -52,6 +52,7 @@ packages=
 packages_early=
 packages_second_stage=
 packages_download_only=
+packages_exclude_debootstrap=
 
 mkdir -p "$tmp/rootfs/root/post_debootstrap/"
 
@@ -72,6 +73,9 @@ do
   if [ -f "$packages_base/install_second_stage" ]
     then packages_second_stage="$packages_second_stage $(sanitize_pkg_list < "$packages_base/install_second_stage")"
   fi
+  if [ -f "$packages_base/debootstrap_exclude" ]
+    then packages_exclude_debootstrap="$packages_exclude_debootstrap $(sanitize_pkg_list < "$packages_base/debootstrap_exclude")"
+  fi
   if [ -x "$packages_base/post_debootstrap" ]
     then cp "$packages_base/post_debootstrap" "$tmp/rootfs/root/post_debootstrap/$i-$spec.sh"
   fi
@@ -88,9 +92,10 @@ if echo "$CHROOT_REPO" | grep -o '^[^:]*' | grep -q 'spacewalk'; then packages="
 
 packages="$(echo "$packages" | sanitize_pkg_list)"
 if [ -n "$packages" ]; then packages="--include=$packages"; fi
+if [ -n "$packages_exclude_debootstrap" ]; then packages_exclude_debootstrap="--exclude=$packages_exclude_debootstrap"; fi
 
 # Create usable first-stage rootfs
-debootstrap --foreign --arch=arm64 $packages "$RELEASE" "$tmp/rootfs" "$REPO"
+debootstrap --foreign --arch=arm64 $packages_exclude_debootstrap $packages "$RELEASE" "$tmp/rootfs" "$REPO"
 
 touch "$tmp/rootfs/dev/null" # yes, this is a really bad idea, but hacking together a fuse file system just for this is overkill. Also, unionfs-fuse won't work here (fuse default is mounting as nodev), and there is no way to create a proper device file.
 chmod 666 "$tmp/rootfs/dev/null"
