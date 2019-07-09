@@ -1,9 +1,0 @@
-Section: misc
-Priority: optional
-Standards-Version: 3.9.2
-
-Package: makedev-dummy
-Version: 99:99
-Provides: makedev
-Architecture: all
-Description: Dummy makedev package, because creating device files won't work in this chroot

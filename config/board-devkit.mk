@@ -37,4 +37,3 @@ repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
 
 no-custom-mesa-devuan-ascii = 1
 no-custom-mesa-debian-stretch = 1
-no-custom-mesa-ubuntu-xenial = 1

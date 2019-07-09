@@ -145,7 +145,7 @@ cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/deb-*/*.deb "$tmp/rootfs/root/te
         target="$dir/$(basename "$file" .rm)"
 	rm "$target"
       ;;
-      *) cp "$source" "$dir" ;;
+      *) cp "$source" "$dir/$(basename "$file")" ;;
     esac
   done
 )
