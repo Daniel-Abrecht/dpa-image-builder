@@ -49,7 +49,7 @@ firmware/m4.bin: repo/Cortex_M4/.repo firmware/.dir
 	cp repo/Cortex_M4/m4.bin firmware/
 
 firmware/bl31.bin: repo/arm-trusted-firmware/.repo firmware/.dir
-	$(MAKE) -C repo/arm-trusted-firmware/ PLAT=imx8mq CROSS_COMPILE=$(CROSS_COMPILER) bl31
+	$(MAKE) -C repo/arm-trusted-firmware/ PLAT=$(ATF_PLATFORM) CROSS_COMPILE=$(CROSS_COMPILER) bl31
 	cp repo/arm-trusted-firmware/build/imx8mq/release/bl31.bin firmware/
 
 $(NONFREE_FIRMWARE_CRAP): repo/firmware-imx/.repo

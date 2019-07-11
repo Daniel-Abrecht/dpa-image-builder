@@ -30,5 +30,6 @@ repo-source@tar2ext = https://github.com/Daniel-Abrecht/tar2ext.git
 repo-branch@Cortex_M4 = master
 repo-source@Cortex_M4 = https://source.puri.sm/Librem5/Cortex_M4.git
 
-repo-branch@arm-trusted-firmware = imx_4.9.51_imx8m_beta
-repo-source@arm-trusted-firmware = https://source.codeaurora.org/external/imx/imx-atf
+ATF_PLATFORM = imx8mq
+repo-branch@arm-trusted-firmware = librem5
+repo-source@arm-trusted-firmware = https://source.puri.sm/Librem5/trusted-firmware-a
