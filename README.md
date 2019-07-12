@@ -53,7 +53,7 @@ built binaries to /usr/local: `cp uuu/uuu /usr/local/bin/; cp libuuu/libuuu* /us
 
 These build scripts take advantage of the linux kernels unprivileged user namespace
 feature, subuids and subgids to to run commands in the chroot environment it bootstraps
-as if they where run as root or some other user, while the actually run as the current
+as if they where run as root or some other user, while they actually run as the current
 user or one of it's subuids. For this to work, please first check the following.
 
 Verify that unprivileged user namespaces are enabled: `sysctl kernel.unprivileged_userns_clone`.
@@ -137,10 +137,10 @@ The urls and reponame of all used repositories as well as the defaults of most v
 
 To add any files to the image, just add them to the rootfs_custom_files folder.
 Variables in files in that folder suffixed with .in will be replaced by the
-config and environment variables the build scripts have been run as. To only include
-a file in a speciffic distro or release, suffix it with ::distro or ::distro-release
+config and environment variables the build scripts have been run with. To only include
+a file in a speciffic distro or release, suffix it with `::distro` or `::distro-release`.
 To only add a file if a speciffic variant of a distro image is built, add an additional
-suffix ::variant to it.
+suffix `::variant` to it.
 
 Lists of packages to be installed can be found in the `packages/` directory.
 The build script will combine the contents of the following subdirectories:
