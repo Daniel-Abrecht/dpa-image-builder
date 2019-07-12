@@ -23,7 +23,10 @@ You need the following packages for this to work:
  * make
  * gcc
  * gcc-aarch64-linux-gnu
+ * libc6-dev-arm64-cross
  * gcc-arm-none-eabi
+ * libnewlib-arm-none-eabi
+ * libstdc++-arm-none-eabi-newlib
  * libext2fs-dev (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
  * libtar-dev
  * bison
@@ -31,6 +34,7 @@ You need the following packages for this to work:
  * device-tree-compiler
  * comerr-dev
  * jq
+ * equivs
  * debootstrap
  * qemu-user-static (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * uidmap
@@ -45,6 +49,26 @@ For flashing the image, you'll also need uuu. You can get uuu from https://sourc
 Just make sure uu is in your path when flashing the image. I've just copied the
 built binaries to /usr/local: `cp uuu/uuu /usr/local/bin/; cp libuuu/libuuu* /usr/local/lib/;`
 
+## Other requirements & things to check first
+
+These build scripts take advantage of the linux kernels unprivileged user namespace
+feature, subuids and subgids to to run commands in the chroot environment it bootstraps
+as if they where run as root or some other user, while the actually run as the current
+user or one of it's subuids. For this to work, please first check the following.
+
+Verify that unprivileged user namespaces are enabled: `sysctl kernel.unprivileged_userns_clone`.
+If they aren't, they can either be enable temporarely: `sysctl kernel.unprivileged_userns_clone=1`,
+or permanently by adding the line `kernel.unprivileged_userns_clone = 1` to
+`/etc/sysctl.conf` and reloading it using `sysctl -p`.
+
+The user the build script runs as should have at least 65536 subuids and subgids
+(because 65536:65536 is always nobody:nogroup). The files `/etc/subuid` and
+`/etc/subgid` contain all subuids and subgids and are an easy way to check if a
+user has any. To add new subuids and subgids, you can use the `usermod` program.
+The subuids shouldn't overlap with any existing uids or subuids, because a user
+can switch to it's subuids. Usually, just using the uids after the biggest/last
+used subuid is a good idea.
+
 ## Usage
 
 Everithing in this repo is designed to work without root. I haven't testet if it even works when run as root.
@@ -57,9 +81,10 @@ make
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
 | BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
-| IMGSIZE | 4GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
+| IMGSIZE | 3GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | DISTRO | devuan | The distribution |
 | RELEASE | beowulf | The release of the disribution to debootstrap |
+| VARIANT | base | A variation of the image to build, used to create image versions with some additional packages, repos, etc. |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
 | IMAGE_NAME | devuan-$(RELEASE)-librem5-$(BOARD)-base.img | The name of the image |
@@ -111,10 +136,28 @@ The urls and reponame of all used repositories as well as the defaults of most v
 ## Modifying the image
 
 To add any files to the image, just add them to the rootfs_custom_files folder.
-To install any additional packages, add them to the packages_install_target file.
-These package will be installed after the first boot.
-To install any packages even earlier with the debootstrap, add them to the packages_install_debootstrap file.
-To only download packages so they could be installed later without an internet connection, add them to the packages_download_only file.
+Variables in files in that folder suffixed with .in will be replaced by the
+config and environment variables the build scripts have been run as. To only include
+a file in a speciffic distro or release, suffix it with ::distro or ::distro-release
+To only add a file if a speciffic variant of a distro image is built, add an additional
+suffix ::variant to it.
+
+Lists of packages to be installed can be found in the `packages/` directory.
+The build script will combine the contents of the following subdirectories:
+ * `default`
+ * `default::$VARIANT`
+ * `$DISTRO-$RELEASE::$VARIANT`
+ * `$DISTRO-$RELEASE`
+ * `$DISTRO::$VARIANT`
+ * `$DISTRO`
+
+These subdirectories contain the following files:
+ * `install_debootstrap`: Packages to be installed by debootstrap.
+ * `post_debootstrap`: A script to be executed after the bootstrapping phase. Useful for adding additional repo keys.
+ * `install_early`: Packages to be installed using apt after the bootstrapping.
+ * `install_target`: Packages to be installed after the first boot.
+ * `download`: Packages which are only downloaded (including the dependencies), but not installed.
+
 To do things after the first boot, add them to the `rootfs_custom_files/root/first_boot_setup.sh` file. It's called from `rootfs_custom_files/etc/rc.local` file.
 You can also add your own packages into `rootfs_custom_files/root/temp-repo/` to automatically install them.
 
@@ -129,8 +172,6 @@ There are currently 5 Proprietary binary blobs from nxp contained in the final u
 
 One of the lpddr4_\*.bin files is required for training the DDR PHY. The HDMI bin file is for DRM HDMI signals.
 All of the lpddr4_\*.bin firmware files are currently needed to build uboot and thus the image.
-Purism wants to attempt to remove all proprietary firmwares from their images as time permitts. I'll try
-to apply the same changes to my build scripts once that happens.
 
 The license in this repository only applies to the files in this repository.
 Other repositories loaded by these scripts often use different licenses,
