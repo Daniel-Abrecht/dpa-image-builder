@@ -1,0 +1,9 @@
+# packages needed for installation or booting
+flash-kernel
+
+# Packages for console keyboard
+console-keyboard-multiplexer
+console-keyboard-basic
+libconsolekeyboard
+libttymultiplex
+consolation

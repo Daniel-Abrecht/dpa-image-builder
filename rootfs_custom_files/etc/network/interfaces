@@ -3,6 +3,9 @@
 
 source /etc/network/interfaces.d/*
 
-#allow-hotplug eth0
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
 iface eth0 inet dhcp
 

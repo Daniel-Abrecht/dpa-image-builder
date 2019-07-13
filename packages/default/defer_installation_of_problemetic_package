@@ -1,0 +1,2 @@
+# These packaages won't install in a crossdev chroot. 
+man-db # Hangs forever because of seccomp & quemu-aarch64-static problem
