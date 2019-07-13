@@ -4,6 +4,7 @@ default_target: all
 .SECONDARY:
 
 project_root := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))..)
+export project_root
 
 VARS_OLD := $(subst %,,$(subst *,,$(.VARIABLES)))
 
@@ -35,20 +36,12 @@ ifdef REPO-$(DISTRO)-$(RELEASE)
   REPO = $(REPO-$(DISTRO)-$(RELEASE))
 endif
 
-ifdef REPO-$(DISTRO)-$(RELEASE)-$(VARIANT)
-  REPO = $(REPO-$(DISTRO)-$(RELEASE)-$(VARIANT))
-endif
-
 ifdef CHROOT_REPO-$(DISTRO)
   CHROOT_REPO = $(CHROOT_REPO-$(DISTRO))
 endif
 
 ifdef CHROOT_REPO-$(DISTRO)-$(RELEASE)
   CHROOT_REPO = $(CHROOT_REPO-$(DISTRO)-$(RELEASE))
-endif
-
-ifdef CHROOT_REPO-$(DISTRO)-$(RELEASE)-$(VARIANT)
-  CHROOT_REPO = $(CHROOT_REPO-$(DISTRO)-$(RELEASE)-$(VARIANT))
 endif
 
 CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(.VARIABLES)))))
@@ -59,8 +52,7 @@ CONF = userdefined
 
 include $(project_root)/src/repositories.mk
 
-SETUPBUILDENV := \
-  export PATH="/helper/bin:$(project_root)/script/:/sbin:/usr/sbin:$$PATH:$(project_root)/build/bin:$(project_root)/bin";
+export PATH := /helper/bin:$(project_root)/script/:/sbin:/usr/sbin:$(PATH):$(project_root)/build/bin:$(project_root)/bin
 
 ifeq (x$(shell echo 'int main(){}' | $(CROSS_COMPILER)gcc -static -x c - -o .aarch64test &>/dev/null; sync .; sleep 0.5; sync .; ./.aarch64test &>/dev/null; echo $$?), x0)
 # This usually means binfmt-misc (qemu-user-binfmt in devuan) is set up, (or we are really on aarch64)
@@ -69,12 +61,13 @@ else
 export AARCH64_EXECUTABLE := no
 endif
 
+include $(project_root)/src/package_list.mk
+
 %/.dir:
 	mkdir -p "$(dir $@)"
 	touch "$@"
 
 chroot@%:
-	$(SETUPBUILDENV) \
 	export PROMPT_COMMAND="export PS1='$@ (\u)> '"; \
 	uexec --allow-setgroups chroot_qemu_static.sh "$(realpath $(patsubst chroot@%,%,$@))" /bin/bash
 

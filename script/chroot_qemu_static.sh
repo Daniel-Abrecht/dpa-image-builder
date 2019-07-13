@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -z "$AARCH64_EXECUTABLE" ]
+  then echo "Warning: AARCH64_EXECUTABLE is not set! (Note: This script is expected to be called by the make file)" >&2
+fi
+
 rootfs="$1"
 shift
 

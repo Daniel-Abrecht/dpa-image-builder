@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ -z "project_root" ]; then
+  echo "Error: project_root is not set! THis script has to be called from the makefile build env" >&2
+  exit 1
+fi
+
 set -xe
 
 cd "$(dirname "$0")/.."
@@ -7,18 +12,7 @@ base="$PWD"
 
 tmp="$(mktemp -d -p build)"
 
-if [ -z "$DISTRO" ]; then DISTRO="devuan"; fi
-if [ -z "$RELEASE" ]; then RELEASE="ascii"; fi
-if [ -z "$VARIANT" ]; then VARIANT="base"; fi
-if [ -z "$IMAGE_NAME" ]; then IMAGE_NAME="$DISTRO-$RELEASE-librem5-devkit-$(VARIANT).img"; fi
-
-# Some programs like sfdisk are in /sbin/, but they work just fine as non-root on an image
-PATH="$base/build/bin/:$base/script/:/sbin/:/usr/sbin/:$PATH"
-
-# Set image size if not already defined
-if [ -z "$IMGSIZE" ]; then IMGSIZE=32GB; fi
-
-# if there is an old temporari image, remove it
+# if there is an old temporary image, remove it
 rm -f "$tmp/$IMAGE_NAME"
 
 # Create a sparse image

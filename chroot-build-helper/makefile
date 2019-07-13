@@ -1,5 +1,8 @@
 include ../src/make-helper-functions.mk
 
+# Only one thing at a time can chroot into the buildenv
+.NOTPARALLEL:
+
 CURDIR=$(realpath .)
 
 TARGETS += deb-flash-kernel

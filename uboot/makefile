@@ -1,5 +1,8 @@
 include ../src/make-helper-functions.mk
 
+# In theory, it should work without this, but it doesn't...
+.NOTPARALLEL:
+
 BOOTLOADER_COMPONENTS += dtb/$(UBOOT_DTB)
 BOOTLOADER_COMPONENTS += firmware/u-boot-nodtb.bin
 BOOTLOADER_COMPONENTS += firmware/u-boot-spl.bin

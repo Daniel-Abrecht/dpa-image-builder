@@ -18,6 +18,10 @@ IMAGE_NAME = $(DISTRO)-$(RELEASE)-librem5-$(BOARD)-$(VARIANT).img
 
 CROSS_COMPILER = aarch64-linux-gnu-
 
+PACKAGE_LIST_PATH = default default::$(VARIANT) $(DISTRO) $(DISTRO)::$(VARIANT) $(DISTRO)-$(RELEASE) $(DISTRO)-$(RELEASE)::$(VARIANT)
+
+USER_SHELL = $(shell getent passwd "$$(id -u)" | grep -o '[^:]*$$')
+
 repo-branch@fuseloop = master
 repo-source@fuseloop = https://github.com/jmattsson/fuseloop.git
 

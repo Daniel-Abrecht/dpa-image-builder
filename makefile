@@ -25,7 +25,8 @@ clean-image:
 	rm -f "bin/$(IMAGE_NAME)"
 
 enter-buildenv:
-	$(SETUPBUILDENV) "$(SHELL)"
+	export PROMPT_COMMAND='if [ -z "$$PS_SET" ]; then PS_SET=1; PS1="(buildenv) $$PS1"; fi'; \
+	$(USER_SHELL)
 
 uboot/bin/uboot_firmware_and_dtb.bin:
 	$(MAKE) -C uboot

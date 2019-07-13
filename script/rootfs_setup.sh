@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ -z "project_root" ]; then
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
+  exit 1
+fi
+
 set -ex
 
 cd /
@@ -40,7 +45,6 @@ apt-get update
 apt-get -y dist-upgrade
 apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u | grep -v Auto-Built-debug-symbols)
 rm -rf /root/temp-repo/
-apt-get clean
 
 # Packages such as flash-kernel may have been installed & configured after linux-image, which may have caused some triggers of them not to be run
 # Reconfigure linux-image to make sure flash-kernel & co. get invoked
@@ -50,9 +54,9 @@ dpkg-reconfigure $(dpkg-query -f '${db:Status-Abbrev} ${binary:Package}\n' -W li
 # download packages
 (
   IFS=", "
-  apt-get -y install $install_packages
+  apt-get -y install $PACKAGES_INSTALL_EARLY
   apt-get clean
-  for package in $packages
+  for package in $PACKAGES_INSTALL_TARGET $PACKAGES_TO_DOWNLOAD
   do
     apt-get -d -y install "$package"
   done
@@ -63,7 +67,7 @@ rm /root/temporary-local-repo.list
 
 # Move packages from apt cache to temporary repo
 mkdir /root/temp-repo/
-mv /var/cache/apt/archives/*.deb /root/temp-repo/
+mv /var/cache/apt/archives/*.deb /root/temp-repo/ || true
 
 # Create package list for repo
 (
