@@ -65,7 +65,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src/.so
 	  for package in \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$'); \
 	    do apt-get purge "$$package"; \
 	  done; \
-	  apt-get autoremove --purge
+	  apt-get autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source=%))/src/; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
