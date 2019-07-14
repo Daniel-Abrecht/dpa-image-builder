@@ -1,17 +1,17 @@
 define parse_package_list
-$(shell
-    for list in $(PACKAGE_LIST_PATH);
+$(shell for list in $(PACKAGE_LIST_PATH);
     do
       cat "$(project_root)/packages/$$list/$(1)" 2>/dev/null || true;
     done | sed 's/#.*//' | tr '\n' ' ' | sed 's/\s\+/ /g' | sed 's/^\s\+\|\s\+$$//g';
   )
 endef
 
-PACKAGES_INSTALL_DEBOOTSTRAP = $(call parse_package_list,install_debootstrap)
-PACKAGES_INSTALL_EARLY       = $(call parse_package_list,install_early)
-PACKAGES_INSTALL_TARGET      = $(call parse_package_list,install_target)
-PACKAGES_TO_DOWNLOAD         = $(call parse_package_list,download)
-PACKAGES_TO_BUILD            = $(call parse_package_list,build)
+PACKAGES_INSTALL_DEBOOTSTRAP  = $(call parse_package_list,install_debootstrap)
+PACKAGES_INSTALL_EARLY        = $(call parse_package_list,install_early)
+PACKAGES_INSTALL_TARGET       = $(call parse_package_list,install_target)
+PACKAGES_TO_DOWNLOAD          = $(call parse_package_list,download)
+PACKAGES_TO_BUILD             = $(call parse_package_list,build)
+PACKAGES_BOOTSTRAP_WORKAROUND = $(call parse_package_list,defer_installation_of_problemetic_package)
 
 ifneq ($(AARCH64_EXECUTABLE),yes)
   PACKAGES_INSTALL_DEBOOTSTRAP+=fakechroot"
@@ -37,3 +37,4 @@ export PACKAGES_INSTALL_EARLY
 export PACKAGES_INSTALL_TARGET
 export PACKAGES_TO_DOWNLOAD
 export PACKAGES_TO_BUILD
+export PACKAGES_BOOTSTRAP_WORKAROUND

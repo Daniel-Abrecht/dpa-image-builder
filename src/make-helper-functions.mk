@@ -6,6 +6,11 @@ default_target: all
 project_root := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))..)
 export project_root
 
+define newline
+
+
+endef
+
 VARS_OLD := $(subst %,,$(subst *,,$(.VARIABLES)))
 
 ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
@@ -62,6 +67,14 @@ export AARCH64_EXECUTABLE := no
 endif
 
 include $(project_root)/src/package_list.mk
+
+generate_make_build_dependencies_for_debs:
+	export DEP_PREFIX=$(DEP_PREFIX); \
+	export DEP_SUFFIX=$(DEP_SUFFIX); \
+	if [ -n "$(TMP_TARGET_FILE)" ]; \
+	  then generate_make_build_dependencies_for_debs.sh >"$(TMP_TARGET_FILE)"; \
+	  else generate_make_build_dependencies_for_debs.sh; \
+	fi
 
 %/.dir:
 	mkdir -p "$(dir $@)"
