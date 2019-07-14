@@ -1,7 +1,7 @@
-# packages needed for installation or booting
+# repos with packages needed for installation or booting
 flash-kernel
 
-# Packages for console keyboard
+# repos for for console keyboard
 console-keyboard-multiplexer
 console-keyboard-basic
 libconsolekeyboard

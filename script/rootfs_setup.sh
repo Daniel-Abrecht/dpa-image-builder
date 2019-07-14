@@ -43,24 +43,24 @@ done
 # Update package list, update everything, install kernel & other custom packages and clean apt cache (remove no longer needed packages)
 apt-get update
 apt-get -y dist-upgrade
-apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u | grep -v Auto-Built-debug-symbols)
-rm -rf /root/temp-repo/
+apt-get -y install $(grep 'Package: ' /root/temp-repo/Packages | sed 's/Package: //' | sort -u | grep -v Auto-Built-debug-symbols | grep '^linux-')
 
-# Packages such as flash-kernel may have been installed & configured after linux-image, which may have caused some triggers of them not to be run
+# Install some other packages
+apt-get -y install $PACKAGES_INSTALL_EARLY
+apt-get clean
+
+# Packages such as flash-kernel have been installed & configured after linux-image, which may have caused some triggers of them not to be run
 # Reconfigure linux-image to make sure flash-kernel & co. get invoked
 # (Just running flash-kernel would probably suffice, too.)
 dpkg-reconfigure $(dpkg-query -f '${db:Status-Abbrev} ${binary:Package}\n' -W linux-image* | grep '^ii' | head -n 1 | grep -o '[^ ]*$')
 
 # download packages
-(
-  IFS=", "
-  apt-get -y install $PACKAGES_INSTALL_EARLY
-  apt-get clean
-  for package in $PACKAGES_INSTALL_TARGET $PACKAGES_TO_DOWNLOAD
-  do
-    apt-get -d -y install "$package"
-  done
-)
+for package in $PACKAGES_INSTALL_TARGET $PACKAGES_TO_DOWNLOAD
+do
+  apt-get -d -y install "$package"
+done
+
+rm -rf /root/temp-repo/
 
 # Remove temporary list file again
 rm /root/temporary-local-repo.list

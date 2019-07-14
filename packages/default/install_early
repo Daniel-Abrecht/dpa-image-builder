@@ -1,3 +1,6 @@
+# Needed for booting, creates uboot scripts and so on
+flash-kernel
+
 locales # Has to be installed before console keyboard, because it needs locale C.UTF-8
 
 # Do make the text readable
@@ -13,3 +16,9 @@ ifupdown
 net-tools
 file
 less
+
+console-keyboard-multiplexer
+consolation
+
+# "Fix" interface hotplugging
+netplug

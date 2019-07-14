@@ -8,6 +8,3 @@ initramfs-tools
 
 # Needed by current flash-kernel version, remove once everything is mainline
 file
-
-# "Fix" interface hotplugging
-netplug
