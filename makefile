@@ -15,8 +15,9 @@ clean-fs-all:
 	rm -rf build/
 
 clean-fs:
-	rm -rf "build/$(IMAGE_NAME)/bootfs.tar"
-	rm -rf "build/$(IMAGE_NAME)/rootfs.tar"
+	rm -f "build/$(IMAGE_NAME)/bootfs.tar"
+	rm -f "build/$(IMAGE_NAME)/rootfs.tar"
+	rmdir "build/$(IMAGE_NAME)/" || true
 
 clean-image-all:
 	rm -f bin/*.img
@@ -55,7 +56,6 @@ build/$(IMAGE_NAME)/rootfs.tar: \
   kernel/bin/linux-image.deb \
   uboot/bin/uboot_firmware_and_dtb.bin \
   build/bin/usernsexec \
-  rootfs_custom_files/ \
   bin/.dir
 	$(MAKE) extra_packages
 	./script/debootstrap.sh
@@ -68,7 +68,7 @@ bin/$(IMAGE_NAME): \
   kernel/bin/linux-image.deb
 	./script/assemble_image.sh
 
-uuu-do-%: script/uuu/%.lst
+uuu-do-%: script/uuu/%.lst build/.dir
 	# The sed stuff allows escaping $ using $$ in envsubst
 	set -e; \
 	export UBOOT_BIN; \
@@ -82,7 +82,7 @@ uuu-do-%: script/uuu/%.lst
 uuu-uboot-do-%: script/uuu/%.lst uboot/bin/uboot_firmware_and_dtb.bin
 	$(MAKE) UBOOT_BIN=uboot/bin/uboot_firmware_and_dtb.bin uuu-do-$(patsubst uuu-uboot-do-%,%,$@)
 
-uuu-image-do-%: script/uuu/%.lst
+uuu-image-do-%: script/uuu/%.lst build/.dir
 	# To determine the real size of the uboot binary is too complicated
 	# instead, let's just assume 2MB are enough, its usually ~1M.
 	# That's no problem for booting, just don't flash it.

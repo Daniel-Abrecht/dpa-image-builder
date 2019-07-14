@@ -29,18 +29,17 @@ build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	uexec rm -rf "$(CURDIR)/$@.tmp"
 	uexec --allow-setgroups debootstrap --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)"
 	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs" "$@.tmp/root/devrepo"
-	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
 	# Stub things which won't work in a chroot
+	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
 	chmod +x "$@.tmp/root/helper/mknod"
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
 	chmod +x "$@.tmp/root/helper/mount"
 	printf 'APT::Get::AllowUnauthenticated "true";\nAcquire::AllowInsecureRepositories "true";' >"$@.tmp/etc/apt/apt.conf.d/80localnocheck"
-	# Stub man stuff, because it may use seccomp, would hand qemu-user-static :(
 	touch "$@.tmp/dev/null"
 	chmod 666 "$@.tmp/dev/null"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
-	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs_custom_files/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
+	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot

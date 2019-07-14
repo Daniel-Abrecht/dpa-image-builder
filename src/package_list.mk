@@ -1,7 +1,7 @@
 define parse_package_list
-$(shell for list in $(PACKAGE_LIST_PATH);
+$(shell for list in $(CONFIG_PATH);
     do
-      cat "$(project_root)/packages/$$list/$(1)" 2>/dev/null || true;
+      cat "$(project_root)/config/$$list/$(1)" 2>/dev/null || true;
     done | sed 's/#.*//' | tr '\n' ' ' | sed 's/\s\+/ /g' | sed 's/^\s\+\|\s\+$$//g';
   )
 endef

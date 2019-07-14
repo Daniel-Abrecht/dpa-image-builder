@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "project_root" ]; then
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
+  exit 1
+fi
+
 for package in $PACKAGES_TO_BUILD
 do
   bulddeps="$(tr '\n' '\1' <"repo/$package/debian/control" |

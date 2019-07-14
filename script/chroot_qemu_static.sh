@@ -1,15 +1,15 @@
 #!/bin/sh
 
-if [ -z "$AARCH64_EXECUTABLE" ]
-  then echo "Warning: AARCH64_EXECUTABLE is not set! (Note: This script is expected to be called by the make file)" >&2
+if [ -z "project_root" ]; then
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
+  exit 1
 fi
 
 rootfs="$1"
 shift
 
 # Only one user at a time allowed
-(
-flock 9 || exit 1
+( flock 9 || exit 1; (
 
 cleanup(){
   if [ -n "$urandom_PID" ]
@@ -90,4 +90,4 @@ fi
 rm -f "$rootfs$qemu_aarch64_static_binary"
 rm -f "$rootfs"/usr/sbin/policy-rc.d
 
-) 9>"$rootfs/chroot_access_lock"
+) 9>&-; ) 9>"$rootfs/chroot_access_lock"

@@ -1,4 +1,4 @@
-BOARD = devkit
+BOARD = librem5-devkit
 IMGSIZE = 3GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
 DISTRO = devuan
 RELEASE = $(DEFAULT_RELEASE-$(DISTRO))
@@ -14,11 +14,11 @@ DEFAULT_RELEASE-devuan = beowulf
 DEFAULT_RELEASE-debian = buster
 DEFAULT_RELEASE-ubuntu = disco
 
-IMAGE_NAME = $(DISTRO)-$(RELEASE)-librem5-$(BOARD)-$(VARIANT).img
+IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
 
 CROSS_COMPILER = aarch64-linux-gnu-
 
-PACKAGE_LIST_PATH = default default::$(VARIANT) $(DISTRO) $(DISTRO)::$(VARIANT) $(DISTRO)-$(RELEASE) $(DISTRO)-$(RELEASE)::$(VARIANT)
+CONFIG_PATH = default default/v-$(VARIANT) $(DISTRO) $(DISTRO)/v-$(VARIANT) $(DISTRO)/r-$(RELEASE) $(DISTRO)/r-$(RELEASE)/v-$(VARIANT) default/b-$(BOARD) default/v-$(VARIANT)/b-$(BOARD) $(DISTRO)/b-$(BOARD) $(DISTRO)/v-$(VARIANT)/b-$(BOARD) $(DISTRO)/r-$(RELEASE)/b-$(BOARD) $(DISTRO)/r-$(RELEASE)/v-$(VARIANT)/b-$(BOARD)
 
 USER_SHELL = $(shell getent passwd "$$(id -u)" | grep -o '[^:]*$$')
 

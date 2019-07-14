@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -z "project_root" ]; then
-  echo "Error: project_root is not set! THis script has to be called from the makefile build env" >&2
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
   exit 1
 fi
 

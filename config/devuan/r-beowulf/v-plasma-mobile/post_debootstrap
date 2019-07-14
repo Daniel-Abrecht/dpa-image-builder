@@ -1,0 +1,3 @@
+#!/bin/sh -ex
+
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CF319275556E40EC

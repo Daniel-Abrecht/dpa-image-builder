@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -z "project_root" ]; then
-  echo "Error: project_root is not set! THis script has to be called from the makefile build env" >&2
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
   exit 1
 fi
 
@@ -58,44 +58,19 @@ cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers
 cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/root/temp-repo/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
-(
-  cd "$base/rootfs_custom_files/"
-  find | while IFS= read -r file
-  do
-    file="$(printf "%s" "$file" | sed 's|::[^/]*$||')"
-    if   [ -e "$file::$DISTRO-$RELEASE::$VARIANT" ]
-      then source="$file::$DISTRO-$RELEASE::$VARIANT"
-    elif [ -e "$file::$DISTRO-$RELEASE" ]
-      then source="$file::$DISTRO-$RELEASE"
-    elif [ -e "$file::$DISTRO::$VARIANT" ]
-      then source="$file::$DISTRO::$VARIANT"
-    elif [ -e "$file::$DISTRO" ]
-      then source="$file::$DISTRO"
-    elif [ -e "$file::$VARIANT" ]
-      then source="$file::$VARIANT"
-    elif [ -e "$file" ]
-      then source="$file"
-      else continue
-    fi
-    if [ -d "$source" ]
-      then continue
-    fi
-    dir="$tmp/rootfs/$(dirname "$source")"
-    mkdir -p "$dir"
-    case "$file" in
-      *.in)
-        target="$dir/$(basename "$file" .in)"
-        # The sed stuff allows escaping $ using $$
-        sed 's/\$\$/\x1/g' <"$source" | envsubst | sed 's/\x1/\$/g' >"$target"
-      ;;
-      *.rm)
-        target="$dir/$(basename "$file" .rm)"
-	rm "$target"
-      ;;
-      *) cp "$source" "$dir/$(basename "$file")" ;;
-    esac
-  done
-)
+rfslsdir.sh -r "rootfs" | while read t config file
+do
+  dir="$tmp/rootfs"
+  case "$t" in
+    d) mkdir -p "$dir$file" ;;
+    r) rm "$dir$file" ;;
+    f) cp -a "config/$config/rootfs$file" "$dir$file" ;;
+    s)
+      sed 's/\$\$/\x1/g' <"config/$config/rootfs$file.in" | envsubst | sed 's/\x1/\$/g' >"$dir$file"
+      chmod --reference="config/$config/rootfs$file.in" "$dir$file"
+    ;;
+  esac
+done
 
 # Packages to install on device
 printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/packages_to_install"
@@ -103,9 +78,9 @@ printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/packages_to_install"
 # Temporary source list
 (
   export CHROOT_REPO="$REPO" 
-  ./script/getrfsfile.sh "rootfs_custom_files/etc/apt/sources.list"
-  for file in "rootfs_custom_files/etc/apt/sources.list.d/"*
-    do ./script/getrfsfile.sh "$(printf "%s" "$file" | sed 's|::[^/]*$||')" || true
+  getrfsfile.sh "rootfs/etc/apt/sources.list"
+  rfslsdir.sh "rootfs/etc/apt/sources.list.d/" | grep '^f' | while read t config file
+    do getrfsfile.sh "rootfs/etc/apt/sources.list.d$file"
   done
   echo
   echo 'deb file:///root/temp-repo/ ./'

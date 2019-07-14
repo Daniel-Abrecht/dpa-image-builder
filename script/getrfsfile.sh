@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ -z "project_root" ]; then
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
+  exit 1
+fi
+
 set -e
 
 if [ $# != 1 ]
@@ -9,38 +14,28 @@ then
 fi
 
 # Make sure the current working directory is correct
-cd "$(dirname "$0")/../"
+cd "$(dirname "$0")/../config/"
 
-file="$1"
-if   [ -f "$file.in::$DISTRO-$RELEASE::$VARIANT" ]
-  then source="$file.in::$DISTRO-$RELEASE::$VARIANT"
-elif [ -f "$file.in::$DISTRO-$RELEASE" ]
-  then source="$file.in::$DISTRO-$RELEASE"
-elif [ -f "$file::$DISTRO-$RELEASE::$VARIANT" ]
-  then source="$file::$DISTRO-$RELEASE::$VARIANT"
-elif [ -f "$file::$DISTRO-$RELEASE" ]
-  then source="$file::$DISTRO-$RELEASE"
-elif [ -f "$file.in::$DISTRO::$VARIANT" ]
-  then source="$file.in::$DISTRO::$VARIANT"
-elif [ -f "$file.in::$DISTRO" ]
-  then source="$file.in::$DISTRO"
-elif [ -f "$file::$DISTRO::$VARIANT" ]
-  then source="$file::$DISTRO::$VARIANT"
-elif [ -f "$file::$DISTRO" ]
-  then source="$file::$DISTRO"
-elif [ -f "$file.in::$VARIANT" ]
-  then source="$file.in::$VARIANT"
-elif [ -f "$file.in" ]
-  then source="$file.in"
-elif [ -f "$file::$VARIANT" ]
-  then source="$file::$VARIANT"
-elif [ -f "$file" ]
-  then source="$file"
-  else exit 1
+find_path(){
+  for dir in $(printf '%s\n' $CONFIG_PATH | tac)
+  do
+    for suffix in "" .in .ignore .rm
+    do [ -f "./$dir/$1$suffix" ] || continue
+      printf "%s" "./$dir/$1$suffix"
+      return 0
+    done
+  done
+  return 1
+}
+
+if ! source="$(find_path "$1")"
+  then exit 1
 fi
-file="$(printf "%s" "$source" | sed 's|::[^/]*$||')"
 
-case "$file" in
+case "$source" in
+  *.ignore|*.rm) exit 1 ;;
   *.in) sed 's/\$\$/\x1/g' <"$source" | envsubst | sed 's/\x1/\$/g' ;;
   *) cat "$source" ;;
 esac
+
+exit 0

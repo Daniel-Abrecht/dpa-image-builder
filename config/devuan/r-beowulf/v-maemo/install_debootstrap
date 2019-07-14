@@ -1,0 +1,4 @@
+apt-transport-https
+gnupg
+ca-certificates
+wget
