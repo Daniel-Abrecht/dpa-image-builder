@@ -1,7 +1,7 @@
 build/
 bin/
 repo/
-config/userdefined.mk
+config/user_config_override
 mkimage_imx8
 *.deb
 .aarch64test
