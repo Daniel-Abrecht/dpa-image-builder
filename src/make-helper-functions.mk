@@ -11,27 +11,23 @@ define newline
 
 endef
 
+define include_config_if_exits
+  ifeq ($(shell test -e "$(project_root)/config/$(1)" && echo -n yes),yes)
+    include $(project_root)/config/$(1)
+    ifeq ($(shell test -e "$(project_root)/config/user_config_override" && echo -n yes),yes)
+      include $(project_root)/config/user_config_override
+    endif
+  endif
+endef
+
 VARS_OLD := $(subst %,,$(subst *,,$(.VARIABLES)))
 
-ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
-include $(project_root)/config/userdefined.mk
+ifeq ($(shell test -e "$(project_root)/config/user_config_override" && echo -n yes),yes)
+include $(project_root)/config/user_config_override
 endif
 
-ifeq ($(shell test -e "$(project_root)/config/defaults.mk" && echo -n yes),yes)
-include $(project_root)/config/defaults.mk
-endif
-
-ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
-include $(project_root)/config/userdefined.mk
-endif
-
-ifeq ($(shell test -e "$(project_root)/config/board-$(BOARD).mk" && echo -n yes),yes)
-include $(project_root)/config/board-$(BOARD).mk
-endif
-
-ifeq ($(shell test -e "$(project_root)/config/userdefined.mk" && echo -n yes),yes)
-include $(project_root)/config/userdefined.mk
-endif
+$(eval $(call include_config_if_exits,default/config))
+$(foreach config,$(CONFIG_PATH),$(eval $(call include_config_if_exits,$(config)/config)))
 
 ifdef REPO-$(DISTRO)
   REPO = $(REPO-$(DISTRO))
@@ -53,7 +49,7 @@ CONFIG_VARS := $(sort $(filter-out $(VARS_OLD) VARS_OLD,$(subst %,,$(subst *,,$(
 IMGSIZE := $(shell echo "$(IMGSIZE)" | sed 's/\s*//g')
 export $(CONFIG_VARS)
 
-CONF = userdefined
+CONF = user_config_override
 
 include $(project_root)/src/repositories.mk
 
@@ -126,15 +122,6 @@ config-after-update@%:
 	  "CHROOT_REPO") $(MAKE) clean-fs ;; \
 	  "KERNEL_DTB" ) $(MAKE) clean-fs ;; \
 	  "IMAGE_NAME" ) $(MAKE) clean-image ;; \
-	  "BOARD"      ) \
-	    for V in $$( ( \
-	      grep -o '^[a-zA-Z0-9_@-]*' "$(project_root)/config/board-$(BOARD).mk"; \
-	      grep -o '^[a-zA-Z0-9_@-]*' "$(project_root)/config/board-$(OLD_VALUE).mk" \
-	    ) | sort -u; ); \
-	    do \
-	    $(MAKE) "config-after-update@$$V"; \
-	    done; \
-	  ;; \
 	  "repo-branch@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
 	  "repo-source@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
 	  "UBOOT_DTB" | "UBOOT_CONFIG_TARGET" | "repo-source@uboot" | "repo-branch@uboot") \
@@ -147,12 +134,7 @@ config-after-update@%:
 
 config-pre-set-check@%:
 	@case "$(patsubst config-pre-set-check@%,%,$@)" in \
-	  "BOARD") \
-	     if [ ! -f "$(project_root)/config/board-$(TO).mk" ]; then \
-	       echo "There is no config/board-$(TO).mk config file." >&2; \
-	       false; \
-	     fi; \
-	   ;; \
+	  *) ;; \
 	esac
 
 config-set@%: config-pre-set-check@%
@@ -161,13 +143,13 @@ config-set@%: config-pre-set-check@%
 	  false; \
 	fi
 	V="$(patsubst config-set@%,%,$@)"; \
-	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk" 2>&-; \
-	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF).mk
+	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF)" 2>&-; \
+	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF)
 	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-set@%,%,$@))" "config-after-update@$(patsubst config-set@%,%,$@)"
 
 config-unset@%:
 	V="$(patsubst config-unset@%,%,$@)"; \
-	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF).mk"
+	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF)"
 	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset@%,%,$@))" "config-after-update@$(patsubst config-unset@%,%,$@)"
 
 clean-all: clean-repo clean-build
