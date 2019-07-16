@@ -20,25 +20,25 @@ There is still a lot to do.
 # Required packages & programs
 
 You need the following packages for this to work:
- * make
- * gcc
- * gcc-aarch64-linux-gnu
- * libc6-dev-arm64-cross
- * gcc-arm-none-eabi
- * libnewlib-arm-none-eabi
- * libstdc++-arm-none-eabi-newlib
- * libext2fs-dev (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
- * libtar-dev
- * bison
- * flex
- * device-tree-compiler
- * comerr-dev
- * jq
- * equivs
- * debootstrap
- * qemu-user-static (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
- * uidmap
- * binfmt-support (optional)
+ * `make`
+ * `gcc`
+ * `gcc-aarch64-linux-gnu`
+ * `libc6-dev-arm64-cross`
+ * `gcc-arm-none-eabi`
+ * `libnewlib-arm-none-eabi`
+ * `libstdc++-arm-none-eabi-newlib`
+ * `libext2fs-dev` (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
+ * `libtar-dev`
+ * `bison`
+ * `flex`
+ * `device-tree-compiler`
+ * `comerr-dev`
+ * `jq`
+ * `equivs`
+ * `debootstrap`
+ * `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
+ * `uidmap`
+ * `binfmt-support` (optional)
 
 Setting up binfmt-misc on non-aarch64 hosts is not necessary, but recommended.
 It may speed up the build process and make the bootstrapping more reliable.
@@ -46,7 +46,7 @@ It should happen automatically if you install qemu-user-static.
 Don't install qemu-user-binfmt, it's qemu-user binaries arent statically built and won't work for this.
 
 For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
-Just make sure uu is in your path when flashing the image. I've just copied the
+Just make sure uuu is in your path when flashing the image. I've just copied the
 built binaries to /usr/local: `cp uuu/uuu /usr/local/bin/; cp libuuu/libuuu* /usr/local/lib/;`
 
 ## Other requirements & things to check first
@@ -71,7 +71,7 @@ used subuid is a good idea.
 
 ## Usage
 
-Everithing in this repo is designed to work without root. I haven't testet if it even works when run as root.
+Everithing in this repo is designed to work without root. I haven't tested if it even works when run as root.
 
 Creating an image in bin/devuan-$(RELEASE)-librem5-$(BOARD)-base.img
 ```
@@ -104,8 +104,8 @@ There are also make targets for that.
 | ---- | ------- |
 | all  | Build the image |
 | config-list | List all config variables, this includes the repo urls and branches |
-| CONF=userdefined config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF.mk, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
-| CONF=userdefined config-unset@variable-name | Remove variable from file conf/$CONF.mk. This will also clean up or reset images and repos as needed. |
+| [CONF=path/to/config] config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
+| [CONF=path/to/config] config-unset@variable-name | Remove variable from file conf/$CONF. This will also clean up or reset images and repos as needed. |
 | uuu-flash | flash the image to emmc0 using uuu. You can specify a different image using IMAGE_NAME. If this image doesn't have an uboot usable for flashing, use IMAGE_UBOOT_UNFLASHABLE=1 to use the uboot from uboot/bin/uboot_firmware_and_dtb.bin instead for that step. |
 | uuu-uboot-flash | flash uboot (doesn't include m4) |
 | uuu-test-uboot | Just boot using uboot bootloader from uboot/bin/uboot_firmware_and_dtb.bin (doesn't quiet work as intended yet) |
@@ -135,43 +135,77 @@ The urls and reponame of all used repositories as well as the defaults of most v
 
 ## Modifying the image
 
-To add any files to the image, just add them to the rootfs_custom_files folder.
-Variables in files in that folder suffixed with .in will be replaced by the
-config and environment variables the build scripts have been run with. To only include
-a file in a speciffic distro or release, suffix it with `::distro` or `::distro-release`.
-To only add a file if a speciffic variant of a distro image is built, add an additional
-suffix `::variant` to it.
-
-Lists of packages to be installed can be found in the `packages/` directory.
-The build script will combine the contents of the following subdirectories:
+All config settings, lists of packages to be installed, the packages to be built,
+and additional files to be included in the image can be found in the `config/`
+directory. The build script will combine the contents of the following subdirectories:
  * `default`
- * `default::$VARIANT`
- * `$DISTRO-$RELEASE::$VARIANT`
- * `$DISTRO-$RELEASE`
- * `$DISTRO::$VARIANT`
- * `$DISTRO`
+ * `default/v-$(VARIANT)`
+ * `$(DISTRO)`
+ * `$(DISTRO)/v-$(VARIANT)`
+ * `$(DISTRO)/r-$(RELEASE)`
+ * `$(DISTRO)/r-$(RELEASE)/v-$(VARIANT)`
+ * `default/b-$(BOARD)`
+ * `default/v-$(VARIANT)/b-$(BOARD)`
+ * `$(DISTRO)/b-$(BOARD)`
+ * `$(DISTRO)/v-$(VARIANT)/b-$(BOARD)`
+ * `$(DISTRO)/r-$(RELEASE)/b-$(BOARD)`
+ * `$(DISTRO)/r-$(RELEASE)/v-$(VARIANT)/b-$(BOARD)`
+
+The list of directories to be searched is defined by the `CONFIG_PATH` variable,
+which is set in the config file `config/default/conf`.
 
 These subdirectories contain the following files:
+ * `config`: Config settings
  * `install_debootstrap`: Packages to be installed by debootstrap.
- * `post_debootstrap`: A script to be executed after the bootstrapping phase. Useful for adding additional repo keys.
  * `install_early`: Packages to be installed using apt after the bootstrapping.
  * `install_target`: Packages to be installed after the first boot.
  * `download`: Packages which are only downloaded (including the dependencies), but not installed.
+ * `build`: Packages which have to be built from source. This must be a repo specified in the config which can be built using `debootstrap -us -uc -b`.
+ * `defer_installation_of_problemetic_package`: Some packages may not be installable in a crossdev chroot. Packages in this file are temporarely replaced with a dummy package.
 
-To do things after the first boot, add them to the `rootfs_custom_files/root/first_boot_setup.sh` file. It's called from `rootfs_custom_files/etc/rc.local` file.
-You can also add your own packages into `rootfs_custom_files/root/temp-repo/` to automatically install them.
+All config and package lists in the search path are combined. Config settings
+in config files later in the path override earlier ones. The special config file
+`config/user_config_override`, which is the default for the `config-set@%' and
+`config-unset@%` makefile targets, can override the settings from all other config
+files and will be ignored in the git repo. It is useful for changing local
+settings & preferences, such as the repos to use for bootstrapping, the image
+files size, or using a different branch or remote for a repo, or generally
+just to thest things without having to worry about these settings being overritten
+by later git pulls.
+
+The directories in the `$CONFIG_PATH` can also contain a `rootfs` folder. This
+folder contains additional files to be added to the image. If the same file
+exists in multiple rootfs folders, the last one in the config path is chowsen.
+These files can also have an extension with a special meaning:
+ * `.in`: Uses envsubst to replace variables in the file. Use $$ to escape $.
+ * `.rm`: If a file with that name & path exists after bootstrapping, remove it.
+ * `.ignore`: If there was a file with the same name earlier in the config path, ignore it.
+
+The recommended way of creating an image with your own additional packages & files
+in it is to create a new image variant. Use `make config-set@VARIANT TO=your-new-variant`
+to change the default variant. After that, you can check in which directories
+the build script will now search the configs: `make config-list | grep '^CONFIG_PATH'`.
+You can then add & make changes to the configs related to your new image variant.
+
+Most of the scripts in this repo expect to be run with the environment provided
+by the makefile. You can get a shell `make enter-buildenv` with this environment.
+All scripts and binaries are then automatically in the PATH. You can also check
+your config settings this way. For example, to check which packages it picked up,
+you can use the command `env | grep '^PACKAGES'`. To enter the config search path
+with one path per line, you can use `printf '%s\n' $CONFIG_PATH`, and so on.
+It's recommended to exit this shell before building the images though.
 
 ## Other important stuff
 
 There are currently 5 Proprietary binary blobs from nxp contained in the final uboot binary with non-free licenses:
- * lpddr4_pmu_train_1d_dmem.bin
- * lpddr4_pmu_train_1d_imem.bin
- * lpddr4_pmu_train_2d_dmem.bin
- * lpddr4_pmu_train_2d_imem.bin
- * signed_hdmi_imx8m.bin
+ * `lpddr4_pmu_train_1d_dmem.bin`
+ * `lpddr4_pmu_train_1d_imem.bin`
+ * `lpddr4_pmu_train_2d_dmem.bin`
+ * `lpddr4_pmu_train_2d_imem.bin`
+ * `signed_hdmi_imx8m.bin`
 
-One of the lpddr4_\*.bin files is required for training the DDR PHY. The HDMI bin file is for DRM HDMI signals.
-All of the lpddr4_\*.bin firmware files are currently needed to build uboot and thus the image.
+One of the `lpddr4_*.bin` files is required for training the DDR PHY. The HDMI bin file is for DRM HDMI signals.
+All of the `lpddr4_*.bin` firmware files are currently needed to build uboot and thus the image.
 
 The license in this repository only applies to the files in this repository.
 Other repositories loaded by these scripts often use different licenses,
