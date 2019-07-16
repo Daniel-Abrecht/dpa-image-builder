@@ -2,7 +2,8 @@ define parse_package_list
 $(shell for list in $(CONFIG_PATH);
     do
       cat "$(project_root)/config/$$list/$(1)" 2>/dev/null || true;
-    done | sed 's/#.*//' | tr '\n' ' ' | sed 's/\s\+/ /g' | sed 's/^\s\+\|\s\+$$//g';
+      cat "$(project_root)/config/$$list/$(1)/"* 2>/dev/null || true;
+    done | sort -u | sed 's/#.*//' | tr '\n' ' ' | sed 's/\s\+/ /g' | sed 's/^\s\+\|\s\+$$//g';
   )
 endef
 
