@@ -30,8 +30,6 @@ export APT_CONFIG=/root/apt-tmp.conf
   xz -k Packages
 )
 
-export DEBIAN_FRONTEND=noninteractive
-
 # run post_debootstrap scripts
 for pdscript in /root/post_debootstrap/*
 do

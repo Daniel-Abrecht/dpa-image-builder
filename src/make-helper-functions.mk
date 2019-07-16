@@ -64,6 +64,8 @@ endif
 
 include $(project_root)/src/package_list.mk
 
+export DEBIAN_FRONTEND=noninteractive
+
 generate_make_build_dependencies_for_debs:
 	export DEP_PREFIX=$(DEP_PREFIX); \
 	export DEP_SUFFIX=$(DEP_SUFFIX); \
