@@ -31,6 +31,7 @@ You need the following packages for this to work:
  * `libtar-dev`
  * `bison`
  * `flex`
+ * `fuse`
  * `device-tree-compiler`
  * `comerr-dev`
  * `jq`
