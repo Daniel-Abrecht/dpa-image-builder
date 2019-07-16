@@ -191,7 +191,7 @@ Most of the scripts in this repo expect to be run with the environment provided
 by the makefile. You can get a shell `make enter-buildenv` with this environment.
 All scripts and binaries are then automatically in the PATH. You can also check
 your config settings this way. For example, to check which packages it picked up,
-you can use the command `env | grep '^PACKAGES'`. To enter the config search path
+you can use the command `env | grep '^PACKAGES'`. To see the config search path
 with one path per line, you can use `printf '%s\n' $CONFIG_PATH`, and so on.
 It's recommended to exit this shell before building the images though.
 
