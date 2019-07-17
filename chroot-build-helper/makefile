@@ -62,7 +62,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src/.so
 	  gzip -k Packages; \
 	  xz -k Packages; \
 	  for package in \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$'); \
-	    do apt-get -y purge "$$package"; \
+	    do apt-get -y purge "\$$package"; \
 	  done; \
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source=%))/src/; \
