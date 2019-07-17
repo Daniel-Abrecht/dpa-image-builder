@@ -1,39 +1,32 @@
-
-UBOOT_CONFIG_TARGET = librem5_devkit_base_defconfig
-UBOOT_DTB = librem5-evk.dtb
-
-repo-branch@uboot = devkit-wip
-repo-source@uboot = https://source.puri.sm/Librem5/uboot-imx.git
-
-repo-branch@mesa = pureos/purple
-repo-source@mesa = https://source.puri.sm/Librem5/mesa.git
+FK_MACHINE = Purism Librem 5 devkit
 
 KERNEL_CONFIG_TARGET = librem5-devkit
 KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb
 
+UBOOT_CONFIG_TARGET = librem5_devkit_base_defconfig
+UBOOT_DTB = librem5-evk.dtb
+
+repo-branch@flash-kernel = librem5
+repo-source@flash-kernel = https://source.puri.sm/Librem5/flash-kernel.git
+
 repo-branch@linux = imx8-5.2-devkit
 repo-source@linux = https://source.puri.sm/Librem5/linux-next.git
+
+repo-branch@uboot = devkit-wip
+repo-source@uboot = https://source.puri.sm/Librem5/uboot-imx.git
 
 repo-branch@imx-mkimage = imx-mkimage-emcraft
 repo-source@imx-mkimage = https://github.com/Daniel-Abrecht/librem5-image-builder.git
 
-repo-branch@flash-kernel = devkit
-repo-source@flash-kernel = https://source.puri.sm/dorota.czaplejewicz/flash-kernel.git
+repo-branch@Cortex_M4 = master
+repo-source@Cortex_M4 = https://source.puri.sm/Librem5/Cortex_M4.git
 
-repo-branch@libttymultiplex = master
-repo-source@libttymultiplex = https://github.com/Daniel-Abrecht/libttymultiplex.git
+ATF_PLATFORM = imx8mq
+repo-branch@arm-trusted-firmware = librem5
+repo-source@arm-trusted-firmware = https://source.puri.sm/Librem5/trusted-firmware-a
 
-repo-branch@console-keyboard-multiplexer = master
-repo-source@console-keyboard-multiplexer = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
-
-repo-branch@libconsolekeyboard = libconsolekeyboard
-repo-source@libconsolekeyboard = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
-
-repo-branch@console-keyboard-basic = master
-repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-keyboard-basic.git
-
-repo-branch@consolation = master
-repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
+repo-branch@mesa = pureos/purple
+repo-source@mesa = https://source.puri.sm/Librem5/mesa.git
 
 no-custom-mesa-devuan-ascii = 1
 no-custom-mesa-debian-stretch = 1
