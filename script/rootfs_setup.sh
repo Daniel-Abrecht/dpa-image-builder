@@ -13,7 +13,7 @@ cd /root/first_boot_setup/
 
 # Use temporary apt config for temporary bootstrap sources
 cat > apt-tmp.conf <<EOF
-Dir::Etc::sourcelist "/root/temporary-local-repo.list";
+Dir::Etc::sourcelist "/root/first_boot_setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
 APT::Get::AllowUnauthenticated "true";
@@ -21,7 +21,7 @@ Acquire::AllowInsecureRepositories "true";
 Dpkg::Options:: "--force-confdef";
 Dpkg::Options:: "--force-confold";
 EOF
-export APT_CONFIG=./apt-tmp.conf
+export APT_CONFIG=/root/first_boot_setup/apt-tmp.conf
 
 (
   cd temp-repo/

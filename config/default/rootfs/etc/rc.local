@@ -9,7 +9,7 @@ printf '\033%%G' >/dev/tty9
 chvt 9
 env - LC_ALL=C.UTF-8 TERM=linux \
   PATH=/sbin:/usr/sbin:/bin/:/usr/bin/ \
-  setsid -c console-keyboard-multiplexer -w : -- /root/first_boot_setup.sh
+  setsid -c console-keyboard-multiplexer -w : -- /root/first_boot_setup/setup.sh
 
 # Remove one time script
 set +x

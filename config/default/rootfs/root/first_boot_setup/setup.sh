@@ -3,7 +3,7 @@
 cd /root/first_boot_setup/ || exit 1
 
 export DEBCONF_FORCE_DIALOG=1
-export APT_CONFIG=./apt-tmp.conf
+export APT_CONFIG=/root/first_boot_setup/apt-tmp.conf
 
 setpw(){
   local pw=
