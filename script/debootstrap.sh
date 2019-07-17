@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "project_root" ]; then
+if [ -z "$project_root" ]; then
   echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
   exit 1
 fi
@@ -36,7 +36,7 @@ sanitize_pkg_list(){
   sed 's/#.*//' | tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
 }
 
-mkdir -p "$tmp/rootfs/root/post_debootstrap/"
+mkdir -p "$tmp/rootfs/root/first_boot_setup/post_debootstrap/"
 # TODO: copy scripts
 
 if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$(printf "%s" "$PACKAGES_INSTALL_DEBOOTSTRAP" | tr ' ' ',')"; fi
@@ -53,9 +53,9 @@ chmod +x "$tmp/rootfs/root/helper/"*
 
 chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
-mkdir -p "$tmp/rootfs/root/temp-repo/"
-cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/temp-repo/"
-cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/root/temp-repo/"
+mkdir -p "$tmp/rootfs/root/first_boot_setup/temp-repo/"
+cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
+cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
 
 # Note: The /etc/fstab is generated in assemble_image.sh
 rfslsdir.sh -r "rootfs" | while read t config file
@@ -72,8 +72,33 @@ do
   esac
 done
 
+i=0
+for config in $CONFIG_PATH
+do
+  i=$(expr $i + 1)
+  for script in post_debootstrap post_early_install pre_target_install post_target_install
+  do
+    script_path="config/$config/$script"
+    config_flat_name="$(printf "%s" "$config" | sed 's|[^a-zA-Z0-9-]|_|g')"
+    script_dir_target="$tmp/rootfs/root/first_boot_setup/$script"
+    mkdir -p "$script_dir_target"
+    if [ -x "$script_path" ]
+      then cp "$script_path" "$script_dir_target/$i-$config_flat_name"
+    elif [ -d "$script_path" ]
+    then
+      for file in "$script_path/"*
+      do
+        if ! [ -x "$script_path/$f" ]
+          then continue;
+        fi
+        cp "$script_path/$f" "$script_path/$i-$config_flat_name-$f"
+      done
+    fi
+  done
+done
+
 # Packages to install on device
-printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/packages_to_install"
+printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/first_boot_setup/packages_to_install"
 
 # Temporary source list
 (
@@ -83,14 +108,14 @@ printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/packages_to_install"
     do getrfsfile.sh "rootfs/etc/apt/sources.list.d$file"
   done
   echo
-  echo 'deb file:///root/temp-repo/ ./'
-) >"$tmp/rootfs/root/temporary-local-repo.list"
+  echo 'deb file:///root/first_boot_setup/temp-repo/ ./'
+) >"$tmp/rootfs/root/first_boot_setup/temporary-local-repo.list"
 
 # Do some stuff inside the chroot
 (
-  cp script/rootfs_setup.sh "$tmp/rootfs/root/rootfs_setup.sh"
-  chroot_qemu_static.sh "$tmp/rootfs/" /root/rootfs_setup.sh
-  rm "$tmp/rootfs/root/rootfs_setup.sh"
+  cp script/rootfs_setup.sh "$tmp/rootfs/root/first_boot_setup/rootfs_setup.sh"
+  chroot_qemu_static.sh "$tmp/rootfs/" /root/first_boot_setup/rootfs_setup.sh
+  rm "$tmp/rootfs/root/first_boot_setup/rootfs_setup.sh"
 )
 
 # Cleanup
