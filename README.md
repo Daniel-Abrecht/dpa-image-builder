@@ -1,21 +1,17 @@
 # librem5 devkit image build scripts
 
-I've written a few buildscripts to create my own, devuan image based on the ones from purism: https://source.puri.sm/Librem5/image-builder
+I've written a few buildscripts to create my own, devuan image inspired by the ones from purism: https://source.puri.sm/Librem5/image-builder
 
-I do a few things differently though, and I didn't reuse any code from their image-builder repo,
-with the exception of the uboot boot script at rootfs_custom_files/boot/boot.txt.
+I do a few things differently though, and I didn't reuse any code from their image-builder repo.
 
 I did this to get a devuan image for the devkit, and to gain a better understanding
 of the boot process and the components used. I also wanted to make sure that I
 can compile everything myself and that I will have a booting image once the phone arrives.
 
 I have never actually tried to run the build scripts from purism, but they should
-mostly work for devuan too, aside from a few systemd specific things, mostly in
-root.sh, which would probably have to be changed.
+mostly work for devuan too.
 
-The image does boot, but only from emmc when flashed using uuu, and an uart connection
-is currently needed to see any of the output, since the screen doesn't work yet.
-There is still a lot to do.
+The image does boot, but only from emmc when flashed using uuu.
 
 # Required packages & programs
 
@@ -74,7 +70,7 @@ used subuid is a good idea.
 
 Everithing in this repo is designed to work without root. I haven't tested if it even works when run as root.
 
-Creating an image in bin/devuan-$(RELEASE)-librem5-$(BOARD)-base.img
+Creating an image in bin/$(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
 ```
 make
 ```
@@ -88,7 +84,7 @@ make
 | VARIANT | base | A variation of the image to build, used to create image versions with some additional packages, repos, etc. |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
-| IMAGE_NAME | devuan-$(RELEASE)-librem5-$(BOARD)-base.img | The name of the image |
+| IMAGE_NAME | $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img | The name of the image |
 
 You can use the config-set@% and the config-unset@% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
 
