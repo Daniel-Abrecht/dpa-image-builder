@@ -57,6 +57,10 @@ mkdir -p "$tmp/rootfs/root/first_boot_setup/temp-repo/"
 cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
 cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
 
+for dummy in $PACKAGES_BOOTSTRAP_WORKAROUND
+  do mkdummydeb.sh "$tmp/rootfs/root/first_boot_setup/temp-repo/$dummy" 00
+done
+
 # Note: The /etc/fstab is generated in assemble_image.sh
 rfslsdir.sh -r "rootfs" | while read t config file
 do
@@ -96,9 +100,6 @@ do
     fi
   done
 done
-
-# Packages to install on device
-printf '%s\n' $PACKAGES_INSTALL_TARGET > "$tmp/rootfs/root/first_boot_setup/packages_to_install"
 
 # Temporary source list
 (

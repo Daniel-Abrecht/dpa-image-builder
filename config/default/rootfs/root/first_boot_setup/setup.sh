@@ -1,9 +1,6 @@
 #!/bin/sh -e
 
-cd /root/first_boot_setup/ || exit 1
-
-export DEBCONF_FORCE_DIALOG=1
-export APT_CONFIG=/root/first_boot_setup/apt-tmp.conf
+. /root/first_boot_setup/setup_env.sh
 
 setpw(){
   local pw=
@@ -21,6 +18,14 @@ dpkg-reconfigure locales
 
 setpw root
 
+# Update package list
+apt-get update
+
+# Remove dummy packages
+for dummy in $(cat dummy_packages_to_replace)
+  do apt-get -y install "$dummy" || true
+done
+
 for script in pre_target_install/*
 do
   [ -x "$script" ] || continue
@@ -28,7 +33,6 @@ do
 done
 
 # install remaining packages
-apt-get update
 apt-get -y install $(cat ./packages_to_install)
 
 for script in post_target_install/*
@@ -43,6 +47,6 @@ set +e
 apt-get clean
 
 # Remove first boot scripts
-rm -r /root/first_boot_setup/
+rm -r "$SETUP_DIR"
 
 chvt 1

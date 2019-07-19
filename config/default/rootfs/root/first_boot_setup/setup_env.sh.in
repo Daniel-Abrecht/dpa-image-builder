@@ -1,0 +1,11 @@
+
+export SETUP_DIR="$$(dirname "$$0")"
+
+cd "$$SETUP_DIR" || exit 1
+
+export DISTRO="$DISTRO"
+export RELEASE="$RELEASE"
+export VARIANT="$VARIANT"
+
+export DEBCONF_FORCE_DIALOG=1
+export APT_CONFIG=/root/first_boot_setup/apt-tmp.conf

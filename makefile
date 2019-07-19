@@ -122,6 +122,11 @@ uuu-test-kernel: kernel/bin/linux-image.deb
 
 always:
 
+.PHONY: always
+
+rebuild: clean-fs clean-image always
+	$(MAKE) all
+
 repo: always \
   repo/fuseloop/.repo \
   repo/usernsexec/.repo \

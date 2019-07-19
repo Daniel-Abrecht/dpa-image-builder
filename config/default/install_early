@@ -18,6 +18,8 @@ file
 less
 
 console-keyboard-multiplexer
+console-keyboard-multiplexer-config
+console-keyboard-multiplexer-initramfs-config
 consolation
 
 # "Fix" interface hotplugging

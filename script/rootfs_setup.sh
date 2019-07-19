@@ -9,6 +9,9 @@ set -ex
 
 cd /root/first_boot_setup/
 
+printf '%s\n' $PACKAGES_INSTALL_TARGET > "packages_to_install"
+printf '%s\n' $PACKAGES_BOOTSTRAP_WORKAROUND > "dummy_packages_to_replace"
+
 ## Update & download packages
 
 # Use temporary apt config for temporary bootstrap sources
@@ -61,8 +64,11 @@ apt-get clean
 
 # download packages
 for package in $PACKAGES_INSTALL_TARGET $PACKAGES_TO_DOWNLOAD
-do
-  apt-get -d -y install "$package"
+  do apt-get -d -y install "$package"
+done
+
+for package in $PACKAGES_BOOTSTRAP_WORKAROUND
+  do apt-get -d -y install -t "$RELEASE" "$package"
 done
 
 rm -rf temp-repo/
