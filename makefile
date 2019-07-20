@@ -1,5 +1,8 @@
 include src/make-helper-functions.mk
 
+export X_DEBOOTSTRAP_DIR = $(project_root)/build/$(IMAGE_NAME)/debootstrap_script/
+export DEBOOTSTRAP_SCRIPT = $(X_DEBOOTSTRAP_DIR)/usr/share/debootstrap/scripts/$(RELEASE)
+
 all: bin/$(IMAGE_NAME)
 
 bootloader: uboot/bin/uboot_firmware_and_dtb.bin
@@ -52,10 +55,23 @@ build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
+build/$(IMAGE_NAME)/deb/%.deb: build/$(IMAGE_NAME)/deb/.dir
+	getdeb.sh "$@"
+
+$(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
+	set -e; \
+	rm -rf "build/$(IMAGE_NAME)/debootstrap_script/"; \
+	mkdir -p "build/$(IMAGE_NAME)/debootstrap_script/"; \
+	cd "build/$(IMAGE_NAME)/debootstrap_script/"; \
+	ar x ../deb/debootstrap.deb; \
+	tar xzf data.tar.*;
+	[ -e "$@" ]
+
 build/$(IMAGE_NAME)/rootfs.tar: \
   kernel/bin/linux-image.deb \
   uboot/bin/uboot_firmware_and_dtb.bin \
   build/bin/usernsexec \
+  $(DEBOOTSTRAP_SCRIPT) \
   bin/.dir
 	$(MAKE) extra_packages
 	./script/debootstrap.sh

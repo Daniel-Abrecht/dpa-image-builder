@@ -1,0 +1,2 @@
+RELEASE = buster
+REPO = http://deb.debian.org/debian/

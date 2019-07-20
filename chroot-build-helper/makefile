@@ -24,10 +24,22 @@ build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
 dummy-packages/%.deb:
 	mkdummydeb.sh "$@"
 
-build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
+build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
+	getdeb.sh "$@"
+
+build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE): build-env/$(DISTRO)/$(RELEASE)/deb/debootstrap.deb
+	set -e; \
+	rm -rf "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
+	mkdir -p "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
+	cd "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
+	ar x ../deb/debootstrap.deb; \
+	tar xzf data.tar.*;
+	[ -e "$@" ]
+
+build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES)
 	mkdir -p "$@.tmp"
 	uexec rm -rf "$(CURDIR)/$@.tmp"
-	uexec --allow-setgroups debootstrap --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)"
+	DEBOOTSTRAP_DIR="$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/" uexec --allow-setgroups "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/sbin/debootstrap" --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)" "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE)"
 	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs" "$@.tmp/root/devrepo"
 	# Stub things which won't work in a chroot
 	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
@@ -46,15 +58,15 @@ build-env/$(DISTRO)/$(RELEASE): build-env/.dir $(CHROOT_DUMMY_PACKAGES_FILES)
 	printf "\ndeb file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
 	mv "$@.tmp" "$@"
 
-build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)
+build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(dir $<)" "$(dir $@)"
 	touch "$@"
 
-bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source
+bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)" sh -c "\
+	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -c "\
 	  set -ex; \
 	  cd /root/devrepo/; \
 	  rm -f Packages Packages.gz Packages.xz; \
@@ -65,7 +77,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/root/%/src/.so
 	    do apt-get -y purge "\$$package"; \
 	  done; \
 	  apt-get -y autoremove --purge; \
-	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/root/%/src/.source=%))/src/; \
+	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
 	  debuild -b -us -uc; \
@@ -83,7 +95,7 @@ clean-buildenv:
 	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
 	rmdir "$(CURDIR)/build-env/" || true
 
-clean-build:
+clean-build: clean-buildenv
 	rm -rf bin/$(DISTRO)/$(RELEASE)
 	rmdir bin/$(DISTRO)/ || true
 	rmdir bin || true

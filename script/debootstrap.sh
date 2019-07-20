@@ -42,7 +42,7 @@ mkdir -p "$tmp/rootfs/root/first_boot_setup/post_debootstrap/"
 if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$(printf "%s" "$PACKAGES_INSTALL_DEBOOTSTRAP" | tr ' ' ',')"; fi
 
 # Create usable first-stage rootfs
-debootstrap --foreign --arch=arm64 $debootstrap_include "$RELEASE" "$tmp/rootfs" "$REPO"
+DEBOOTSTRAP_DIR="$X_DEBOOTSTRAP_DIR/usr/share/debootstrap/" "$X_DEBOOTSTRAP_DIR/usr/sbin/debootstrap" --foreign --arch=arm64 $debootstrap_include "$RELEASE" "$tmp/rootfs" "$REPO" "$DEBOOTSTRAP_SCRIPT"
 
 touch "$tmp/rootfs/dev/null" # yes, this is a really bad idea, but hacking together a fuse file system just for this is overkill. Also, unionfs-fuse won't work here (fuse default is mounting as nodev), and there is no way to create a proper device file.
 chmod 666 "$tmp/rootfs/dev/null"
@@ -67,7 +67,7 @@ do
   dir="$tmp/rootfs"
   case "$t" in
     d) mkdir -p "$dir$file" ;;
-    r) rm "$dir$file" ;;
+    r) rm -f "$dir$file" ;;
     f) cp -a "config/$config/rootfs$file" "$dir$file" ;;
     s)
       sed 's/\$\$/\x1/g' <"config/$config/rootfs$file.in" | envsubst | sed 's/\x1/\$/g' >"$dir$file"

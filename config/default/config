@@ -1,18 +1,8 @@
 BOARD = librem5-devkit
 IMGSIZE = 3GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
 DISTRO = devuan
-RELEASE = $(DEFAULT_RELEASE-$(DISTRO))
 VARIANT = base
-REPO = http://pkgmaster.devuan.org/merged/
 CHROOT_REPO = $(REPO)
-
-REPO-devuan = http://pkgmaster.devuan.org/merged/
-REPO-debian = http://deb.debian.org/debian/
-REPO-ubuntu = http://ports.ubuntu.com/ubuntu-ports/
-
-DEFAULT_RELEASE-devuan = beowulf
-DEFAULT_RELEASE-debian = buster
-DEFAULT_RELEASE-ubuntu = disco
 
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
 
