@@ -20,5 +20,6 @@ fi
 url="$REPO/dists/$RELEASE/$suite/binary-$ARCH/"
 {
   if curl -L --fail --silent "$url"Packages; then true
-  else curl -L --fail --silent "$url"Packages.gz | gzip -d; fi
+  elif curl -L --fail --silent "$url"Packages.gz | gzip -d; then true
+  else curl -L --fail --silent "$url"Packages.xz | xz -d; fi
 } | awk '/Package: '"$package"'/,/^$/{print $0; if($0 ~ /^$/) exit }'
