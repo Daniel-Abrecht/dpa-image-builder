@@ -66,6 +66,7 @@ $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
 	ar x ../deb/debootstrap.deb; \
 	tar xzf data.tar.*;
 	[ -e "$@" ]
+	touch "$@"
 
 build/$(IMAGE_NAME)/rootfs.tar: \
   kernel/bin/linux-image.deb \

@@ -35,6 +35,7 @@ build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEA
 	ar x ../deb/debootstrap.deb; \
 	tar xzf data.tar.*;
 	[ -e "$@" ]
+	touch "$@"
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES)
 	mkdir -p "$@.tmp"
