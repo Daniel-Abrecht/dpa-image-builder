@@ -75,8 +75,9 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  gzip -k Packages; \
 	  xz -k Packages; \
 	  for package in \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$'); \
-	    do apt-get -y purge "\$$package"; \
-	  done; \
+	  do if [ \"\$$(dpkg-query -W --showformat='\$${Status}\n' "\$$package" 2>&-)\" = 'install ok installed' ]; \
+            then apt-get -y purge \"\$$package\"; \
+	  fi; done; \
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  apt-get update; \
