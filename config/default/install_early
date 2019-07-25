@@ -6,6 +6,9 @@ locales # Has to be installed before console keyboard, because it needs locale C
 # Do make the text readable
 console-setup
 
+# For the initial setup
+first-boot-setup
+
 # For getting dialogs when we install or reconfigure stuff later on the device
 dialog
 

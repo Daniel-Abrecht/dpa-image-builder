@@ -7,7 +7,7 @@ fi
 
 set -ex
 
-cd /root/first_boot_setup/
+cd /usr/share/first-boot-setup/
 
 printf '%s\n' $PACKAGES_INSTALL_TARGET > "packages_to_install"
 printf '%s\n' $PACKAGES_BOOTSTRAP_WORKAROUND > "dummy_packages_to_replace"
@@ -16,7 +16,7 @@ printf '%s\n' $PACKAGES_BOOTSTRAP_WORKAROUND > "dummy_packages_to_replace"
 
 # Use temporary apt config for temporary bootstrap sources
 cat > apt-tmp.conf <<EOF
-Dir::Etc::sourcelist "/root/first_boot_setup/temporary-local-repo.list";
+Dir::Etc::sourcelist "/usr/share/first-boot-setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
 APT::Get::AllowUnauthenticated "true";
@@ -24,7 +24,7 @@ Acquire::AllowInsecureRepositories "true";
 Dpkg::Options:: "--force-confdef";
 Dpkg::Options:: "--force-confold";
 EOF
-export APT_CONFIG=/root/first_boot_setup/apt-tmp.conf
+export APT_CONFIG=/usr/share/first-boot-setup/apt-tmp.conf
 
 (
   cd temp-repo/
@@ -89,11 +89,11 @@ mv /var/cache/apt/archives/*.deb temp-repo/ || true
 )
 
 # Add new temporary local repo list
-echo "deb file:///root/first_boot_setup/temp-repo/ ./" > temporary-local-repo.list
+echo "deb file:///usr/share/first-boot-setup/temp-repo/ ./" > temporary-local-repo.list
 
 # Create temporary apt config for temporary local repo
 cat > apt-tmp.conf <<EOF
-Dir::Etc::sourcelist "/root/first_boot_setup/temporary-local-repo.list";
+Dir::Etc::sourcelist "/usr/share/first-boot-setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
 APT::Get::AllowUnauthenticated "true";

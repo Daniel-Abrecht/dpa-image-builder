@@ -35,3 +35,6 @@ repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-k
 
 repo-branch@consolation = master
 repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
+
+repo-branch@first-boot-setup = master
+repo-source@first-boot-setup = https://github.com/Daniel-Abrecht/first-boot-setup.git

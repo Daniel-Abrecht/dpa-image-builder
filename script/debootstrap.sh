@@ -36,7 +36,7 @@ sanitize_pkg_list(){
   sed 's/#.*//' | tr '\n' ',' | sed 's/\(,\|\s\)\+/,/g' | sed 's/^,\+\|,\+$//g'
 }
 
-mkdir -p "$tmp/rootfs/root/first_boot_setup/post_debootstrap/"
+mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/post_debootstrap/"
 # TODO: copy scripts
 
 if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$(printf "%s" "$PACKAGES_INSTALL_DEBOOTSTRAP" | tr ' ' ',')"; fi
@@ -53,12 +53,12 @@ chmod +x "$tmp/rootfs/root/helper/"*
 
 chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
-mkdir -p "$tmp/rootfs/root/first_boot_setup/temp-repo/"
-cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
-cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/root/first_boot_setup/temp-repo/"
+mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
 
 for dummy in $PACKAGES_BOOTSTRAP_WORKAROUND
-  do mkdummydeb.sh "$tmp/rootfs/root/first_boot_setup/temp-repo/$dummy" 00
+  do mkdummydeb.sh "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/$dummy" 00
 done
 
 # Note: The /etc/fstab is generated in assemble_image.sh
@@ -84,7 +84,7 @@ do
   do
     script_path="config/$config/$script"
     config_flat_name="$(printf "%s" "$config" | sed 's|[^a-zA-Z0-9-]|_|g')"
-    script_dir_target="$tmp/rootfs/root/first_boot_setup/$script"
+    script_dir_target="$tmp/rootfs/usr/share/first-boot-setup/$script"
     mkdir -p "$script_dir_target"
     if [ -x "$script_path" ]
       then cp "$script_path" "$script_dir_target/$i-$config_flat_name"
@@ -109,14 +109,14 @@ done
     do getrfsfile.sh "rootfs/etc/apt/sources.list.d$file"
   done
   echo
-  echo 'deb file:///root/first_boot_setup/temp-repo/ ./'
-) >"$tmp/rootfs/root/first_boot_setup/temporary-local-repo.list"
+  echo 'deb file:///usr/share/first-boot-setup/temp-repo/ ./'
+) >"$tmp/rootfs/usr/share/first-boot-setup/temporary-local-repo.list"
 
 # Do some stuff inside the chroot
 (
-  cp script/rootfs_setup.sh "$tmp/rootfs/root/first_boot_setup/rootfs_setup.sh"
-  chroot_qemu_static.sh "$tmp/rootfs/" /root/first_boot_setup/rootfs_setup.sh
-  rm "$tmp/rootfs/root/first_boot_setup/rootfs_setup.sh"
+  cp script/rootfs_setup.sh "$tmp/rootfs/usr/share/first-boot-setup/rootfs_setup.sh"
+  chroot_qemu_static.sh "$tmp/rootfs/" /usr/share/first-boot-setup/rootfs_setup.sh
+  rm "$tmp/rootfs/usr/share/first-boot-setup/rootfs_setup.sh"
 )
 
 # Cleanup
