@@ -27,6 +27,3 @@ repo-source@arm-trusted-firmware = https://source.puri.sm/Librem5/trusted-firmwa
 
 repo-branch@mesa = pureos/purple
 repo-source@mesa = https://source.puri.sm/Librem5/mesa.git
-
-no-custom-mesa-devuan-ascii = 1
-no-custom-mesa-debian-stretch = 1

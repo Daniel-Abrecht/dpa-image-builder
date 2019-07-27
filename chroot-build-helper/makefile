@@ -93,6 +93,9 @@ clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
 clean-buildenv:
+	uexec rm -rf "$(CURDIR)/bin/$(DISTRO)/$(RELEASE)"
+	rmdir "$(CURDIR)/bin/$(DISTRO)/" || true
+	rmdir "$(CURDIR)/bin/" || true
 	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
 	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
 	rmdir "$(CURDIR)/build-env/" || true

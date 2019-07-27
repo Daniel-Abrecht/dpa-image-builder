@@ -1,10 +1,16 @@
 define parse_package_list
-$(shell for list in $(CONFIG_PATH);
+$(shell \
+  packages="$$(for list in $(CONFIG_PATH);
     do
       cat "$(project_root)/config/$$list/$(1)" 2>/dev/null || true;
       cat "$(project_root)/config/$$list/$(1)/"* 2>/dev/null || true;
     done | sort -u | sed 's/#.*//' | tr '\n' ' ' | sed 's/\s\+/ /g' | sed 's/^\s\+\|\s\+$$//g';
-  )
+  )";
+  for ignore in $$(printf "%s\n" $$packages | grep '^!' | sed 's/^!//g');
+    do packages=$$(printf '%s\n' $$packages | grep -v "$$ignore");
+  done;
+  printf "%s\n" "$$packages" | grep -v '^!'
+)
 endef
 
 PACKAGES_INSTALL_DEBOOTSTRAP  = $(call parse_package_list,install_debootstrap)
