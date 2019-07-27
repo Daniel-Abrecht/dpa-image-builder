@@ -1,7 +1,7 @@
-#! /bin/sh
+#!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          dri-x11-workaround
-# Required-Start:    mountall
+# Required-Start:    udev
 # Required-Stop: 
 # Default-Start:     S
 # Default-Stop:
