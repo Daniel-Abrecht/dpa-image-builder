@@ -13,6 +13,9 @@ mostly work for devuan too.
 
 The image does boot, but only from emmc when flashed using uuu.
 
+I'm rebuilding these images every day at 0 UTC on my build server: https://dpa.li/builds/librem5-image-builder/bin/ (Please note that the base images don't contain a desktop environment)
+
+
 # Required packages & programs
 
 You need the following packages for this to work:
@@ -32,7 +35,6 @@ You need the following packages for this to work:
  * `comerr-dev`
  * `jq`
  * `equivs`
- * `debootstrap`
  * `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * `uidmap`
  * `binfmt-support` (optional)
