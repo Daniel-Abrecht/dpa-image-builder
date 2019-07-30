@@ -86,6 +86,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  cp ../*.deb /root/devrepo/; \
 	"
 	mkdir -p "$(dir $@)"
+	rm -f "$(dir $@)"/*
 	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
 	touch "$@"
 
