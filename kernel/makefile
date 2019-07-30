@@ -6,11 +6,16 @@ all: bin/.done
 config: repo/linux/.config
 	@true
 
+menuconfig: repo/linux/.config
+	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) menuconfig
+	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) savedefconfig
+	cp repo/linux/defconfig configs/$(KERNEL_CONFIG_TARGET)
+
 repo: repo/linux/.repo
 	@true
 
 repo/linux/.config: repo/linux/.repo
-	if [ -f "configs/$(KERNEL_CONFIG_TARGET)" ] && [ ! -f "repo/linux/arch/arm64/configs/$(KERNEL_CONFIG_TARGET)_defconfig" ]; \
+	if [ -f "configs/$(KERNEL_CONFIG_TARGET)" ]; \
 	  then cp "configs/$(KERNEL_CONFIG_TARGET)" "repo/linux/arch/arm64/configs/$(KERNEL_CONFIG_TARGET)_defconfig"; \
 	fi
 	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) $(KERNEL_CONFIG_TARGET)_defconfig
