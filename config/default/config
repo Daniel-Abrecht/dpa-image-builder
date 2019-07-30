@@ -12,29 +12,40 @@ CONFIG_PATH = default default/v-$(VARIANT) $(DISTRO) $(DISTRO)/v-$(VARIANT) $(DI
 
 USER_SHELL = $(shell getent passwd "$$(id -u)" | grep -o '[^:]*$$')
 
+PROJECT_GIT_SERVER = dpa
+PROJECT_GIT_SERVER_URL = $(PROJECT_GIT_SERVER_URL-$(PROJECT_GIT_SERVER))
+
+# This is a server from the creator of this project
+PROJECT_GIT_SERVER_URL-dpa = https://projects.dpa.li/git
+
+PROJECT_GIT_SERVER_URL-purism = https://source.puri.sm/DanielAbrecht
+PROJECT_GIT_SERVER_URL-gitlab = https://gitlab.com/DanielAbrecht
+PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
+
+
 repo-branch@fuseloop = master
 repo-source@fuseloop = https://github.com/jmattsson/fuseloop.git
 
 repo-branch@usernsexec = master
-repo-source@usernsexec = https://github.com/Daniel-Abrecht/usernsexec.git
+repo-source@usernsexec = $(PROJECT_GIT_SERVER_URL)/usernsexec.git
 
 repo-branch@tar2ext = master
-repo-source@tar2ext = https://github.com/Daniel-Abrecht/tar2ext.git
+repo-source@tar2ext = $(PROJECT_GIT_SERVER_URL)/Daniel-Abrecht/tar2ext.git
 
 repo-branch@libttymultiplex = master
-repo-source@libttymultiplex = https://github.com/Daniel-Abrecht/libttymultiplex.git
+repo-source@libttymultiplex = $(PROJECT_GIT_SERVER_URL)/libttymultiplex.git
 
 repo-branch@console-keyboard-multiplexer = master
-repo-source@console-keyboard-multiplexer = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
+repo-source@console-keyboard-multiplexer = $(PROJECT_GIT_SERVER_URL)/console-keyboard-multiplexer.git
 
 repo-branch@libconsolekeyboard = libconsolekeyboard
-repo-source@libconsolekeyboard = https://github.com/Daniel-Abrecht/console-keyboard-multiplexer.git
+repo-source@libconsolekeyboard = $(PROJECT_GIT_SERVER_URL)/console-keyboard-multiplexer.git
 
 repo-branch@console-keyboard-basic = master
-repo-source@console-keyboard-basic = https://github.com/Daniel-Abrecht/console-keyboard-basic.git
+repo-source@console-keyboard-basic = $(PROJECT_GIT_SERVER_URL)/console-keyboard-basic.git
 
 repo-branch@consolation = master
-repo-source@consolation = https://github.com/Daniel-Abrecht/consolation.git
+repo-source@consolation = $(PROJECT_GIT_SERVER_URL)/consolation.git
 
 repo-branch@first-boot-setup = master
-repo-source@first-boot-setup = https://github.com/Daniel-Abrecht/first-boot-setup.git
+repo-source@first-boot-setup = $(PROJECT_GIT_SERVER_URL)/first-boot-setup.git

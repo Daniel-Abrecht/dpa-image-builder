@@ -16,7 +16,7 @@ repo-branch@uboot = devkit-wip
 repo-source@uboot = https://source.puri.sm/Librem5/uboot-imx.git
 
 repo-branch@imx-mkimage = imx-mkimage-emcraft
-repo-source@imx-mkimage = https://github.com/Daniel-Abrecht/librem5-image-builder.git
+repo-source@imx-mkimage = $(PROJECT_GIT_SERVER_URL)/librem5-image-builder.git
 
 repo-branch@Cortex_M4 = master
 repo-source@Cortex_M4 = https://source.puri.sm/Librem5/Cortex_M4.git
