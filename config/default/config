@@ -30,7 +30,7 @@ repo-branch@usernsexec = master
 repo-source@usernsexec = $(PROJECT_GIT_SERVER_URL)/usernsexec.git
 
 repo-branch@tar2ext = master
-repo-source@tar2ext = $(PROJECT_GIT_SERVER_URL)/Daniel-Abrecht/tar2ext.git
+repo-source@tar2ext = $(PROJECT_GIT_SERVER_URL)/tar2ext.git
 
 repo-branch@libttymultiplex = master
 repo-source@libttymultiplex = $(PROJECT_GIT_SERVER_URL)/libttymultiplex.git
