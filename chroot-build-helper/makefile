@@ -1,107 +1,28 @@
 include ../src/make-helper-functions.mk
 
-TMPDEP := $(shell mktemp)
-$(shell make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$(TMPDEP)" DEP_PREFIX="bin/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs >/dev/null)
-include $(TMPDEP)
+# Genereting the build dependencies for debian packages to be built requires
+# the repos of those packages to be checked out. Always cloning them
+# isn't desirable though, and generating the additional dependencies
+# can't be done in the real makefile only after the repos of the packages
+# to build are to be rebuilt, because the dependencies have to be known already
+# at that point.
+#
+# For this reason, this makefile exists, which passes through any target
+# to the real one. Before it does so, it checks if building a debian package
+# is a target using a helper script which dumps the makefile dependency db
+# in a dry-run and then checks using this data which targets depend in some way
+# on the ones specified to make. In that case, it uses another script to generate
+# the make dependencies for all debian packages, and thus also checks out the
+# repos of all packages to be built.
 
-bla:
-	echo
+%: force
+	if makefile=real-makefile list-dependent-targets.sh "$@" | grep -q '^bin/.*/.build$$'; \
+	then \
+	  tmpdep=$$(mktemp); \
+	  cleanup(){ rm -f "$$tmpdep"; }; \
+	  trap cleanup EXIT INT; \
+	  make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$$tmpdep" DEP_PREFIX="bin/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs; \
+	fi; \
+	$(MAKE) -f real-makefile GENERATED_DEPENDENCIES_FILE="$$tmpdep" "$@"
 
-# Only one thing at a time can chroot into the buildenv
-.NOTPARALLEL:
-
-CURDIR=$(realpath .)
-
-# Packages using seccomp will hang qemu-user, so let's replace them
-CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix .deb,$(PACKAGES_BOOTSTRAP_WORKAROUND)))
-
-all: $(addprefix build@,$(PACKAGES_TO_BUILD)) $(CHROOT_DUMMY_PACKAGES_FILES)
-repo: $(addprefix repo@,$(PACKAGES_TO_BUILD))
-
-build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
-	@true
-
-dummy-packages/%.deb:
-	mkdummydeb.sh "$@"
-
-build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
-	getdeb.sh "$@"
-
-build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE): build-env/$(DISTRO)/$(RELEASE)/deb/debootstrap.deb
-	set -e; \
-	rm -rf "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	mkdir -p "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	cd "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	ar x ../deb/debootstrap.deb; \
-	tar xzf data.tar.*;
-	[ -e "$@" ]
-	touch "$@"
-
-build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES)
-	mkdir -p "$@.tmp"
-	uexec rm -rf "$(CURDIR)/$@.tmp"
-	DEBOOTSTRAP_DIR="$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/" uexec --allow-setgroups "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/sbin/debootstrap" --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)" "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE)"
-	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs" "$@.tmp/root/devrepo"
-	# Stub things which won't work in a chroot
-	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
-	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
-	chmod +x "$@.tmp/root/helper/mknod"
-	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
-	chmod +x "$@.tmp/root/helper/mount"
-	printf 'APT::Get::AllowUnauthenticated "true";\nAcquire::AllowInsecureRepositories "true";' >"$@.tmp/etc/apt/apt.conf.d/80localnocheck"
-	touch "$@.tmp/dev/null"
-	chmod 666 "$@.tmp/dev/null"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
-	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot
-	printf "\ndeb file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
-	mv "$@.tmp" "$@"
-
-build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
-	mkdir -p "$(dir $(dir $(dir $@)))"
-	rm -rf "$(dir $(dir $@))"
-	cp -r "$(dir $<)" "$(dir $@)"
-	touch "$@"
-
-bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source
-	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -c "\
-	  set -ex; \
-	  cd /root/devrepo/; \
-	  rm -f Packages Packages.gz Packages.xz; \
-	  dpkg-scanpackages -m . > Packages; \
-	  gzip -k Packages; \
-	  xz -k Packages; \
-	  for package in \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$'); \
-	  do if [ \"\$$(dpkg-query -W --showformat='\$${Status}\n' "\$$package" 2>&-)\" = 'install ok installed' ]; \
-            then apt-get -y purge \"\$$package\"; \
-	  fi; done; \
-	  apt-get -y autoremove --purge; \
-	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
-	  apt-get update; \
-	  apt-get -y build-dep .; \
-	  debuild -b -us -uc; \
-	  cp ../*.deb /root/devrepo/; \
-	"
-	mkdir -p "$(dir $@)"
-	rm -f "$(dir $@)"/*
-	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
-	touch "$@"
-
-clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
-reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
-
-clean-buildenv:
-	uexec rm -rf "$(CURDIR)/bin/$(DISTRO)/$(RELEASE)"
-	rmdir "$(CURDIR)/bin/$(DISTRO)/" || true
-	rmdir "$(CURDIR)/bin/" || true
-	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
-	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
-	rmdir "$(CURDIR)/build-env/" || true
-
-clean-build: clean-buildenv
-	rm -rf bin/$(DISTRO)/$(RELEASE)
-	rmdir bin/$(DISTRO)/ || true
-	rmdir bin || true
+force: ;
