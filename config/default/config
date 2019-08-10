@@ -1,5 +1,6 @@
 BOARD = librem5-devkit
-IMGSIZE = 3GiB # Note: 1GB = 1000MB, 1GiB=1024MiB 
+# Note: 1GB = 1000MB, 1GiB=1024MiB 
+IMGSIZE = auto
 DISTRO = devuan
 VARIANT = base
 CHROOT_REPO = $(REPO)

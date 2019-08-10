@@ -7,6 +7,11 @@ fi
 
 set -xe
 
+if [ -z "$IMGSIZE" ] || [ "$IMGSIZE" = auto ]; then
+  rootfs_size="$(stat -c '%s' "build/$IMAGE_NAME/rootfs.tar")"
+  IMGSIZE="$(expr "$(expr "$(expr "$rootfs_size" \* 120 / 100 + 268435456 + 2048 + 1023)" / 1024 + 1023)" / 1024 + 100)"MiB
+fi
+
 cd "$(dirname "$0")/.."
 base="$PWD"
 
