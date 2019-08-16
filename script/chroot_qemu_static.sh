@@ -42,10 +42,12 @@ qemu_aarch64_static_binary="$(which qemu-aarch64-static qemu-aarch64 | head -n 1
 
 cp "$qemu$qemu_aarch64_static_binary" "$rootfs$qemu_aarch64_static_binary" || true
 
+if [ ! -c "$rootfs/dev/urandom" ]
+  then rm -f "$rootfs/dev/urandom"
+fi
 
 # Emulate some files in /dev/  if necessary
-[ ! -e "$rootfs/dev/urandom" ]
-has_no_urandom=$?
+has_no_urandom="$([ ! -e "$rootfs/dev/urandom" ]; echo $?)"
 
 if [ "$has_no_urandom" = 0 ]
 then
@@ -58,8 +60,11 @@ then
   ) & urandom_PID=$!
 fi
 
-[ ! -e "$rootfs/dev/zero" ]
-has_no_zero=$?
+if [ ! -c "$rootfs/dev/zero" ]
+  then rm -f "$rootfs/dev/zero"
+fi
+
+has_no_zero="$([ ! -e "$rootfs/dev/zero" ]; echo "$?")"
 
 if [ "$has_no_zero" = 0 ]
 then
