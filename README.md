@@ -27,6 +27,7 @@ You need the following packages for this to work:
  * `libnewlib-arm-none-eabi`
  * `libstdc++-arm-none-eabi-newlib`
  * `libext2fs-dev` (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
+ * `util-linux`
  * `libtar-dev`
  * `bison`
  * `flex`
