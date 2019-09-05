@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cat >>/etc/inittab <<EOF
+
+# uart
+T0:2345:respawn:/sbin/getty -L ttymxc0 115200 xterm
+
+EOF
+
+update-rc.d -f dri-x11-workaround.sh defaults || true
+update-rc.d dri-x11-workaround.sh enable || true

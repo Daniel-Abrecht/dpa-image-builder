@@ -1,0 +1,1 @@
+export ETNA_MESA_DEBUG=no_supertile
