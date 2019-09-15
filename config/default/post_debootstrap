@@ -1,0 +1,6 @@
+#!/bin/sh
+
+printf '\n\n# console-keyboard-multiplexer instances on VTs\n' >>/etc/securetty
+for i in $(seq 1 63)
+  do echo "ttyCKM$i" >> /etc/securetty
+done
