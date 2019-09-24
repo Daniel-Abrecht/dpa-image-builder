@@ -76,7 +76,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  apt-get update; \
-	  apt-get -y build-dep .; \
+	  apt-get -y build-dep -t \"$(BUILD_DEP_RELEASE)\" .; \
 	  debuild -b -us -uc; \
 	  cp ../*.deb /root/devrepo/; \
 	"

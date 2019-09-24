@@ -5,6 +5,8 @@ DISTRO = devuan
 VARIANT = base
 CHROOT_REPO = $(REPO)
 
+BUILD_DEP_RELEASE = $(RELEASE)
+
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
 
 CROSS_COMPILER = aarch64-linux-gnu-
