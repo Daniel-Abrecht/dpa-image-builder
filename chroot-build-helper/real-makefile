@@ -52,6 +52,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot
 	printf "\ndeb file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
+	uexec rm -rf "$(CURDIR)/$@"
 	mv "$@.tmp" "$@"
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
@@ -92,9 +93,6 @@ clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
 clean-buildenv:
-	uexec rm -rf "$(CURDIR)/bin/$(DISTRO)/$(RELEASE)"
-	rmdir "$(CURDIR)/bin/$(DISTRO)/" || true
-	rmdir "$(CURDIR)/bin/" || true
 	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
 	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
 	rmdir "$(CURDIR)/build-env/" || true
