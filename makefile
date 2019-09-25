@@ -15,12 +15,10 @@ extra_packages:
 	$(MAKE) -C chroot-build-helper
 
 clean-fs-all:
-	rm -rf build/
+	rm -rf build/*.img
 
 clean-fs:
-	rm -f "build/$(IMAGE_NAME)/bootfs.tar"
-	rm -f "build/$(IMAGE_NAME)/rootfs.tar"
-	rmdir "build/$(IMAGE_NAME)/" || true
+	rm -rf "build/$(IMAGE_NAME)/"
 
 clean-image-all:
 	rm -f bin/*.img
@@ -162,11 +160,18 @@ reset-repo: reset-repo@fuseloop reset-repo@usernsexec reset-repo@tar2ext
 	$(MAKE) -C kernel reset-repo
 	$(MAKE) -C chroot-build-helper reset-repo
 
-clean-build:
+clean-build: clean-image clean-fs
 	$(MAKE) -C uboot clean-build
 	$(MAKE) -C kernel clean-build
 	$(MAKE) -C chroot-build-helper clean-build
-	rm -rf bin/ build/
+	rm -rf build/bin/
+	rmdir build/ 2>/dev/null || true
+
+clean-build-all: clean-image-all clean-fs-all
+	$(MAKE) -C uboot clean-build
+	$(MAKE) -C kernel clean-build
+	$(MAKE) -C chroot-build-helper clean-build-all
+	rm -rf build/
 
 emulate: bin/$(IMAGE_NAME) kernel/bin/linux-image.deb
 	qemu-system-aarch64 -M virt -cpu cortex-a53 -m 3G -kernel repo/linux/debian/tmp/boot/vmlinuz-* -append "root=/dev/vda3" -drive if=none,file=bin/"$(IMAGE_NAME)",format=raw,id=hd -device virtio-blk-device,drive=hd -nographic

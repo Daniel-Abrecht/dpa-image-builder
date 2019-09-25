@@ -101,3 +101,6 @@ clean-build: clean-buildenv
 	rm -rf bin/$(DISTRO)/$(RELEASE)
 	rmdir bin/$(DISTRO)/ || true
 	rmdir bin || true
+
+clean-build-all:
+	uexec rm -rf "$(CURDIR)/build-env/" "$(CURDIR)/bin/"
