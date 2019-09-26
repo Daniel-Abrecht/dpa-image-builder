@@ -16,6 +16,7 @@ build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
 	@true
 
 dummy-packages/%.deb:
+	mkdir -p "$(dir $@)"
 	mkdummydeb.sh "$@"
 
 build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
@@ -93,6 +94,7 @@ clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
 clean-buildenv:
+	rm -rf dummy-packages/
 	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
 	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
 	rmdir "$(CURDIR)/build-env/" || true

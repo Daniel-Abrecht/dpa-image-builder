@@ -67,10 +67,6 @@ for package in $PACKAGES_INSTALL_TARGET $PACKAGES_TO_DOWNLOAD
   do apt-get -d -y install "$package"
 done
 
-for package in $PACKAGES_BOOTSTRAP_WORKAROUND
-  do apt-get -d -y install -t "$RELEASE" "$package"
-done
-
 rm -rf temp-repo/
 
 # Remove temporary list file again
