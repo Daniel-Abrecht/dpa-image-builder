@@ -51,7 +51,10 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot
+	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
+	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot; \
+	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot; \
+	fi
 	printf "\ndeb file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
 	uexec rm -rf "$(CURDIR)/$@"
 	mv "$@.tmp" "$@"
@@ -78,10 +81,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  apt-get update; \
-	  if [ -n \"$(BUILD_DEP_RELEASE)\" ]; \
-	    then apt-get -y build-dep -t \"$(BUILD_DEP_RELEASE)\" .; \
-	    else apt-get -y build-dep .; \
-	  fi; \
+	  apt-get -y build-dep .; \
 	  debuild -b -us -uc; \
 	  cp ../*.deb /root/devrepo/; \
 	"
