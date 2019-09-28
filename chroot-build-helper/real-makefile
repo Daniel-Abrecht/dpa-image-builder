@@ -82,13 +82,22 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
-	  debuild -b -us -uc; \
+	  if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
+	    then debuild -us -uc; \
+	    else debuild -b -us -uc; \
+	  fi; \
 	  cp ../*.deb /root/devrepo/; \
 	"
 	mkdir -p "$(dir $@)"
 	rm -f "$(dir $@)"/*
 	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
+	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
+	  then make "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
+	fi
 	touch "$@"
+
+repo-add@%:
+	addrepo.sh build-env/devuan/ascii/rootfs/root/$(patsubst repo-add@%,%,$@)/*.changes
 
 clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
