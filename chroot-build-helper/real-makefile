@@ -59,11 +59,11 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec rm -rf "$(CURDIR)/$@"
 	mv "$@.tmp" "$@"
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/%/.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
+build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
-	cp -r "$(dir $<)" "$(dir $@)"
-	touch "$@"
+	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
+	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~$$DISTRO-$$RELEASE~$$(printf -- 'git-%s-%s-%s%s' "$$(git rev-parse --abbrev-ref HEAD)" "$$(git rev-list HEAD | wc -l)" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)")~"; ) >"$@"
 
 bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
@@ -80,6 +80,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  fi; done; \
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
+	  dch -b -v \"\$$(cat .source)\" \"Version suffix automatically added my librem5-image-builder\"; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
 	  if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
@@ -92,12 +93,12 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	rm -f "$(dir $@)"/*
 	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
 	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
-	  then make "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
+	  then make -f real-makefile "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
 	fi
 	touch "$@"
 
 repo-add@%:
-	addrepo.sh build-env/devuan/ascii/rootfs/root/$(patsubst repo-add@%,%,$@)/*.changes
+	addrepo.sh build-env/$(DISTRO)/$(RELEASE)/rootfs/root/$(patsubst repo-add@%,%,$@)/*.changes
 
 clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))

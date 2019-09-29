@@ -40,16 +40,16 @@ kernel/bin/linux-image.deb:
 	mkdir -p "$(dir $@)"
 	touch "$@"
 
-build/bin/fuseloop: repo/fuseloop/.repo build/bin/.dir
+build/bin/fuseloop: repo/.fuseloop.repo build/bin/.dir
 	$(MAKE) -C repo/fuseloop/
 	cp repo/fuseloop/fuseloop build/bin/
 
-build/bin/usernsexec: repo/usernsexec/.repo build/bin/.dir
+build/bin/usernsexec: repo/.usernsexec.repo build/bin/.dir
 	$(MAKE) -C repo/usernsexec/
 	cp repo/usernsexec/bin/usernsexec build/bin/
 	cp repo/usernsexec/script/uexec build/bin/
 
-build/bin/writeTar2Ext: repo/tar2ext/.repo build/bin/.dir
+build/bin/writeTar2Ext: repo/.tar2ext.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
 	cp repo/tar2ext/bin/writeTar2Ext build/bin/
 
@@ -143,9 +143,9 @@ rebuild: clean-fs clean-image always
 	$(MAKE) all
 
 repo: always \
-  repo/fuseloop/.repo \
-  repo/usernsexec/.repo \
-  repo/tar2ext/.repo
+  repo/.fuseloop.repo \
+  repo/.usernsexec.repo \
+  repo/.tar2ext.repo
 	$(MAKE) -C uboot repo
 	$(MAKE) -C kernel repo
 	$(MAKE) -C chroot-build-helper repo

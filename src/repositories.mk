@@ -1,6 +1,6 @@
 
 # TODO: get rid of this firmware crap, it's not FOSS!!!
-repo/firmware-imx/.repo: repo/firmware-imx/.dir
+repo/.firmware-imx.repo: repo/firmware-imx/.dir
 	set -e; \
 	file="repo/firmware-imx/firmware-imx-7.2.bin"; \
 	wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.2.bin -O "$$file.tmp"; \

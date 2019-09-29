@@ -85,17 +85,19 @@ chroot@%:
 clean:
 	! echo -n "Please use one of:\n * make clean-build\t# remove all files built for the target image (includes the image)\n * make clean-build-all\t# remove all files that have been built\n * make clean-repo\t# remove the downloaded repos\n * make reset-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# same as 'make clean-repo clean-build'\n * make clean-all-all\t# same as 'make clean-repo clean-build-all'\n * make reset\t\t# same as 'make reset-repo clean-build'\n * make reset-all\t# same as 'make reset-repo clean-build-all'\n"
 
-repo/%/.repo:
-	branch="$(repo-branch@$(patsubst repo/%/.repo,%,$@))"; \
-	source="$(repo-source@$(patsubst repo/%/.repo,%,$@))"; \
-	mkdir -p "$(dir $@)" && cd "$(dir $@)" && git clone -b "$$branch" "$$source" .
+repo/.%.repo:
+	branch="$(repo-branch@$(patsubst repo/.%.repo,%,$@))"; \
+	source="$(repo-source@$(patsubst repo/.%.repo,%,$@))"; \
+	mkdir -p "repo/$(patsubst repo/.%.repo,%,$@)" && cd "repo/$(patsubst repo/.%.repo,%,$@)" && git clone -b "$$branch" "$$source" .
+	touch "repo/$(patsubst repo/.%.repo,%,$@)"
 	touch "$@"
 
 repo@%:
-	make repo/$(patsubst repo@%,%,$@)/.repo
+	make repo/.$(patsubst repo@%,%,$@).repo
 
 clean-repo@%:
 	rm -rf "repo/$(patsubst clean-repo@%,%,$@)"
+	rm -f "repo/.$(patsubst clean-repo@%,%,$@).repo"
 
 reset-repo@%:
 	set -e; \
@@ -110,7 +112,8 @@ reset-repo@%:
 	  git fetch || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
 	  git reset --hard "origin/$$branch" >/dev/null; \
 	  git checkout -f "origin/$$branch" >/dev/null; \
-	  touch .repo; \
+	  touch .; \
+	  touch "../.$$repo.repo"; \
 	fi
 
 config-list:
@@ -158,3 +161,5 @@ clean-all: clean-repo clean-build
 clean-all-all: clean-repo clean-build-all
 reset: reset-repo clean-build
 reset-all: reset-repo clean-build-all
+
+.PHONY: all repo reset-repo clean-repo clean clean-all clean-all-all clean-build clean-build-all

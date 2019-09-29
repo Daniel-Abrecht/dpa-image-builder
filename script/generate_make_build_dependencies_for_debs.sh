@@ -9,7 +9,7 @@ fi
 
 for package in $PACKAGES_TO_BUILD
 do
-  if ! [ -f "repo/$package/.repo" ]; then
+  if ! [ -f "repo/.$package.repo" ]; then
     echo "Trying to clone repo $package from which is a make target of packages which are to be built in order to generate makefile dependencies..." >&2
     make -C "$project_root" -f "$project_root/src/make-helper-functions.mk" "repo@$package" >&2
   fi
@@ -24,7 +24,7 @@ do
   do
     for repo in $PACKAGES_TO_BUILD
     do
-      if ! [ -f "repo/$repo/.repo" ]; then
+      if ! [ -f "repo/.$repo.repo" ]; then
         echo "Trying to clone repo $repo from which is a make target of packages which are to be built in order to generate makefile dependencies..." >&2
         make -C "$project_root" -f "$project_root/src/make-helper-functions.mk" "repo@$repo" >&2
       fi

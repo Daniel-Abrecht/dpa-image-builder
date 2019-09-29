@@ -15,6 +15,9 @@ include ../src/make-helper-functions.mk
 # the make dependencies for all debian packages, and thus also checks out the
 # repos of all packages to be built.
 
+repo: force
+	$(MAKE) -f real-makefile GENERATED_DEPENDENCIES_FILE="$$tmpdep" "$@"
+
 %: force
 	if makefile=real-makefile list-dependent-targets.sh "$@" | grep -q '^bin/.*/.build$$'; \
 	then \
