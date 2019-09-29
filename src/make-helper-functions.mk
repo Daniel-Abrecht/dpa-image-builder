@@ -113,7 +113,7 @@ reset-repo@%:
 	  git reset --hard "origin/$$branch" >/dev/null; \
 	  git checkout -f "origin/$$branch" >/dev/null; \
 	  touch .; \
-	  touch "../.$$repo.repo"; \
+	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
 	fi
 
 config-list:
