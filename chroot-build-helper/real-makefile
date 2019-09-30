@@ -63,7 +63,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo build-env
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
-	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~$$DISTRO-$$RELEASE~$$(printf -- 'git-%s-%s-%s%s' "$$(git rev-parse --abbrev-ref HEAD)" "$$(git rev-list HEAD | wc -l)" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)")"; ) >"$@"
+	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~$$DISTRO-$$RELEASE~$$(printf -- 'git-%s-%s-%s%s' "$$(git name-rev HEAD | sed 's/\s*HEAD\s*//' | tr ' ' '+' | sed 's/[^a-zA-Z0-9]/-/')" "$$(git rev-list HEAD --count)" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)")"; ) >"$@"
 
 bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
@@ -98,7 +98,17 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	touch "$@"
 
 repo-add@%:
-	addrepo.sh build-env/$(DISTRO)/$(RELEASE)/rootfs/root/$(patsubst repo-add@%,%,$@)/*.changes
+	set -x; \
+	cd "build-env/$(DISTRO)/$(RELEASE)/rootfs/root/$(patsubst repo-add@%,%,$@)/"; \
+	name="$$(printf '%s' *.changes)"; \
+	cp "$$name" ".$$name"; \
+	sed -i 's/\.ddeb$$/.deb/' ".$$name"; \
+	for ddeb in *.ddeb; \
+	  do if [ -f "$$ddeb" ]; \
+	    then ln -sf "$$ddeb" "$$(basename "$$ddeb" .ddeb).deb"; \
+	  fi;  \
+	done; \
+	addrepo.sh ".$$name"
 
 clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
