@@ -27,4 +27,5 @@ EOF
 
 cat "$dbdir/distros/"* >"$dbdir/conf/distributions"
 
-reprepro -Vb "$dbdir" --ignore=wrongdistribution --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1"
+reprepro -Vb "$dbdir" --ignore=wrongdistribution -T dsc --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1" || true
+reprepro -Vb "$dbdir" --ignore=wrongdistribution -T deb --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1"
