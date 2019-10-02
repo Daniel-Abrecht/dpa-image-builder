@@ -5,6 +5,12 @@ DISTRO = devuan
 VARIANT = base
 CHROOT_REPO = $(REPO)
 
+BUILD_PACKAGES = no
+USE_IMAGE_BUILDER_REPO = yes
+
+IMAGE_BUILDER_REPO = deb https://repo.dpa.li/apt/librem5/ $(DISTRO)-$(RELEASE) librem5
+IMAGE_BUILDER_REPO_KEY = https://repo.dpa.li/apt/librem5/repo-public-key.gpg
+
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
 
 CROSS_COMPILER = aarch64-linux-gnu-
@@ -22,7 +28,6 @@ PROJECT_GIT_SERVER_URL-dpa = https://projects.dpa.li/git
 PROJECT_GIT_SERVER_URL-purism = https://source.puri.sm/DanielAbrecht
 PROJECT_GIT_SERVER_URL-gitlab = https://gitlab.com/DanielAbrecht
 PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
-
 
 repo-branch@fuseloop = master
 repo-source@fuseloop = https://github.com/jmattsson/fuseloop.git

@@ -88,6 +88,10 @@ make
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
 | IMAGE_NAME | $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img | The name of the image |
+| BUILD_PACKAGES | no | Wheter or not to build packages using chroot-build-helper |
+| USE_IMAGE_BUILDER_REPO | yes | Wheter or not to use and add a sources.list for $IMAGE_BUILDER_REPO. If you don't want to use another repo and instead build all package yourself, set this to "no" and also set $BUILD_PACKAGES to "yes". |
+| IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/librem5/ $(DISTRO)-$(RELEASE) librem5` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
+| IMAGE_BUILDER_REPO_KEY | https://repo.dpa.li/apt/librem5/repo-public-key.gpg | If $USE_IMAGE_BUILDER_REPO is set to "yes", this repo key is added. |
 
 You can use the config-set@% and the config-unset@% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
 
@@ -97,6 +101,11 @@ You can also specify them in the make command directly instead, but if you do it
  * To change REPO and CHROOT_REPO, remove the build/filesystem directory, or the rootfs and bootfs tar archives in it.
 
 There are also make targets for that.
+
+Packages can be built even if BUILD_PACKAGES is set to "no". For this, just enter
+the `chroot-build-helper` subdirectory. In there, you can use `make` as normal,
+including the `repo`, `reset*` and `clean*` make targets. You can also build an individual
+package that way, using the `make build@%` make target (just replace `%` with the repo name).
 
 ## Other useful make targets
 
@@ -194,6 +203,22 @@ your config settings this way. For example, to check which packages it picked up
 you can use the command `env | grep '^PACKAGES'`. To see the config search path
 with one path per line, you can use `printf '%s\n' $CONFIG_PATH`, and so on.
 It's recommended to exit this shell before building the images though.
+
+## Automatically creating & adding built packages to a repo
+
+Just install reprepro and set the following variables:
+| Variable | Purpose |
+| -------- | ------- |
+| ADD_TO_EXTERNAL_REPO | Set this to "yes" to automatically add packages to a repo |
+| REPO_DIR | The directory in which the files for the repo shall be stored. The actual repo will be in a subdirectory called "repo/". Use an absolute path here. |
+| NEW_PKG_ORIGIN | Set the origin for the repo |
+| NEW_PKG_COMPONENT | Set the component of the repo |
+| NEW_PKG_KEY | Set the GPG key to use for signing |
+
+You may also want to change: BUILD_PACKAGES, USE_IMAGE_BUILDER_REPO,
+IMAGE_BUILDER_REPO and IMAGE_BUILDER_REPO_KEY. See section [Usage] for details.
+
+You can build the packages even if BUILD_PACKAGES is set to no
 
 ## Other important stuff
 

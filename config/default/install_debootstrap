@@ -8,3 +8,5 @@ initramfs-tools
 
 # Needed by current flash-kernel version, remove once everything is mainline
 file
+
+apt-transport-https

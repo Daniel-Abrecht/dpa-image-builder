@@ -55,7 +55,13 @@ chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
 cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
-cp chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+
+for deb in chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb
+do
+  if [ -f "$deb" ]
+    then cp $debs "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+  fi
+done
 
 for dummy in $PACKAGES_BOOTSTRAP_WORKAROUND
   do mkdummydeb.sh "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/$dummy" 00

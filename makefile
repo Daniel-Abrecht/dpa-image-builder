@@ -12,7 +12,9 @@ linux: kernel/bin/linux-image.deb
 	@true
 
 extra_packages:
-	$(MAKE) -C chroot-build-helper
+	if [ "$(BUILD_PACKAGES)" != no ]; \
+	  then $(MAKE) -C chroot-build-helper; \
+	fi
 
 clean-fs-all:
 	rm -rf build/*.img
@@ -148,7 +150,9 @@ repo: always \
   repo/.tar2ext.repo
 	$(MAKE) -C uboot repo
 	$(MAKE) -C kernel repo
-	$(MAKE) -C chroot-build-helper repo
+	if [ "$(BUILD_PACKAGES)" != no ]; \
+	  then $(MAKE) -C chroot-build-helper repo; \
+	fi
 
 clean-repo: clean-repo@fuseloop clean-repo@usernsexec clean-repo@tar2ext
 	$(MAKE) -C uboot clean-repo
@@ -158,7 +162,9 @@ clean-repo: clean-repo@fuseloop clean-repo@usernsexec clean-repo@tar2ext
 reset-repo: reset-repo@fuseloop reset-repo@usernsexec reset-repo@tar2ext
 	$(MAKE) -C uboot reset-repo
 	$(MAKE) -C kernel reset-repo
-	$(MAKE) -C chroot-build-helper reset-repo
+	if [ "$(BUILD_PACKAGES)" != no ]; \
+	  then $(MAKE) -C chroot-build-helper reset-repo; \
+	fi
 
 clean-build: clean-image clean-fs
 	$(MAKE) -C uboot clean-build

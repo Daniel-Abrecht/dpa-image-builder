@@ -4,3 +4,12 @@ printf '\n\n# console-keyboard-multiplexer instances on VTs\n' >>/etc/securetty
 for i in $(seq 1 63)
   do echo "ttyCKM$i" >> /etc/securetty
 done
+
+if [ "$USE_IMAGE_BUILDER_REPO" = yes ] && [ -n "$IMAGE_BUILDER_REPO$IMAGE_BUILDER_REPO_KEY" ]
+then
+  apt-get update
+  apt-get -y install ca-certificates wget gpg
+  wget -O- "$IMAGE_BUILDER_REPO_KEY" | apt-key add -
+  printf '%s' "$IMAGE_BUILDER_REPO" >>/usr/share/first-boot-setup/temporary-local-repo.list
+  printf '%s' "$IMAGE_BUILDER_REPO" >/etc/apt/sources.list.d/librem5-image-builder.list
+fi
