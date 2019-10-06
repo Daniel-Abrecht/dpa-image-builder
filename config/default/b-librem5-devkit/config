@@ -1,6 +1,6 @@
 FK_MACHINE = Purism Librem 5 devkit
 
-KERNEL_CONFIG_TARGET = librem5-devkit
+KERNEL_CONFIG_TARGET = librem5
 KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb
 
 UBOOT_CONFIG_TARGET = librem5_devkit_base_defconfig
@@ -9,7 +9,7 @@ UBOOT_DTB = librem5-evk.dtb
 repo-branch@flash-kernel = librem5
 repo-source@flash-kernel = https://source.puri.sm/Librem5/flash-kernel.git
 
-repo-branch@linux = imx8-5.2-devkit
+repo-branch@linux = imx8-current-devkit
 repo-source@linux = https://source.puri.sm/Librem5/linux-next.git
 
 repo-branch@uboot = devkit-wip
