@@ -207,6 +207,7 @@ It's recommended to exit this shell before building the images though.
 ## Automatically creating & adding built packages to a repo
 
 Just install reprepro and set the following variables:
+
 | Variable | Purpose |
 | -------- | ------- |
 | ADD_TO_EXTERNAL_REPO | Set this to "yes" to automatically add packages to a repo |
