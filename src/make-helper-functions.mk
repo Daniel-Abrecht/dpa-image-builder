@@ -109,9 +109,11 @@ reset-repo@%:
 	  cd "$$repo"; \
 	  find -maxdepth 1 -not -name .git -not -name . -exec rm -rf {} \;; \
 	  git remote set-url origin "$$source"; \
-	  git fetch || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
+	  git fetch --all || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
 	  git reset --hard "origin/$$branch" >/dev/null; \
 	  git checkout -f "origin/$$branch" >/dev/null; \
+	  git branch -d "$$branch"; \
+	  git checkout "$$branch"; \
 	  touch .; \
 	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
 	fi
