@@ -112,7 +112,7 @@ reset-repo@%:
 	  git fetch --all || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
 	  git reset --hard "origin/$$branch" >/dev/null; \
 	  git checkout -f "origin/$$branch" >/dev/null; \
-	  git branch -D "$$branch"; \
+	  git branch -D "$$branch" || true; \
 	  git checkout "$$branch"; \
 	  touch .; \
 	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
