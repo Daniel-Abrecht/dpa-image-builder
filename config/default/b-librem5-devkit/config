@@ -9,7 +9,7 @@ UBOOT_DTB = librem5-evk.dtb
 repo-branch@flash-kernel = librem5
 repo-source@flash-kernel = https://source.puri.sm/Librem5/flash-kernel.git
 
-repo-branch@linux = imx8-current-devkit
+repo-branch@linux = imx8-current-librem5
 repo-source@linux = https://source.puri.sm/Librem5/linux-next.git
 
 repo-branch@uboot = devkit-wip
