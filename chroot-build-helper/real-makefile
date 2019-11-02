@@ -6,6 +6,8 @@ include $(GENERATED_DEPENDENCIES_FILE)
 
 CURDIR=$(realpath .)
 
+UEXEC=../build/bin/uexec
+
 # Packages using seccomp will hang qemu-user, so let's replace them
 CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix .deb,$(PACKAGES_BOOTSTRAP_WORKAROUND)))
 
@@ -32,7 +34,10 @@ build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEA
 	[ -e "$@" ]
 	touch "$@"
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES)
+$(UEXEC):
+	make -C .. build/bin/usernsexec
+
+build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES) $(UEXEC)
 	mkdir -p "$@.tmp"
 	uexec rm -rf "$(CURDIR)/$@.tmp"
 	DEBOOTSTRAP_DIR="$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/" uexec --allow-setgroups "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/sbin/debootstrap" --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)" "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE)"
@@ -65,7 +70,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo build-env
 	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
 	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~$$DISTRO-$$RELEASE~$$(printf -- 'git-%s-%s-%s%s' "$$(git name-rev HEAD | sed 's/\s*HEAD\s*//' | tr ' ' '+' | sed 's/[^a-zA-Z0-9]/-/g')" "$$(git rev-list HEAD --count)" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)")"; ) >"$@"
 
-bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source
+bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source $(UEXEC)
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -c "\
 	  set -ex; \
@@ -113,7 +118,7 @@ repo-add@%:
 clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
-clean-buildenv:
+clean-buildenv: $(UEXEC)
 	rm -rf dummy-packages/
 	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
 	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true

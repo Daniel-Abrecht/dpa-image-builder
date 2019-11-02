@@ -16,11 +16,11 @@ extra_packages:
 	  then $(MAKE) -C chroot-build-helper; \
 	fi
 
-clean-fs-all:
-	rm -rf build/*.img
+clean-fs-all: build/bin/usernsexec
+	uexec rm -rf "$(project_root)/build/"*.img
 
-clean-fs:
-	rm -rf "build/$(IMAGE_NAME)/"
+clean-fs: build/bin/usernsexec
+	uexec rm -rf "$(project_root)/build/$(IMAGE_NAME)/"
 
 clean-image-all:
 	rm -f bin/*.img
