@@ -55,3 +55,6 @@ repo-source@consolation = $(PROJECT_GIT_SERVER_URL)/consolation.git
 
 repo-branch@first-boot-setup = master
 repo-source@first-boot-setup = $(PROJECT_GIT_SERVER_URL)/first-boot-setup.git
+
+repo-branch@dpaw = master
+repo-source@dpaw = $(PROJECT_GIT_SERVER_URL)/dpaw.git
