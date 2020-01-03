@@ -73,5 +73,7 @@ bin/uboot_firmware_and_dtb.bin: $(BOOTLOADER_COMPONENTS) | repo/.imx-mkimage.rep
 clean-repo: clean-repo@uboot clean-repo@Cortex_M4 clean-repo@arm-trusted-firmware clean-repo@imx-mkimage clean-repo@firmware-imx
 reset-repo: reset-repo@uboot reset-repo@Cortex_M4 reset-repo@arm-trusted-firmware reset-repo@imx-mkimage
 
+clean-build-all: clean-build
+
 clean-build:
 	rm -rf firmware dtb bin repo/uboot/.built

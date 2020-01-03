@@ -16,7 +16,7 @@ include ../src/make-helper-functions.mk
 # repos of all packages to be built.
 
 repo reset-repo clean-repo clean-build clean-build-all: force
-	$(MAKE) -f real-makefile GENERATED_DEPENDENCIES_FILE="$$tmpdep" "$@"
+	$(MAKE) -f real-makefile "$@"
 
 %: force
 	if makefile=real-makefile list-dependent-targets.sh "$@" | grep -q '^bin/.*/.build$$'; \

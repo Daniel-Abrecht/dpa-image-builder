@@ -20,7 +20,7 @@ Standards-Version: 3.9.2
 
 Package: $name-dummy
 Version: $version
-Provides: $provides
+Provides: $provides (= $version)
 Architecture: all
 Description: Dummy $name package. It probably caused problems in the changeroot.
 EOF

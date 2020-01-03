@@ -6,5 +6,5 @@ SDPU: write -f "../$UBOOT_BIN" -offset 0x57c00
 SDPU: jump
 SDPU: delay 1000
 FB: ucmd setenv mmcdev 0
-FB: acmd run mmcboot
+FB: acmd run distro_bootcmd
 FB: Done

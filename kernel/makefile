@@ -35,5 +35,7 @@ clean-repo: clean-repo@linux
 reset-repo: reset-repo@linux
 	@true
 
+clean-build-all: clean-build
+
 clean-build:
 	rm -rf bin
