@@ -2,15 +2,8 @@ include ../src/make-helper-functions.mk
 
 UMAKE=env -u MAKEFLAGS make
 
-# In theory, it should work without this, but it doesn't...
-.NOTPARALLEL:
-
-BOOTLOADER_COMPONENTS += dtb/$(UBOOT_DTB)
-BOOTLOADER_COMPONENTS += firmware/u-boot-nodtb.bin
-BOOTLOADER_COMPONENTS += firmware/u-boot-spl.bin
 BOOTLOADER_COMPONENTS += firmware/m4.bin
 BOOTLOADER_COMPONENTS += firmware/bl31.bin
-BOOTLOADER_COMPONENTS += bin/mkimage_uboot
 
 # TODO: get rid of the following non-free files
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_1d_dmem.bin
@@ -35,19 +28,11 @@ repo: \
 repo/uboot/.config: repo/.uboot.repo
 	$(UMAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) $(UBOOT_CONFIG_TARGET)
 
-repo/uboot/.built: repo/.uboot.repo repo/uboot/.config dtb/.dir bin/.dir firmware/.dir
-	$(UMAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER)
-	cp repo/uboot/u-boot-nodtb.bin firmware/
-	cp repo/uboot/spl/u-boot-spl.bin firmware/
-	cp repo/uboot/tools/mkimage bin/mkimage_uboot
-	cp repo/uboot/arch/arm/dts/*.dtb dtb/
-	touch repo/uboot/.built
-
-dtb/%.dtb: repo/uboot/.built
-	@true
-
-firmware/u-boot-nodtb.bin firmware/u-boot-spl.bin bin/mkimage_uboot: repo/uboot/.built
-	@true
+bin/uboot_firmware_and_dtb.bin: repo/.uboot.repo repo/uboot/.config bin/.dir $(BOOTLOADER_COMPONENTS)
+	cp $(BOOTLOADER_COMPONENTS) repo/uboot/
+	$(UMAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) flash.bin
+	$(UMAKE) -C repo/uboot ARCH=arm CROSS_COMPILE=$(CROSS_COMPILER) u-boot.imx
+	cp repo/uboot/u-boot.imx "$@"
 
 firmware/m4.bin: repo/.Cortex_M4.repo firmware/.dir
 	$(UMAKE) -C repo/Cortex_M4/
@@ -69,17 +54,10 @@ firmware/.fw: repo/.firmware-imx.repo
 $(NONFREE_FIRMWARE_CRAP): firmware/.fw
 	true
 
-# TODO: Put dtb and firmware on a partition and change boot loader percedure
-bin/uboot_firmware_and_dtb.bin: $(BOOTLOADER_COMPONENTS) | repo/.imx-mkimage.repo
-	cp $^ repo/imx-mkimage/iMX8M/
-	cp "dtb/$(UBOOT_DTB)" repo/imx-mkimage/iMX8M/fsl-imx8mq-evk.dtb
-	$(UMAKE) -C repo/imx-mkimage/ SOC=iMX8M flash_hdmi_spl_uboot
-	cp repo/imx-mkimage/iMX8M/flash.bin bin/uboot_firmware_and_dtb.bin
-
-clean-repo: clean-repo@uboot clean-repo@Cortex_M4 clean-repo@arm-trusted-firmware clean-repo@imx-mkimage clean-repo@firmware-imx
-reset-repo: reset-repo@uboot reset-repo@Cortex_M4 reset-repo@arm-trusted-firmware reset-repo@imx-mkimage
+clean-repo: clean-repo@uboot clean-repo@Cortex_M4 clean-repo@arm-trusted-firmware clean-repo@firmware-imx
+reset-repo: reset-repo@uboot reset-repo@Cortex_M4 reset-repo@arm-trusted-firmware
 
 clean-build-all: clean-build
 
 clean-build:
-	rm -rf firmware dtb bin repo/uboot/.built
+	rm -rf firmware bin repo/uboot/.built
