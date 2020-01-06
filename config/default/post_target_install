@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# If libgdk-pixbuf2.0-0 was installed, reinstall it. See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=923289
+if dpkg-query -W -f='${Status}\n' libgdk-pixbuf2.0-0 2>/dev/null | grep -q 'install ok installed'
+then
+  dpkg-reconfigure libgdk-pixbuf2.0-0
+  update-mime-database /usr/share/mime
+fi
+
+# Set the lightdm config to one including a keyboard
+update-alternatives --install /etc/lightdm/lightdm-gtk-greeter.conf lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf-with-onscreen-keyboard 200
+update-alternatives --set lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf-with-onscreen-keyboard

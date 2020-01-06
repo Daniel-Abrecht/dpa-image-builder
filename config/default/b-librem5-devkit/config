@@ -1,6 +1,7 @@
 FK_MACHINE = Purism Librem 5 devkit
 
-KERNEL_CONFIG_TARGET = librem5
+#KERNEL_CONFIG_TARGET = librem5
+KERNEL_CONFIG_TARGET = l5-custom
 KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb
 
 UBOOT_CONFIG_TARGET = librem5_devkit_defconfig
