@@ -92,17 +92,15 @@ do
     config_flat_name="$(printf "%s" "$config" | sed 's|[^a-zA-Z0-9-]|_|g')"
     script_dir_target="$tmp/rootfs/usr/share/first-boot-setup/$script"
     mkdir -p "$script_dir_target"
-    if [ -x "$script_path" ]
-      then cp "$script_path" "$script_dir_target/$i-$config_flat_name"
-    elif [ -d "$script_path" ]
+    if [ -d "$script_path" ]
     then
       for file in "$script_path/"*
-      do
-        if ! [ -x "$script_path/$f" ]
-          then continue;
-        fi
-        cp "$script_path/$f" "$script_path/$i-$config_flat_name-$f"
+      do [ -x "$file" ] || continue;
+        filename="$(basename "$file")"
+        cp "$file" "$script_dir_target/$i-$config_flat_name-$filename"
       done
+    elif [ -x "$script_path" ]
+      then cp "$script_path" "$script_dir_target/$i-$config_flat_name"
     fi
   done
 done
