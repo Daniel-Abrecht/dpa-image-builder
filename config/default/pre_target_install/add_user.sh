@@ -17,7 +17,7 @@ while [ -z "$user" ]
   do user=$(dialog --no-cancel --inputbox "Please choose your username" 0 0 3>&1 1>&2 --output-fd 3)
 done
 
-useradd "$user"
+useradd -U -m -s /bin/bash "$user"
 setpw "$user"
 
 usermod -a -G users "$user"
