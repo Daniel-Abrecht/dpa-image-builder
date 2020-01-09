@@ -3,3 +3,5 @@ elogind
 lightdm
 onboard
 dpaw
+python3
+python3-evdev

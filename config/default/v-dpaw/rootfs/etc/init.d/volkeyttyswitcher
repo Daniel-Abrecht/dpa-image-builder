@@ -1,0 +1,13 @@
+#!/lib/init/init-d-script
+### BEGIN INIT INFO
+# Provides:          volkeyttyswitcher
+# Required-Start:    $local_fs dbus
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Daemon for switching ttys using thr volume keys
+# Description:       Daemon for switching ttys using thr volume keys
+### END INIT INFO
+
+DAEMON=/usr/local/bin/volkeyttyswitcher.py
+START_ARGS=--background
