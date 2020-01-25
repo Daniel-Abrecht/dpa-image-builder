@@ -31,7 +31,7 @@ unit: sectors
 # Protective partition for Cortex M4 firmware and ARM trusted platform + uboot bootloader
 start=4, size=4092, type=da
 # /boot/ partition
-start=4096, size=256MiB, type=83, name=boot, bootable
+size=256MiB, type=83, name=boot, bootable
 # / partition, use remaining space
 type=83, name=root
 EOF
