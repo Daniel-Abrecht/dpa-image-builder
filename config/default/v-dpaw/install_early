@@ -4,6 +4,7 @@ lightdm
 onboard
 dpaw
 network-manager
+network-manager-gnome
 modemmanager
 modem-manager-gui
 lxqt-panel
