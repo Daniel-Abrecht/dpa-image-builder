@@ -3,6 +3,14 @@ elogind
 lightdm
 onboard
 dpaw
+network-manager
+modemmanager
+modem-manager-gui
+lxqt-panel
 python3
 python3-evdev
 xfce4-terminal
+
+trace-cmd
+i2c-tools
+usbutils
