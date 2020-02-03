@@ -49,7 +49,6 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
 	chmod +x "$@.tmp/root/helper/mount"
 	printf 'APT::Get::AllowUnauthenticated "true";\nAcquire::AllowInsecureRepositories "true";' >"$@.tmp/etc/apt/apt.conf.d/80localnocheck"
-	echo 'Parent: Debian' >>"$@.tmp/etc/dpkg/origins/devuan" # Temporary fix until this is fixed upstream, see devuan bug 353
 	touch "$@.tmp/dev/null"
 	chmod 666 "$@.tmp/dev/null"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
