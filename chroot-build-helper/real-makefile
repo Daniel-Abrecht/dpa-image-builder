@@ -43,7 +43,9 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	DEBOOTSTRAP_DIR="$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/" uexec --allow-setgroups "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/sbin/debootstrap" --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)" "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE)"
 	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs" "$@.tmp/root/devrepo"
 	# Stub things which won't work in a chroot
-	cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"
+	if [ -n "$(CHROOT_DUMMY_PACKAGES_FILES)" ]; \
+	  then cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"; \
+	fi
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
 	chmod +x "$@.tmp/root/helper/mknod"
 	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
@@ -54,7 +56,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
 	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb"
+	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
 	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot; \
 	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts fakeroot; \
