@@ -29,6 +29,9 @@ PROJECT_GIT_SERVER_URL-purism = https://source.puri.sm/DanielAbrecht
 PROJECT_GIT_SERVER_URL-gitlab = https://gitlab.com/DanielAbrecht
 PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
 
+# Don't bother with running tests
+DEB_BUILD_OPTIONS=nocheck
+
 repo-branch@fuseloop = master
 repo-source@fuseloop = https://github.com/jmattsson/fuseloop.git
 
@@ -58,3 +61,34 @@ repo-source@first-boot-setup = $(PROJECT_GIT_SERVER_URL)/first-boot-setup.git
 
 repo-branch@dpaw = master
 repo-source@dpaw = $(PROJECT_GIT_SERVER_URL)/dpaw.git
+
+
+# Add some purism software
+
+repo-branch@libhandy = libhandy-0-0
+repo-source@libhandy = https://source.puri.sm/Librem5/libhandy.git
+
+build@calls: build@libhandy
+build@calls: build@modemmanager
+repo-branch@calls = master
+repo-source@calls = https://source.puri.sm/Librem5/calls.git
+
+build@modemmanager: build@libqmi
+repo-branch@modemmanager = pureos/sloppy
+repo-source@modemmanager = https://source.puri.sm/Librem5/ModemManager.git
+
+repo-branch@libqmi = pureos/amber-phone
+repo-source@libqmi = https://source.puri.sm/Librem5/libqmi.git
+
+# wys is a daemon which connects modem audio devices to speaker audio devices.
+# This is a fork of it which uses alsaloop instead of pulseaudio to do so
+repo-branch@wys = alsa
+repo-source@wys = $(PROJECT_GIT_SERVER_URL)/wys.git
+#repo-source@wys = https://source.puri.sm/Librem5/wys.git
+
+build@chatty: build@libhandy
+repo-branch@chatty = master
+repo-source@chatty = https://source.puri.sm/Librem5/chatty.git
+
+repo-branch@purple-mm-sms = master
+repo-source@purple-mm-sms = https://source.puri.sm/Librem5/purple-mm-sms.git

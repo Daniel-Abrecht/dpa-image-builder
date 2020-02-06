@@ -87,6 +87,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  apt-get -y autoremove --purge; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  dch -b -v \"\$$(cat .source)\" \"Version suffix automatically added my librem5-image-builder\"; \
+	  sed -i 's/libsystemd-dev[^,]*/\0 | libelogind-dev/g' debian/control; \
 	  apt-get update; \
 	  apt-get -y build-dep .; \
 	  if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \

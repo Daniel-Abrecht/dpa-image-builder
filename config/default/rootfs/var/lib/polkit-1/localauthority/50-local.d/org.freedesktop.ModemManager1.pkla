@@ -1,0 +1,6 @@
+[ModemManager Permissions]
+Identity=unix-group:modem
+Action=org.freedesktop.ModemManager1.*
+ResultAny=no
+ResultInactive=yes
+ResultActive=yes
