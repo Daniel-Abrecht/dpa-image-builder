@@ -83,7 +83,7 @@ repo-source@libqmi = https://source.puri.sm/Librem5/libqmi.git
 # wys is a daemon which connects modem audio devices to speaker audio devices.
 # This is a fork of it which uses alsaloop instead of pulseaudio to do so
 repo-branch@wys = alsa
-repo-source@wys = $(PROJECT_GIT_SERVER_URL)/wys.git
+repo-source@wys = $(PROJECT_GIT_SERVER_URL)/wys-alsa.git
 #repo-source@wys = https://source.puri.sm/Librem5/wys.git
 
 build@chatty: build@libhandy
