@@ -1,0 +1,3 @@
+console-keyboard-basic: libconsolekeyboard
+console-keyboard-multiplexer: libconsolekeyboard libttymultiplex
+
