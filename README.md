@@ -13,7 +13,7 @@ mostly work for devuan too.
 
 The image does boot, but only from emmc when flashed using uuu.
 
-I'm rebuilding these images every day at 0 UTC on my build server: https://dpa.li/builds/librem5-image-builder/bin/ (Please note that the base images don't contain a desktop environment)
+I'm rebuilding these images every day at 0 UTC on my build server: https://repo.dpa.li/apt/librem5/images/ (Please note that the base images don't contain a desktop environment)
 
 
 # Required packages & programs
