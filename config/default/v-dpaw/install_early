@@ -8,6 +8,7 @@ network-manager-gnome
 modemmanager
 modem-manager-gui
 lxqt-panel
+qasmixer
 python3
 python3-evdev
 xfce4-terminal
