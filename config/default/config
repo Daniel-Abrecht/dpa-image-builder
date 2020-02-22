@@ -68,6 +68,9 @@ repo-source@dpaw = $(PROJECT_GIT_SERVER_URL)/dpaw.git
 repo-branch@libhandy = libhandy-0-0
 repo-source@libhandy = https://source.puri.sm/Librem5/libhandy.git
 
+repo-branch@feedbackd = master
+repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
+
 repo-branch@calls = master
 repo-source@calls = https://source.puri.sm/Librem5/calls.git
 
