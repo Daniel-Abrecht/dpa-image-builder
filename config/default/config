@@ -74,6 +74,9 @@ repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
 repo-branch@calls = master
 repo-source@calls = https://source.puri.sm/Librem5/calls.git
 
+repo-branch@upower = pureos/purple
+repo-source@upower = https://source.puri.sm/Librem5/upower.git
+
 repo-branch@modemmanager = pureos/sloppy
 repo-source@modemmanager = https://source.puri.sm/Librem5/ModemManager.git
 
