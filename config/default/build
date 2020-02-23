@@ -10,6 +10,3 @@ console-keyboard-basic
 libconsolekeyboard
 libttymultiplex
 consolation
-
-# Existing packages with fixes
-upower
