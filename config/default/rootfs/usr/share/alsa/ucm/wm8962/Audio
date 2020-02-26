@@ -35,16 +35,12 @@ SectionDevice."Handset".0 {
                 PlaybackChannels "2"
                 PlaybackPriority "1000"
                 PlaybackPCM "hw:CARD=wm8962"
-#                PlaybackPCM "sysdefault:wm8962"
                 PlaybackVolume "name='Speaker Volume'"
                 PlaybackSwitch "name='Speaker Switch'"
                 CaptureChannels "2"
                 CapturePriority "1000"
                 CaptureVolume "name='Digital Capture Volume'"
-#                CapturePCM "sysdefault:wm8962"
-#                CapturePCM "side:wm8962,0"
                 CapturePCM "hw:CARD=wm8962"
-#                CapturePCM "wm8962_left_source"
         }
 }
 
@@ -73,13 +69,11 @@ SectionDevice."SpeakerPhone".0 {
                 PlaybackChannels "2"
                 PlaybackPriority "800"
                 PlaybackPCM "hw:CARD=wm8962"
-#                PlaybackPCM "sysdefault:wm8962"
                 PlaybackVolume "name='Speaker Volume'"
                 PlaybackSwitch "name='Speaker Switch'"
                 CaptureChannels "2"
                 CapturePriority "800"
                 CaptureVolume "name='Digital Capture Volume'"
-#                CapturePCM "sysdefault:wm8962"
                 CapturePCM "hw:CARD=wm8962"
         }
 }
@@ -123,14 +117,11 @@ SectionDevice."Headset".0 {
                 PlaybackChannels "2"
                 PlaybackPriority "700"
                 PlaybackPCM "hw:CARD=wm8962"
-                #PlaybackPCM "sysdefault:wm8962"
                 PlaybackVolume "name='Headphone Playback Volume'"
                 PlaybackSwitch "name='Headphone Playback Switch'"
                 CaptureChannels "2"
                 CapturePriority "700"
                 CaptureVolume "name='MIXINR IN3R Volume'"
-#                CapturePCM "side:wm8962,1"
                 CapturePCM "hw:CARD=wm8962"
-#                CapturePCM "sysdefault:wm8962"
         }
 }
