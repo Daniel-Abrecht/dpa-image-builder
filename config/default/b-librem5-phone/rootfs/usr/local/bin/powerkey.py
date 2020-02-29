@@ -32,21 +32,18 @@ def set_dram_freq(freq):
     f.write(str(freq) + "\n")
 
 def on():
-  global last_brightness
   set_dram_freq(800000000)
   enable_touchscreen()
-  set_screen_brightness(last_brightness)
 
 def off():
-  global last_brightness
-  last_brightness = get_screen_brightness() or last_brightness
-  set_screen_brightness(0)
   disable_touchscreen()
   set_dram_freq(25000000)
 
 last_brightness = get_screen_brightness() or 200
 
 def main(args):
+  global last_brightness
+
   powerkeyname = '30370000.snvs:snvs-powerkey'
 
   path = [path for path in evdev.list_devices() if evdev.InputDevice(path).name == powerkeyname]
@@ -72,9 +69,12 @@ def main(args):
     for event in dev.read():
       if event.type == ecodes.EV_KEY and event.value == 1 and event.code == ecodes.KEY_POWER:
         if brightness:
+          last_brightness = get_screen_brightness() or last_brightness
+          set_screen_brightness(0)
           off()
         else:
           on()
+          set_screen_brightness(last_brightness)
 
 
 if __name__ == "__main__":
