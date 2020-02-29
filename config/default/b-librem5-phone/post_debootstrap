@@ -1,5 +1,8 @@
 #!/bin/sh
 
+update-rc.d powerkey defaults
+update-rc.d powerkey enable
+
 cat >>/etc/inittab <<EOF
 
 # uart

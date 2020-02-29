@@ -1,0 +1,14 @@
+#!/lib/init/init-d-script
+### BEGIN INIT INFO
+# Provides:          powerkey
+# Required-Start:    $local_fs dbus
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Daemon for handling power button presses
+# Description:       Daemon for handling power button presses
+### END INIT INFO
+
+DAEMON=/usr/local/bin/powerkey.py
+PIDFILE=/var/run/powerkey.pid
+START_ARGS="--background -m"
