@@ -1,0 +1,8 @@
+#!/bin/sh
+
+onrandr ScreenChange -- /usr/bin/xinput map-to-output "generic ft5x06 (f0)" "DSI-1" &
+
+(
+  sleep 0.5
+  /usr/bin/xinput map-to-output "generic ft5x06 (f0)" "DSI-1"
+) &
