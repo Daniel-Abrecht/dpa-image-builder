@@ -25,7 +25,6 @@ PROJECT_GIT_SERVER_URL = $(PROJECT_GIT_SERVER_URL-$(PROJECT_GIT_SERVER))
 # This is a server from the creator of this project
 PROJECT_GIT_SERVER_URL-dpa = https://projects.dpa.li/git
 
-PROJECT_GIT_SERVER_URL-purism = https://source.puri.sm/DanielAbrecht
 PROJECT_GIT_SERVER_URL-gitlab = https://gitlab.com/DanielAbrecht
 PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
 
