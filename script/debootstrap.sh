@@ -54,7 +54,9 @@ chmod +x "$tmp/rootfs/root/helper/"*
 chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
-cp kernel/bin/linux-image.deb kernel/bin/linux-libc.deb kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+cp kernel/bin/linux-image.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+cp kernel/bin/linux-libc.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
+cp kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 
 for deb in chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb
 do
