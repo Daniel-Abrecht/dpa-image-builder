@@ -4,6 +4,9 @@ include $(GENERATED_DEPENDENCIES_FILE)
 # Only one thing at a time can chroot into the buildenv
 .NOTPARALLEL:
 
+# Don't needlessly rebuild packages just because the build environments root folder got touched
+.SECONDARY: build-env/$(DISTRO)/$(RELEASE)/rootfs
+
 CURDIR=$(realpath .)
 
 UEXEC=../build/bin/uexec
