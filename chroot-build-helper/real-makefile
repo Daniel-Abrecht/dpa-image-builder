@@ -4,9 +4,6 @@ include $(GENERATED_DEPENDENCIES_FILE)
 # Only one thing at a time can chroot into the buildenv
 .NOTPARALLEL:
 
-# Don't needlessly rebuild packages just because the build environments root folder got touched
-.SECONDARY: build-env/$(DISTRO)/$(RELEASE)/rootfs
-
 CURDIR=$(realpath .)
 
 UEXEC=../build/bin/uexec
@@ -39,6 +36,9 @@ build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEA
 
 $(UEXEC):
 	make -C .. build/bin/usernsexec
+
+# Don't needlessly rebuild packages just because the build environments root folder got touched
+.INTERMEDIATE: build-env/$(DISTRO)/$(RELEASE)/rootfs
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES) $(UEXEC)
 	mkdir -p "$@.tmp"
