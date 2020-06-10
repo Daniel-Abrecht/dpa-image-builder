@@ -37,9 +37,6 @@ build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEA
 $(UEXEC):
 	make -C .. build/bin/usernsexec
 
-# Don't needlessly rebuild packages just because the build environments root folder got touched
-.INTERMEDIATE: build-env/$(DISTRO)/$(RELEASE)/rootfs
-
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES) $(UEXEC)
 	mkdir -p "$@.tmp"
 	uexec rm -rf "$(CURDIR)/$@.tmp"
@@ -68,7 +65,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec rm -rf "$(CURDIR)/$@"
 	mv "$@.tmp" "$@"
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs
+build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo | build-env/$(DISTRO)/$(RELEASE)/rootfs
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
