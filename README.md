@@ -1,19 +1,20 @@
-# librem5 devkit image build scripts
+# librem5 image build scripts
 
-I've written a few buildscripts to create my own, devuan image inspired by the ones from purism: https://source.puri.sm/Librem5/image-builder
+Inspired by the image builder of purism (https://source.puri.sm/Librem5/image-builder),
+I've written my own image builder to create my own, custom, devuan based images.
+I didn't reuse any code from their image-builder repo, though.
 
-I do a few things differently though, and I didn't reuse any code from their image-builder repo.
-
-I did this to get a devuan image for the devkit, and to gain a better understanding
-of the boot process and the components used. I also wanted to make sure that I
-can compile everything myself and that I will have a booting image once the phone arrives.
-
-I have never actually tried to run the build scripts from purism, but they should
-mostly work for devuan too.
+I did this to get a better understanding of the boot process and the components used.
+I also wanted to make sure that I can compile everything myself and that I have a working
+devuan based image for my phone.
 
 The image does boot, but only from emmc when flashed using uuu.
 
 I'm rebuilding these images every day at 0 UTC on my build server: https://repo.dpa.li/apt/librem5/images/ (Please note that the base images don't contain a desktop environment)
+
+This image builder can bootstrap images based on the repositories of various linux distros,
+and can thus create images based on devuan, debian, ubuntu, etc. Please note that this
+aren't official images and that they do contain some files and packages not (yet?) available upstream.
 
 
 # Required packages & programs
@@ -82,7 +83,7 @@ make
 | -------- | ------- | ----------- |
 | BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
 | IMGSIZE | 3GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
-| DISTRO | devuan | The distribution |
+| DISTRO | devuan | The distribution the image is based on |
 | RELEASE | beowulf | The release of the disribution to debootstrap |
 | VARIANT | base | A variation of the image to build, used to create image versions with some additional packages, repos, etc. |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
