@@ -20,24 +20,18 @@ def disable_touchscreen():
   except: pass
 
 def get_screen_brightness():
-  with open("/sys/class/leds/lm36922:white:backlight_cluster/brightness") as f:
+  with open("/sys/class/backlight/backlight-dsi/brightness") as f:
     return int(f.read())
 
 def set_screen_brightness(brightness):
-  with open("/sys/class/leds/lm36922:white:backlight_cluster/brightness", "w") as f:
+  with open("/sys/class/backlight/backlight-dsi/brightness", "w") as f:
     f.write(str(brightness) + "\n")
 
-def set_dram_freq(freq):
-  with open("/sys/class/devfreq/devfreq0/userspace/set_freq", "w") as f:
-    f.write(str(freq) + "\n")
-
 def on():
-  set_dram_freq(800000000)
   enable_touchscreen()
 
 def off():
   disable_touchscreen()
-  set_dram_freq(25000000)
 
 last_brightness = get_screen_brightness() or 200
 
@@ -49,9 +43,6 @@ def main(args):
   path = [path for path in evdev.list_devices() if evdev.InputDevice(path).name == powerkeyname]
   foundpath = ''.join(path)
   dev = InputDevice(foundpath)
-
-  with open("/sys/class/devfreq/devfreq0/governor", "w+") as f:
-    f.write("userspace\n")
 
   while True:
     # Block for a 1s or until there are events to be read.
