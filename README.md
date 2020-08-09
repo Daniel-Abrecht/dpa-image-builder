@@ -16,6 +16,8 @@ This image builder can bootstrap images based on the repositories of various lin
 and can thus create images based on devuan, debian, ubuntu, etc. Please note that this
 aren't official images and that they do contain some files and packages not (yet?) available upstream.
 
+This project is still a work in progress, though, it's not ready for regular usage yet.
+
 
 # Required packages & programs
 
