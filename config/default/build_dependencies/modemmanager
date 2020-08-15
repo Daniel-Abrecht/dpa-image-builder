@@ -1,1 +1,2 @@
 modemmanager: libqmi
+libqmi: libmbim
