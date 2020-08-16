@@ -232,8 +232,9 @@ There are currently 5 Proprietary binary blobs from nxp contained in the final u
  * `lpddr4_pmu_train_2d_dmem.bin`
  * `lpddr4_pmu_train_2d_imem.bin`
  * `signed_hdmi_imx8m.bin`
+ * `signed_dp_imx8m.bin`
 
-One of the `lpddr4_*.bin` files is required for training the DDR PHY. The HDMI bin file is for DRM HDMI signals.
+One of the `lpddr4_*.bin` files is required for training the DDR PHY. The HDMI/DP bin file is for DRM HDMI/DP signals.
 All of the `lpddr4_*.bin` firmware files are currently needed to build uboot and thus the image.
 
 The license in this repository only applies to the files in this repository.
