@@ -11,6 +11,7 @@ NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_1d_imem.bin
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_2d_dmem.bin
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_2d_imem.bin
 NONFREE_FIRMWARE_CRAP += firmware/signed_hdmi_imx8m.bin
+NONFREE_FIRMWARE_CRAP += firmware/signed_dp_imx8m.bin
 
 BOOTLOADER_COMPONENTS += $(NONFREE_FIRMWARE_CRAP)
 
@@ -43,12 +44,15 @@ firmware/bl31.bin: repo/.arm-trusted-firmware.repo firmware/.dir
 	cp repo/arm-trusted-firmware/build/imx8mq/release/bl31.bin firmware/
 
 firmware/.fw: repo/.firmware-imx.repo
-	tail -n +784 repo/firmware-imx/firmware-imx-*.bin | ( cd "repo/firmware-imx/" <&- && tar xjvf -; )
-	cp repo/firmware-imx/firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem.bin firmware/
-	cp repo/firmware-imx/firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem.bin firmware/
-	cp repo/firmware-imx/firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem.bin firmware/
-	cp repo/firmware-imx/firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem.bin firmware/
-	cp repo/firmware-imx/firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin firmware/
+	fwbin=$(wildcard repo/firmware-imx/firmware-imx-*.bin); \
+	fwstart="$$(expr "$$(grep -an '^exit 0' "$$fwbin" | head -n 1 | grep -o '^[0-9]*')" + 1)"; \
+	tail -n +"$$fwstart" "$$fwbin" | ( cd "repo/firmware-imx/" <&- && tar xjvf -; )
+	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_hdmi_imx8m.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_dp_imx8m.bin firmware/
 	touch $@
 
 $(NONFREE_FIRMWARE_CRAP): firmware/.fw
