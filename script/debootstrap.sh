@@ -115,7 +115,7 @@ done
     do getrfsfile.sh "rootfs/etc/apt/sources.list.d$file"
   done
   echo
-  echo 'deb file:///usr/share/first-boot-setup/temp-repo/ ./'
+  echo 'deb [trusted=yes] file:///usr/share/first-boot-setup/temp-repo/ ./'
 ) >"$tmp/rootfs/usr/share/first-boot-setup/temporary-local-repo.list"
 
 # Do some stuff inside the chroot

@@ -19,13 +19,10 @@ repo reset-repo clean-repo clean-build clean-build-all: force
 	$(MAKE) -f real-makefile "$@"
 
 %: force
-	if makefile=real-makefile list-dependent-targets.sh "$@" | grep -q '^bin/.*/.build$$'; \
-	then \
-	  tmpdep=$$(mktemp); \
-	  cleanup(){ rm -f "$$tmpdep"; }; \
-	  trap cleanup EXIT INT; \
-	  make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$$tmpdep" DEP_PREFIX="bin/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs; \
-	fi; \
+	tmpdep=$$(mktemp); \
+	cleanup(){ rm -f "$$tmpdep"; }; \
+	trap cleanup EXIT INT; \
+	make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$$tmpdep" DEP_PREFIX="bin/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs; \
 	$(MAKE) -f real-makefile GENERATED_DEPENDENCIES_FILE="$$tmpdep" "$@"
 
 force: ;

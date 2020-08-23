@@ -19,8 +19,6 @@ cat > apt-tmp.conf <<EOF
 Dir::Etc::sourcelist "/usr/share/first-boot-setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
-APT::Get::AllowUnauthenticated "true";
-Acquire::AllowInsecureRepositories "true";
 Dpkg::Options:: "--force-confdef";
 Dpkg::Options:: "--force-confold";
 EOF
@@ -85,15 +83,13 @@ mv /var/cache/apt/archives/*.deb temp-repo/ || true
 )
 
 # Add new temporary local repo list
-echo "deb file:///usr/share/first-boot-setup/temp-repo/ ./" > temporary-local-repo.list
+echo "deb [trusted=yes] file:///usr/share/first-boot-setup/temp-repo/ ./" > temporary-local-repo.list
 
 # Create temporary apt config for temporary local repo
 cat > apt-tmp.conf <<EOF
 Dir::Etc::sourcelist "/usr/share/first-boot-setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";
-APT::Get::AllowUnauthenticated "true";
-Acquire::AllowInsecureRepositories "true";
 EOF
 
 # Update package list of local repo

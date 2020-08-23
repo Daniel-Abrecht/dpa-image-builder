@@ -78,7 +78,7 @@ repo-source@calls = https://source.puri.sm/Librem5/calls.git
 repo-branch@upower = pureos/purple
 repo-source@upower = https://source.puri.sm/Librem5/upower.git
 
-repo-branch@modemmanager = pureos/sloppy
+repo-branch@modemmanager = pureos/amber-phone
 repo-source@modemmanager = https://source.puri.sm/Librem5/ModemManager.git
 
 repo-branch@libqmi = pureos/amber-phone
@@ -98,3 +98,7 @@ repo-source@chatty = https://source.puri.sm/Librem5/chatty.git
 
 repo-branch@purple-mm-sms = master
 repo-source@purple-mm-sms = https://source.puri.sm/Librem5/purple-mm-sms.git
+
+# For newer mesa...
+repo-branch@libglvnd = pureos/amber-phone
+repo-source@libglvnd = https://source.puri.sm/Librem5/debs/libglvnd.git

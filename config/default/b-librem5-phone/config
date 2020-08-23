@@ -22,5 +22,5 @@ ATF_PLATFORM = imx8mq
 repo-branch@arm-trusted-firmware = librem5
 repo-source@arm-trusted-firmware = https://source.puri.sm/Librem5/arm-trusted-firmware.git
 
-repo-branch@mesa = pureos/purple
+repo-branch@mesa = pureos/amber-phone
 repo-source@mesa = https://source.puri.sm/Librem5/mesa.git

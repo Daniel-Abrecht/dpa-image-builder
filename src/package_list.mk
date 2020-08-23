@@ -20,10 +20,6 @@ PACKAGES_TO_DOWNLOAD          = $(call parse_package_list,download)
 PACKAGES_TO_BUILD             = $(call parse_package_list,build)
 PACKAGES_BOOTSTRAP_WORKAROUND = $(call parse_package_list,defer_installation_of_problemetic_package)
 
-ifneq ($(AARCH64_EXECUTABLE),yes)
-  PACKAGES_INSTALL_DEBOOTSTRAP+=fakechroot"
-endif
-
 repo-schema = $(shell printf '%s' "$(REPO)" | grep -o '^[^:]*')
 ch-repo-schema = $(shell printf '%s' "$(CHROOT_REPO)" | grep -o '^[^:]*')
 

@@ -4,4 +4,5 @@ deb     $CHROOT_REPO $RELEASE-updates   main
 deb-src $CHROOT_REPO $RELEASE-updates   main
 deb     $CHROOT_REPO $RELEASE-security  main
 deb-src $CHROOT_REPO $RELEASE-security  main
-
+deb     $CHROOT_REPO $RELEASE-backports  main
+deb-src $CHROOT_REPO $RELEASE-backports  main
