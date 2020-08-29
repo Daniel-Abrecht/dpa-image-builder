@@ -64,6 +64,9 @@ repo-source@dpaw = $(PROJECT_GIT_SERVER_URL)/dpaw.git
 repo-branch@onrandr = master
 repo-source@onrandr = $(PROJECT_GIT_SERVER_URL)/onrandr.git
 
+repo-branch@libenvpreload = master
+repo-source@libenvpreload = $(PROJECT_GIT_SERVER_URL)/libenvpreload.git
+
 # Add some purism software
 
 repo-branch@libhandy = libhandy-0-0
