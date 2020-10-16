@@ -69,8 +69,8 @@ repo-source@libenvpreload = $(PROJECT_GIT_SERVER_URL)/libenvpreload.git
 
 # Add some purism software
 
-repo-branch@libhandy = libhandy-0-0
-repo-source@libhandy = https://source.puri.sm/Librem5/libhandy.git
+repo-branch@libhandy = 1.0.0
+repo-source@libhandy = https://gitlab.gnome.org/GNOME/libhandy.git
 
 repo-branch@feedbackd = master
 repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
