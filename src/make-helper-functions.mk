@@ -103,11 +103,11 @@ reset-repo@%:
 	  git remote set-url origin "$$source"; \
 	  git fetch origin || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
 	  find -maxdepth 1 -not -name .git -not -name . -exec rm -rf {} \;; \
-	  git reset --hard "$$branch"; \
+	  git reset --hard; \
 	  git -c checkout.defaultRemote=origin checkout -f --detach || true; \
 	  git branch -D "$$branch" || true; \
 	  git -c checkout.defaultRemote=origin checkout -f "$$branch" >/dev/null; \
-	  git reset --hard "$$branch" >/dev/null; \
+	  git reset --hard >/dev/null; \
 	  touch .; \
 	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
 	fi
