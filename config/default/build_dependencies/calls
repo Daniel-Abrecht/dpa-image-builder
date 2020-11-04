@@ -1,1 +1,1 @@
-calls: libhandy modemmanager feedbackd
+calls: libhandy modemmanager feedbackd callaudiod

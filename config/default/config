@@ -75,6 +75,9 @@ repo-source@libhandy = https://gitlab.gnome.org/GNOME/libhandy.git
 repo-branch@feedbackd = master
 repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
 
+repo-branch@callaudiod = pureos/amber-phone
+repo-source@callaudiod = https://source.puri.sm/Librem5/debs/callaudiod.git
+
 repo-branch@calls = master
 repo-source@calls = https://source.puri.sm/Librem5/calls.git
 
@@ -90,11 +93,8 @@ repo-source@libqmi = https://source.puri.sm/Librem5/libqmi.git
 repo-branch@libmbim = pureos/amber-phone
 repo-source@libmbim = https://source.puri.sm/Librem5/debs/libmbim.git
 
-# wys is a daemon which connects modem audio devices to speaker audio devices.
-# This is a fork of it which uses alsaloop instead of pulseaudio to do so
-repo-branch@wys = alsa
-repo-source@wys = $(PROJECT_GIT_SERVER_URL)/wys-alsa.git
-#repo-source@wys = https://source.puri.sm/Librem5/wys.git
+repo-branch@wys = master
+repo-source@wys = https://source.puri.sm/Librem5/wys.git
 
 repo-branch@chatty = master
 repo-source@chatty = https://source.puri.sm/Librem5/chatty.git
