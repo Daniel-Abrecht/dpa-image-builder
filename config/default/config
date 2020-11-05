@@ -93,6 +93,9 @@ repo-source@libqmi = https://source.puri.sm/Librem5/libqmi.git
 repo-branch@libmbim = pureos/amber-phone
 repo-source@libmbim = https://source.puri.sm/Librem5/debs/libmbim.git
 
+repo-branch@pulseaudio = pureos/amber-phone
+repo-source@pulseaudio = https://source.puri.sm/Librem5/pulseaudio.git
+
 repo-branch@wys = master
 repo-source@wys = https://source.puri.sm/Librem5/wys.git
 
