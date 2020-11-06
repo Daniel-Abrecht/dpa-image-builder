@@ -91,7 +91,8 @@ make
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
 | IMAGE_NAME | $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img | The name of the image |
-| BUILD_PACKAGES | no | Wheter or not to build packages using chroot-build-helper |
+| BUILD_PACKAGES | no | Wheter or not to build packages using chroot-build-helper at all |
+| DONT_BUILD_IF_IN_REPO | yes | If the package to be built is already in the repo, don't rebuild it |
 | USE_IMAGE_BUILDER_REPO | yes | Wheter or not to use and add a sources.list for $IMAGE_BUILDER_REPO. If you don't want to use another repo and instead build all package yourself, set this to "no" and also set $BUILD_PACKAGES to "yes". |
 | IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/librem5/ $(DISTRO)-$(RELEASE) librem5` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
 | IMAGE_BUILDER_REPO_KEY | https://repo.dpa.li/apt/librem5/repo-public-key.gpg | If $USE_IMAGE_BUILDER_REPO is set to "yes", this repo key is added. |
