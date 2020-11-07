@@ -11,7 +11,7 @@ UEXEC=../build/bin/uexec
 # Packages using seccomp will hang qemu-user, so let's replace them
 CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix .deb,$(PACKAGES_BOOTSTRAP_WORKAROUND)))
 
-all: $(addprefix build@,$(PACKAGES_TO_BUILD)) $(CHROOT_DUMMY_PACKAGES_FILES)
+all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD)) $(CHROOT_DUMMY_PACKAGES_FILES)
 repo: $(addprefix repo@,$(PACKAGES_TO_BUILD))
 
 build@%: DONT_BUILD_IF_IN_REPO=no
