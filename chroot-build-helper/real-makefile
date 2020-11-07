@@ -58,8 +58,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
-	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson; \
-	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson; \
+	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2; \
+	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2; \
 	fi
 	printf "\ndeb [trusted=yes] file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
 	uexec rm -rf "$(CURDIR)/$@"
@@ -85,6 +85,14 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	    then apt-get -y purge \"\$$package\"; \
 	  fi; done; \
 	  apt-get -y autoremove --purge; \
+	  if [ \"\$$USE_IMAGE_BUILDER_REPO\" = yes ] && [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && [ -n \"\$$IMAGE_BUILDER_REPO\" ] && [ -n \"\$$IMAGE_BUILDER_REPO_KEY\" ]; \
+	  then \
+	    wget -O- \"\$$IMAGE_BUILDER_REPO_KEY\" | apt-key add -; \
+	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/librem5-image-builder.list; \
+	  else \
+	    rm -f /etc/apt/sources.list.d/librem5-image-builder.list; \
+	  fi; \
+	  apt-get update; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  version=\"\$$(cat .source)\"; \
 	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
@@ -96,7 +104,6 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  else \
 	    dch -b -v \"\$$version\" \"Version suffix automatically added my librem5-image-builder\"; \
 	    sed -i 's/libsystemd-dev[^,]*/\0 | libelogind-dev/g' debian/control; \
-	    apt-get update; \
 	    apt-get -y build-dep .; \
 	    if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
 	      then debuild -us -uc; \
