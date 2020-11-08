@@ -58,8 +58,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
-	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2; \
-	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2; \
+	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk; \
+	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk; \
 	fi
 	printf "\ndeb [trusted=yes] file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
 	uexec rm -rf "$(CURDIR)/$@"
@@ -96,7 +96,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  version=\"\$$(cat .source)\"; \
 	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
-	      for package in \$$(sed -n 's/^Package: \(.*\)\$$/\1/p' <debian/control); \
+	      for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
 	        do apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1 || exit 1; \
 	      done; \
 	    ); \
