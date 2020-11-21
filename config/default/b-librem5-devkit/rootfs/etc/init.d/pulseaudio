@@ -1,0 +1,15 @@
+#!/lib/init/init-d-script
+### BEGIN INIT INFO
+# Provides:          pulseaudio
+# Required-Start:    $local_fs dbus
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: pulseaudio daemon
+# Description:       pulseaudio daemon
+### END INIT INFO
+
+DAEMON=/usr/bin/pulseaudio
+PIDFILE=/var/run/pulseaudio.pid
+START_ARGS="--background -m"
+DAEMON_ARGS="--system"
