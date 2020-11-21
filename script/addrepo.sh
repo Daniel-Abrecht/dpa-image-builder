@@ -27,5 +27,10 @@ EOF
 
 cat "$dbdir/distros/"* >"$dbdir/conf/distributions"
 
+sed -n '/^Files:$/ { :s; n; s/^ \([^ ]\+ \)\+\([^ ]\+\)$/\2/p; b s }' <"$1" |
+while read deb
+  do reprepro -Vb "$dbdir" --outdir "$REPO_DIR/repo/" remove "$DISTRO-$RELEASE" "$(dpkg-deb -f "$deb" Package)" || true
+done
+
 reprepro -Vb "$dbdir" --ignore=wrongdistribution -T dsc --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1" || true
 reprepro -Vb "$dbdir" --ignore=wrongdistribution -T deb --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1"
