@@ -1,0 +1,1 @@
+SUBSYSTEM=="sound", ACTION=="change", KERNEL=="card*", ATTR{id}=="MODEM", ENV{SOUND_CLASS}="modem"
