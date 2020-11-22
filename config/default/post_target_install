@@ -12,3 +12,4 @@ update-alternatives --install /etc/lightdm/lightdm-gtk-greeter.conf lightdm-gtk-
 update-alternatives --set lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf-with-onscreen-keyboard
 
 update-rc.d pulseaudio-enable-autospawn disable || true
+systemctl disable pulseaudio-enable-autospawn || true

@@ -3,8 +3,6 @@
 update-rc.d powerkey defaults
 update-rc.d powerkey enable
 
-useradd --system -G pulse-access -d /usr/share/wys wys
-
 cat >>/etc/inittab <<EOF
 
 # uart
