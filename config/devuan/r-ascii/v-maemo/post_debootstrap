@@ -1,4 +1,0 @@
-#!/bin/sh -ex
-
-# Add maemo leste repo key
-wget -O- https://maedevu.maemo.org/testing-key.asc | apt-key add -
