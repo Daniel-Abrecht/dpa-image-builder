@@ -14,4 +14,8 @@ update-alternatives --set lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-gree
 useradd --system -G pulse-access -d /usr/share/wys wys
 
 update-rc.d pulseaudio-enable-autospawn disable || true
-systemctl disable pulseaudio-enable-autospawn || true
+update-rc.d pulseaudio enable || true
+update-rc.d wys enable || true
+systemctl disable pulseaudio-enable-autospawn.service || true
+systemctl --user disable pulseaudio.service || true
+systemctl enable pulseaudio-system.service || true
