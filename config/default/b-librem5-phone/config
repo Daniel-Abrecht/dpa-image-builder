@@ -1,4 +1,4 @@
-FK_MACHINE = Purism Librem 5
+FK_MACHINE = Purism Librem 5r3
 
 KERNEL_CONFIG_TARGET = librem5
 KERNEL_DTB = freescale/imx8mq-librem5.dtb

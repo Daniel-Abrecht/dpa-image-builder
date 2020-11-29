@@ -7,9 +7,9 @@ then
   update-mime-database /usr/share/mime
 fi
 
-# Set the lightdm config to one including a keyboard
-update-alternatives --install /etc/lightdm/lightdm-gtk-greeter.conf lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf-with-onscreen-keyboard 200
-update-alternatives --set lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf-with-onscreen-keyboard
+# Make sure lightdm uses the the lightdm gtk greeter if installed
+# In that greeter, selecting menu items on the touchscreen actually works, and there's an onscreen keyboard
+update-alternatives --set lightdm-greeter /usr/share/xgreeters/lightdm-gtk-greeter.desktop
 
 useradd --system -G pulse-access -d /usr/share/wys -s /usr/sbin/nologin wys
 usermod -L wys

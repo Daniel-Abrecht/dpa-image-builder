@@ -1,5 +1,6 @@
 xserver-xorg-legacy
 lightdm
+lightdm-gtk-greeter
 onboard
 dpaw
 network-manager
