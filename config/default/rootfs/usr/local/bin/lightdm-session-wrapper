@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Unlike what lightdm does per default, this does nothing
+# That means there's nothing that could case problems...
+
+exec "$@"

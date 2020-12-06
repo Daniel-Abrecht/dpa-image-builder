@@ -1,24 +1,11 @@
-xserver-xorg-legacy
 lightdm
 lightdm-gtk-greeter
 onboard
-dpaw
 network-manager
 network-manager-gnome
 modemmanager
-modem-manager-gui
-lxqt-panel
-lxqt-powermanagement
-qasmixer
 python3
 python3-evdev
-xfce4-terminal
-
-onrandr
-
-trace-cmd
-i2c-tools
-usbutils
 
 calls
 chatty

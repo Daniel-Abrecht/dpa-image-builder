@@ -37,4 +37,4 @@ chmod +x "$rootfs"/usr/sbin/policy-rc.d
 
 chroot "$rootfs" "$@"
 
-) 9>&-; ) 9>"$rootfs/chroot_access_lock"
+) 9>&-; ) 9>"$rootfs/.chroot_access_lock"

@@ -81,7 +81,7 @@ clean:
 repo/.%.repo:
 	branch="$(repo-branch@$(patsubst repo/.%.repo,%,$@))"; \
 	source="$(repo-source@$(patsubst repo/.%.repo,%,$@))"; \
-	mkdir -p "repo/$(patsubst repo/.%.repo,%,$@)" && cd "repo/$(patsubst repo/.%.repo,%,$@)" && git clone -b "$$branch" "$$source" .
+	mkdir -p "repo/$(patsubst repo/.%.repo,%,$@)" && cd "repo/$(patsubst repo/.%.repo,%,$@)" && git clone -b "$$branch" "$$source" . && git submodule init && git submodule update
 	touch "repo/$(patsubst repo/.%.repo,%,$@)"
 	touch "$@"
 
@@ -108,6 +108,8 @@ reset-repo@%:
 	  git branch -D "$$branch" || true; \
 	  git -c checkout.defaultRemote=origin checkout -f "$$branch" >/dev/null; \
 	  git reset --hard >/dev/null; \
+	  git submodule init; \
+	  git submodule update; \
 	  touch .; \
 	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
 	fi

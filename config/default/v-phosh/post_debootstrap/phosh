@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cat <<EOF >/usr/share/lightdm/lightdm.conf.d/91-phosh-default.conf
+[Seat:*]
+user-session=phosh
+EOF

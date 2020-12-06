@@ -1,8 +1,12 @@
+#!/bin/bash
+
 # Create group modem, to allow users to make calls using modem manager
 groupadd --system modem
 
 # Add all users to group modem
 awk -F':' -v "min=$(awk '/^UID_MIN/ {print $2}' /etc/login.defs)" -v "max=$(awk '/^UID_MAX/ {print $2}' /etc/login.defs)" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $1 }' /etc/passwd |
-  while read user
-    do usermod -a -G modem "$user"
-  done
+while read user
+do
+  usermod -a -G modem "$user"
+  usermod -a -G pulse-access "$user"
+done
