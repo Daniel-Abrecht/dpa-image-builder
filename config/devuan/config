@@ -1,2 +1,6 @@
 RELEASE = beowulf
 REPO = http://pkgmaster.devuan.org/merged/
+
+# Some packages enable elogind support based on the presence
+# of elogind rather than libelogind, which doesn't pull in elogind
+EXTRA_BUILD_TOOLS = elogind

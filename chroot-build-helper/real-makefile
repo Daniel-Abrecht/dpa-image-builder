@@ -58,8 +58,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELE
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
-	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk; \
-	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk; \
+	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
+	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
 	fi
 	printf "\ndeb [trusted=yes] file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
 	uexec rm -rf "$(CURDIR)/$@"
@@ -103,7 +103,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; \
 	  else \
 	    dch -b -v \"\$$version\" \"Version suffix automatically added my librem5-image-builder\"; \
-	    sed -i 's/libsystemd-dev[^,]*/\0 | libelogind-dev/g' debian/control; \
+	    sed -i 's/\(libsystemd-dev\)[^,]*/\1 | libelogind-dev/g' debian/control; \
 	    apt-get -y build-dep .; \
 	    if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
 	      then debuild -us -uc; \
