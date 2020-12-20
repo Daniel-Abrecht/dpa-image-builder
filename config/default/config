@@ -62,6 +62,9 @@ repo-source@first-boot-setup = $(PROJECT_GIT_SERVER_URL)/first-boot-setup.git
 repo-branch@dpaw = master
 repo-source@dpaw = $(PROJECT_GIT_SERVER_URL)/dpaw.git
 
+repo-branch@ui-grid = master
+repo-source@ui-grid = $(PROJECT_GIT_SERVER_URL)/ui-grid.git
+
 repo-branch@onrandr = master
 repo-source@onrandr = $(PROJECT_GIT_SERVER_URL)/onrandr.git
 
