@@ -69,7 +69,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo | build-e
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
-	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~$$DISTRO-$$RELEASE~$$(printf -- 'git-%s-%s-%s%s' "$$(git name-rev HEAD | sed 's/\s*HEAD\s*//' | tr ' ' '+' | sed 's/[^a-zA-Z0-9]/-/g')" "$$(git rev-list HEAD --count)" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)")"; ) >"$@"
+	( cd "$(<:repo/.%.repo=repo/%/)" && printf "%s%s" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)"; ) > "$@.hash"
+	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~c$$(git rev-list HEAD --count)"; ) >"$@"
 
 bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source $(UEXEC)
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
@@ -95,6 +96,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  apt-get update; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
 	  version=\"\$$(cat .source)\"; \
+	  commit=\"\$$(cat .source.hash)\"; \
 	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
 	      for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
 	        do apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1 || exit 1; \
@@ -102,7 +104,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	    ); \
 	  then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; \
 	  else \
-	    dch -b -v \"\$$version\" \"Version suffix automatically added my librem5-image-builder\"; \
+	    dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by librem5-image-builder. Git commit \$$commit.\"; \
 	    sed -i 's/\(libsystemd-dev\)[^,]*/\1 | libelogind-dev/g' debian/control; \
 	    apt-get -y build-dep .; \
 	    if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
@@ -114,7 +116,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	"
 	mkdir -p "$(dir $@)"
 	rm -f "$(dir $@)"/*
-	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -not -iname '*dbgsym*' -exec cp {} "$(dir $@)/" \; ; \
+	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -exec cp {} "$(dir $@)/" \; ; \
 	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
 	  then make -f real-makefile "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
 	fi
