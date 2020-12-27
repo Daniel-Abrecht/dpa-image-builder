@@ -9,7 +9,7 @@ BUILD_PACKAGES = no
 USE_IMAGE_BUILDER_REPO = yes
 DONT_BUILD_IF_IN_REPO = yes
 
-IMAGE_BUILDER_REPO = deb https://repo.dpa.li/apt/librem5/ $(DISTRO)-$(RELEASE) librem5
+IMAGE_BUILDER_REPO = deb https://repo.dpa.li/apt/librem5/$(DISTRO)-$(RELEASE)/ $(DISTRO)-$(RELEASE) librem5
 IMAGE_BUILDER_REPO_KEY = https://repo.dpa.li/apt/librem5/repo-public-key.gpg
 
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img

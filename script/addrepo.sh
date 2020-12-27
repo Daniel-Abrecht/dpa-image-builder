@@ -10,11 +10,13 @@ set -ex
 [ -n "$NEW_PKG_COMPONENT" ]
 [ -n "$NEW_PKG_KEY" ]
 
-dbdir="$REPO_DIR/db/"
+outdir="$REPO_DIR"
+dbdir="$outdir/db/$DISTRO-$RELEASE"
+repodir="$outdir/repo/$DISTRO-$RELEASE"
 
-mkdir -p "$dbdir/conf" "$dbdir/distros" "$REPO_DIR/repo/"
+mkdir -p "$dbdir/conf" "$repodir"
 
-cat >"$dbdir/distros/$DISTRO-$RELEASE" <<EOF
+cat >"$dbdir/conf/distributions" <<EOF
 Origin: $NEW_PKG_ORIGIN
 Label: librem5 $DISTRO $RELEASE
 Codename: $DISTRO-$RELEASE
@@ -25,12 +27,10 @@ SignWith: $NEW_PKG_KEY
 
 EOF
 
-cat "$dbdir/distros/"* >"$dbdir/conf/distributions"
-
 sed -n '/^Files:$/ { :s; n; s/^ \([^ ]\+ \)\+\([^ ]\+\)$/\2/p; b s }' <"$1" |
 while read deb
-  do reprepro -Vb "$dbdir" --outdir "$REPO_DIR/repo/" remove "$DISTRO-$RELEASE" "$(dpkg-deb -f "$deb" Package)" || true
+  do reprepro -Vb "$dbdir" --outdir "$repodir" remove "$DISTRO-$RELEASE" "$(dpkg-deb -f "$deb" Package)" || true
 done
 
-reprepro -Vb "$dbdir" --ignore=wrongdistribution -T dsc --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1" || true
-reprepro -Vb "$dbdir" --ignore=wrongdistribution -T deb --outdir "$REPO_DIR/repo/" include "$DISTRO-$RELEASE" "$1"
+reprepro -Vb "$dbdir" --ignore=wrongdistribution -T dsc --outdir "$repodir" include "$DISTRO-$RELEASE" "$1" || true
+reprepro -Vb "$dbdir" --ignore=wrongdistribution -T deb --outdir "$repodir" include "$DISTRO-$RELEASE" "$1"
