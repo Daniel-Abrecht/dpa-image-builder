@@ -79,7 +79,7 @@ repo-source@libhandy = https://gitlab.gnome.org/GNOME/libhandy.git
 repo-branch@feedbackd = master
 repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
 
-repo-branch@callaudiod = pureos/amber-phone
+repo-branch@callaudiod = pureos/byzantium
 repo-source@callaudiod = https://source.puri.sm/Librem5/debs/callaudiod.git
 
 repo-branch@calls = master
