@@ -73,21 +73,6 @@ repo-source@libenvpreload = $(PROJECT_GIT_SERVER_URL)/libenvpreload.git
 
 # Add some purism software
 
-repo-branch@libhandy = 1.0.2
-repo-source@libhandy = https://gitlab.gnome.org/GNOME/libhandy.git
-
-repo-branch@feedbackd = master
-repo-source@feedbackd = https://source.puri.sm/Librem5/feedbackd.git
-
-repo-branch@callaudiod = pureos/byzantium
-repo-source@callaudiod = https://source.puri.sm/Librem5/debs/callaudiod.git
-
-repo-branch@calls = master
-repo-source@calls = https://source.puri.sm/Librem5/calls.git
-
-repo-branch@upower = pureos/purple
-repo-source@upower = https://source.puri.sm/Librem5/upower.git
-
 repo-branch@modemmanager = pureos/amber-phone
 repo-source@modemmanager = https://source.puri.sm/Librem5/ModemManager.git
 
@@ -97,30 +82,6 @@ repo-source@libqmi = https://source.puri.sm/Librem5/libqmi.git
 repo-branch@libmbim = pureos/amber-phone
 repo-source@libmbim = https://source.puri.sm/Librem5/debs/libmbim.git
 
-repo-branch@pulseaudio = pureos/amber-phone
-repo-source@pulseaudio = https://source.puri.sm/Librem5/pulseaudio.git
-
-repo-branch@wys = master
-repo-source@wys = https://source.puri.sm/Librem5/wys.git
-
-repo-branch@chatty = master
-repo-source@chatty = https://source.puri.sm/Librem5/chatty.git
-
-repo-branch@purple-mm-sms = master
-repo-source@purple-mm-sms = https://source.puri.sm/Librem5/purple-mm-sms.git
-
-repo-branch@gnome-contacts = pureos/sloppy
-repo-source@gnome-contacts = https://source.puri.sm/Librem5/gnome-contacts/
-
 # For newer mesa...
-repo-branch@libglvnd = pureos/amber-phone
-repo-source@libglvnd = https://source.puri.sm/Librem5/debs/libglvnd.git
-
-repo-branch@phosh = v0.6.0
-repo-source@phosh = https://source.puri.sm/Librem5/phosh.git
-
-repo-branch@phoc = v0.5.1
-repo-source@phoc = https://source.puri.sm/Librem5/phoc.git
-
 repo-branch@wlroots = pureos/amber-phone
 repo-source@wlroots = $(PROJECT_GIT_SERVER_URL)/wlroots.git

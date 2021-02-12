@@ -1,4 +1,4 @@
-RELEASE = beowulf
+RELEASE = chimaera
 REPO = http://pkgmaster.devuan.org/merged/
 
 # Some packages enable elogind support based on the presence

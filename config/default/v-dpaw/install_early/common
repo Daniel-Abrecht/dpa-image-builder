@@ -7,7 +7,7 @@ modemmanager
 python3
 python3-evdev
 
-calls
+gnome-calls
 chatty
 purple-mm-sms
 gnome-contacts

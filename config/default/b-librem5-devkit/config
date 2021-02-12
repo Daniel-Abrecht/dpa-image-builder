@@ -6,7 +6,7 @@ KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb
 UBOOT_CONFIG_TARGET = librem5_devkit_defconfig
 UBOOT_DTB = librem5-devkit.dtb
 
-repo-branch@flash-kernel = librem5
+repo-branch@flash-kernel = pureos/byzantium
 repo-source@flash-kernel = https://source.puri.sm/Librem5/flash-kernel.git
 
 repo-branch@linux = imx8-current-librem5

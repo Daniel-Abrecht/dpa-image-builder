@@ -1,3 +1,2 @@
-RELEASE = buster
+RELEASE = bullseye
 REPO = http://deb.debian.org/debian/
-SEC_REPO = http://security.debian.org/debian-security/

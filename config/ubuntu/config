@@ -1,2 +1,2 @@
-RELEASE = focal
+RELEASE = groovy
 REPO = http://ports.ubuntu.com/ubuntu-ports/

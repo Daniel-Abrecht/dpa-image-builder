@@ -13,7 +13,3 @@ consolation
 
 # Package used to fix X11 touchscreen rotation after display rotation
 onrandr
-
-# Modem audio stuff
-wys
-callaudiod
