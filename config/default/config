@@ -71,6 +71,10 @@ repo-source@onrandr = $(PROJECT_GIT_SERVER_URL)/onrandr.git
 repo-branch@libenvpreload = master
 repo-source@libenvpreload = $(PROJECT_GIT_SERVER_URL)/libenvpreload.git
 
+# For modifiers (enable atomic) & multiple monitors. (For single monitor, the distro one is fine. MRs are upstream, but unlikely to be accepted)
+repo-source@xserver-xorg = $(PROJECT_GIT_SERVER_URL)/l5-xserver-xorg.git
+repo-branch@xserver-xorg = debian-unstable
+
 # Add some purism software
 
 repo-branch@modemmanager = pureos/amber-phone
