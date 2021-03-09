@@ -21,7 +21,7 @@ repo/linux/.config: repo/.linux.repo
 	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) $(KERNEL_CONFIG_TARGET)_defconfig
 
 bin/.done: repo/.linux.repo repo/linux/.config bin/.dir
-	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) bindeb-pkg
+	$(MAKE) -C repo/linux ARCH=arm64 CROSS_COMPILE=$(CROSS_COMPILER) KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg
 	cp repo/linux-libc-*.deb bin/linux-libc.deb || true
 	cp repo/linux-image-*[^g]_*_*.deb bin/linux-image.deb
 	cp repo/linux-image-*g_*_*.deb bin/linux-image-dbg.deb || true

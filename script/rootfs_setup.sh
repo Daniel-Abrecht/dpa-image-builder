@@ -16,6 +16,7 @@ printf '%s\n' $PACKAGES_BOOTSTRAP_WORKAROUND > "dummy_packages_to_replace"
 
 # Use temporary apt config for temporary bootstrap sources
 cat > apt-tmp.conf <<EOF
+Acquire::Retries "3";
 Dir::Etc::sourcelist "/usr/share/first-boot-setup/temporary-local-repo.list";
 Dir::Etc::sourceparts "-";
 APT::Get::List-Cleanup "0";

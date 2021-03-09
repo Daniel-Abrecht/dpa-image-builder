@@ -27,6 +27,7 @@ truncate -s "$IMGSIZE" "$tmp/$IMAGE_NAME"
 sfdisk "$tmp/$IMAGE_NAME" <<EOF
 label: dos
 unit: sectors
+grain: 4MiB
 
 # Protective partition for Cortex M4 firmware and ARM trusted platform + uboot bootloader
 start=4, size=4092, type=da
