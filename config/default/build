@@ -1,6 +1,3 @@
-# repos with packages needed for installation or booting
-flash-kernel
-
 # Package for doing stuff on first boot
 first-boot-setup
 
