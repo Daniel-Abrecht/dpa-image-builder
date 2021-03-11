@@ -1,2 +1,3 @@
 xserver-xorg
+dbus-x11 # Needed for things like onboard onscreen keyboard
 onrandr
