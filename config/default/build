@@ -6,7 +6,6 @@ console-keyboard-multiplexer
 console-keyboard-basic
 libconsolekeyboard
 libttymultiplex
-consolation
 
 # Package used to fix X11 touchscreen rotation after display rotation
 onrandr

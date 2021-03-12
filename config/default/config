@@ -4,6 +4,7 @@ IMGSIZE = auto
 DISTRO = devuan
 VARIANT = base
 CHROOT_REPO = $(REPO)
+FSTYPE = ext4
 
 BUILD_PACKAGES = no
 USE_IMAGE_BUILDER_REPO = yes
@@ -52,9 +53,6 @@ repo-source@libconsolekeyboard = $(PROJECT_GIT_SERVER_URL)/console-keyboard-mult
 
 repo-branch@console-keyboard-basic = master
 repo-source@console-keyboard-basic = $(PROJECT_GIT_SERVER_URL)/console-keyboard-basic.git
-
-repo-branch@consolation = master
-repo-source@consolation = $(PROJECT_GIT_SERVER_URL)/consolation.git
 
 repo-branch@first-boot-setup = master
 repo-source@first-boot-setup = $(PROJECT_GIT_SERVER_URL)/first-boot-setup.git
