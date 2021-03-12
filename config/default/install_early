@@ -31,5 +31,7 @@ console-keyboard-multiplexer-config
 console-keyboard-multiplexer-initramfs-config
 consolation
 
+plymouth- # Make sure plymouth isn't installed. It interferes with the console onscreen keyboard
+
 # "Fix" interface hotplugging
 netplug
