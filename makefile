@@ -51,9 +51,11 @@ build/bin/usernsexec: repo/.usernsexec.repo build/bin/.dir
 	cp repo/usernsexec/bin/usernsexec build/bin/
 	cp repo/usernsexec/script/uexec build/bin/
 
-build/bin/writeTar2Ext: repo/.tar2ext.repo build/bin/.dir
+build/bin/tar2ext: repo/.tar2ext.repo build/bin/.dir
 	$(MAKE) -C repo/tar2ext/
-	cp repo/tar2ext/bin/writeTar2Ext build/bin/
+	cp repo/tar2ext/scripts/sload.ext4 build/bin/
+	( cd build/bin/; ln -sf sload.ext4 sload.ext3; ln -sf sload.ext4 sload.ext2; )
+	cp repo/tar2ext/bin/tar2ext build/bin/
 
 build/$(IMAGE_NAME)/deb/%.deb: build/$(IMAGE_NAME)/deb/.dir
 	getdeb.sh "$@"
@@ -68,7 +70,7 @@ $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
 	[ -e "$@" ]
 	touch "$@"
 
-build/$(IMAGE_NAME)/rootfs.tar: \
+build/$(IMAGE_NAME)/root.fs/: \
   kernel/bin/linux-image.deb \
   uboot/bin/uboot_firmware_and_dtb.bin \
   build/bin/usernsexec \
@@ -79,8 +81,8 @@ build/$(IMAGE_NAME)/rootfs.tar: \
 
 bin/$(IMAGE_NAME): \
   build/bin/fuseloop \
-  build/bin/writeTar2Ext \
-  build/$(IMAGE_NAME)/rootfs.tar \
+  build/bin/tar2ext \
+  build/$(IMAGE_NAME)/root.fs/ \
   uboot/bin/uboot_firmware_and_dtb.bin \
   kernel/bin/linux-image.deb
 	./script/assemble_image.sh

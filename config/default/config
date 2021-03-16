@@ -4,6 +4,7 @@ IMGSIZE = auto
 DISTRO = devuan
 VARIANT = base
 CHROOT_REPO = $(REPO)
+# Can be changed to f2fs once sload.f2fs supports preserving the file owner: https://sourceforge.net/p/linux-f2fs/mailman/linux-f2fs-devel/thread/685cd73aea4daa72236ec53aa9c3a7fe%40abrecht.li/#msg37240606
 FSTYPE = ext4
 
 BUILD_PACKAGES = no

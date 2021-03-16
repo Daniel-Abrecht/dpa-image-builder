@@ -27,7 +27,6 @@ trap cleanup EXIT
 
 # Remove old files from previous runs
 rm -rf "$tmp/rootfs" "$tmp/bootfs"
-rm -f "$tmp/rootfs.tar" "$tmp/bootfs.tar" "$tmp/device_nodes"
 
 # Create temporary directories
 mkdir -p "$tmp/rootfs"
@@ -136,9 +135,8 @@ rm -rf "$tmp/rootfs/root/helper"
 rm -f "$tmp/rootfs/dev/null"
 rm -f "$tmp/rootfs/dev/urandom"
 
-# Create tar archives and remove tared directories
-cd "$tmp/rootfs"
-tar cf "$tmp/rootfs.tar" .
-cd "$tmp/bootfs"
-tar cf "$tmp/bootfs.tar" .
-cd "$base"
+# Move rootfs and bootfs to signal they're done
+rm -rf "$tmp/root.fs" "$tmp/boot.fs"
+touch -c "$tmp/rootfs" "$tmp/bootfs"
+mv "$tmp/rootfs" "$tmp/root.fs"
+mv "$tmp/bootfs" "$tmp/boot.fs"
