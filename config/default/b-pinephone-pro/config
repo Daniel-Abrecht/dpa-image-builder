@@ -1,0 +1,5 @@
+BUILDER_PLATFORM = pinephone-pro
+KERNEL_CONFIG_TARGET = pinephone_pro
+
+repo-branch@linux = orange-pi-5.16
+repo-source@linux = https://github.com/megous/linux.git

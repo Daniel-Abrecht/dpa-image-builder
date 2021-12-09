@@ -71,14 +71,13 @@ i=0
 printf '%s\n' "$partitions" |
 while read partinfos
 do
-  j="$i"
-  i=$(expr $i + 1)
+  i=$((i + 1))
   eval "$partinfos"
-  touch "$tmp/part$j"
-  fuseloop -O "$(expr "$start" \* $blocksize)" -S "$(expr "$size" \* $blocksize)" "$tmp/$IMAGE_NAME" "$tmp/part$j"
+  touch "$tmp/part$i"
+  fuseloop -O "$(expr "$start" \* $blocksize)" -S "$(expr "$size" \* $blocksize)" "$tmp/$IMAGE_NAME" "$tmp/part$i"
   part_name="$(printf "%s\n" "$partition_names" | sed "$i"'q;d')"
   if [ -n "$part_name" ]
-    then ln -s "part$j" "$tmp/part-$part_name"
+    then ln -s "part$i" "$tmp/part-$part_name"
   fi
 done
 

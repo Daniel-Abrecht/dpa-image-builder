@@ -1,0 +1,6 @@
+Machine: Pine64 PinePhonePro
+DTB-Id: rockchip/rk3399-pinephone-pro.dtb
+Boot-Script-Path: /boot/boot.scr
+U-Boot-Script-Name: bootscr.uboot-generic
+Required-Packages: u-boot-tools
+#Kernel-Flavors: arm64
