@@ -1,4 +1,4 @@
-include ../src/make-helper-functions.mk
+include ../../../src/make-helper-functions.mk
 
 UMAKE=env -u MAKEFLAGS make
 

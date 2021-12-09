@@ -59,6 +59,8 @@ include $(project_root)/src/package_list.mk
 
 export DEBIAN_FRONTEND=noninteractive
 
+include $(project_root)/platform/$(BUILDER_PLATFORM)/platform.mk
+
 generate_make_build_dependencies_for_debs:
 	export DEP_PREFIX=$(DEP_PREFIX); \
 	export DEP_SUFFIX=$(DEP_SUFFIX); \
@@ -128,7 +130,7 @@ config-after-update@%:
 	  "repo-branch@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
 	  "repo-source@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
 	  "UBOOT_DTB" | "UBOOT_CONFIG_TARGET" | "repo-source@uboot" | "repo-branch@uboot") \
-	    $(MAKE) -C "$(project_root)/uboot/" clean-build \
+	    $(MAKE) -C "$(project_root)/platform/$(BUILDER_PLATFORM)/" clean-build \
 	  ;; \
 	  "KERNEL_CONFIG_TARGET" | "repo-source@linux" | "repo-branch@linux") \
 	    $(MAKE) -C "$(project_root)/kernel/" clean-build \
