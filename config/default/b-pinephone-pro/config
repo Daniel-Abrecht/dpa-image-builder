@@ -1,5 +1,15 @@
 BUILDER_PLATFORM = pinephone-pro
 KERNEL_CONFIG_TARGET = pinephone_pro
 
+S_COMPONENTS += non-free
+
 repo-branch@linux = orange-pi-5.16
 repo-source@linux = https://github.com/megous/linux.git
+
+UBOOT_CONFIG_TARGET = pinephone-pro-rk3399_defconfig
+repo-branch@uboot = upstream
+repo-source@uboot = https://git.sr.ht/~martijnbraam/u-boot
+
+ATF_PLATFORM = rk3399
+repo-branch@arm-trusted-firmware = v2.6
+repo-source@arm-trusted-firmware = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git

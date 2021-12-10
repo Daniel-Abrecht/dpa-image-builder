@@ -1,8 +1,8 @@
-deb     $CHROOT_REPO $RELEASE           main universe
-deb-src $CHROOT_REPO $RELEASE           main universe
-deb     $CHROOT_REPO $RELEASE-updates   main universe
-deb-src $CHROOT_REPO $RELEASE-updates   main universe
-deb     $CHROOT_REPO $RELEASE-security  main universe
-deb-src $CHROOT_REPO $RELEASE-security  main universe
+deb     $CHROOT_REPO $RELEASE           $S_COMPONENTS
+deb-src $CHROOT_REPO $RELEASE           $S_COMPONENTS
+deb     $CHROOT_REPO $RELEASE-updates   $S_COMPONENTS
+deb-src $CHROOT_REPO $RELEASE-updates   $S_COMPONENTS
+deb     $CHROOT_REPO $RELEASE-security  $S_COMPONENTS
+deb-src $CHROOT_REPO $RELEASE-security  $S_COMPONENTS
 #deb     $CHROOT_REPO $RELEASE-backports main universe
 #deb-src $CHROOT_REPO $RELEASE-backports main universe

@@ -1,2 +1,3 @@
 RELEASE = groovy
+S_COMPONENTS=main universe
 REPO = http://ports.ubuntu.com/ubuntu-ports/

@@ -68,7 +68,6 @@ build/$(IMAGE_NAME)/root.fs/: \
   kernel/bin/linux-image.deb \
   build/bin/usernsexec \
   $(DEBOOTSTRAP_SCRIPT) \
-  $(PLATFORM_FILES) \
   bin/.dir
 	$(MAKE) extra_packages
 	./script/debootstrap.sh

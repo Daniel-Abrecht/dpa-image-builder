@@ -9,7 +9,7 @@ set -ex
 
 # Make sure the current working directory is correct
 cd "$(dirname "$0")/.."
-base="$PWD"
+export base="$PWD"
 
 asroot=""
 if [ $(id -u) != 0 ]
@@ -97,11 +97,11 @@ esac
 mkfs.ext2 -L boot "$bootdev"
 "mkfs.$FSTYPE" $mkfsoptions "$rootdev"
 
+"$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
+
 # Write data to partitions
 $asroot sload.ext2 -P -f "$base/build/$IMAGE_NAME/boot.fs" "$bootdev"
 $asroot "sload.$FSTYPE" -P -f "$base/build/$IMAGE_NAME/root.fs" "$rootdev"
-
-"$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
 
 # Unmount & remove fuse loop devices
 umount_wait
