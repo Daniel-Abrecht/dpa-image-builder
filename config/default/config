@@ -1,4 +1,3 @@
-BOARD = librem5-devkit
 # Note: 1GB = 1000MB, 1GiB=1024MiB 
 IMGSIZE = auto
 DISTRO = devuan

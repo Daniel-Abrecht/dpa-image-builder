@@ -1,23 +1,17 @@
-# librem5 image build scripts
+# dpa image builder
 
-Inspired by the image builder of purism (https://source.puri.sm/Librem5/image-builder),
 I've written my own image builder to create my own, custom, devuan based images.
-I didn't reuse any code from their image-builder repo, though.
+Originally, I did this to run devuan & some other stuff of mine on the librem5,
+but it can now also make images for other devices (the pinephone-pro), and
+can also make images for other debian & debootstrap based distributions.
 
-I did this to get a better understanding of the boot process and the components used.
-I also wanted to make sure that I can compile everything myself and that I have a working
-devuan based image for my phone.
-
-The image does boot, but only from emmc when flashed using uuu.
-
-I'm rebuilding these images every day at 0 UTC on my build server: https://repo.dpa.li/apt/librem5/images/ (Please note that the base images don't contain a desktop environment)
-
-This image builder can bootstrap images based on the repositories of various linux distros,
+While this image builder can bootstrap images based on the repositories of various linux distros,
 and can thus create images based on devuan, debian, ubuntu, etc. Please note that this
 aren't official images and that they do contain some files and packages not (yet?) available upstream.
 
-This project is still a work in progress, though, it's not ready for regular usage yet.
+I'm building these images every day at 0 UTC on my build server: https://repo.dpa.li/apt/librem5/images/ (Please note that the base images don't contain a desktop environment)
 
+This project is still a work in progress, it's not ready for regular usage yet.
 
 # Required packages & programs
 
@@ -42,11 +36,6 @@ You need the following packages for this to work:
  * `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * `uidmap`
  * `binfmt-support` (optional)
-
-Setting up binfmt-misc on non-aarch64 hosts is not necessary, but recommended.
-It may speed up the build process and make the bootstrapping more reliable.
-It should happen automatically if you install qemu-user-static.
-Don't install qemu-user-binfmt, it's qemu-user binaries arent statically built and won't work for this.
 
 For flashing the image, you'll also need uuu. You can get uuu from https://source.puri.sm/Librem5/mfgtools
 Just make sure uuu is in your path when flashing the image. I've just copied the
@@ -83,7 +72,7 @@ make
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
-| BOARD | devkit | Board specific config. Specifies which configs/board-$(BOARD).mk config file to use. |
+| BOARD |  | For which board the image is to be built. For example "librem5-devkit", "librem5-phone" or "pinephone-pro". |
 | IMGSIZE | 3GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | DISTRO | devuan | The distribution the image is based on |
 | RELEASE | chimaera | The release of the disribution to debootstrap |

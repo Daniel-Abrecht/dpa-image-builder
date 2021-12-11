@@ -51,6 +51,13 @@ export $(CONFIG_VARS)
 
 CONF = user_config_override
 
+ifndef TO
+ifndef BUILDER_PLATFORM
+KNOWN_BOARDS=$(shell basename -a "$(project_root)/config/default/"b-*/ | sed 's|^b-||')
+$(error "Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set@BOARD TO=my-board`. Availabe boards are: $(KNOWN_BOARDS)")
+endif
+endif
+
 include $(project_root)/src/repositories.mk
 
 export PATH := /helper/bin:$(project_root)/script/:/sbin:/usr/sbin:$(PATH):$(project_root)/build/bin:$(project_root)/bin
@@ -59,7 +66,9 @@ include $(project_root)/src/package_list.mk
 
 export DEBIAN_FRONTEND=noninteractive
 
+ifndef TO
 include $(project_root)/platform/$(BUILDER_PLATFORM)/platform.mk
+endif
 
 generate_make_build_dependencies_for_debs:
 	export DEP_PREFIX=$(DEP_PREFIX); \
