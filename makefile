@@ -91,33 +91,33 @@ repo: always \
   repo/.fuseloop.repo \
   repo/.usernsexec.repo \
   repo/.tar2ext.repo
-	$(MAKE) -C uboot repo
+	$(MAKE) -C platform repo
 	$(MAKE) -C kernel repo
 	if [ "$(BUILD_PACKAGES)" != no ]; \
 	  then $(MAKE) -C chroot-build-helper repo; \
 	fi
 
 clean-repo: clean-repo@fuseloop clean-repo@usernsexec clean-repo@tar2ext
-	$(MAKE) -C uboot clean-repo
+	$(MAKE) -C platform clean-repo
 	$(MAKE) -C kernel clean-repo
 	$(MAKE) -C chroot-build-helper clean-repo
 
 reset-repo: reset-repo@fuseloop reset-repo@usernsexec reset-repo@tar2ext
-	$(MAKE) -C uboot reset-repo
+	$(MAKE) -C platform reset-repo
 	$(MAKE) -C kernel reset-repo
 	if [ "$(BUILD_PACKAGES)" != no ]; \
 	  then $(MAKE) -C chroot-build-helper reset-repo; \
 	fi
 
 clean-build: clean-image clean-fs
-	$(MAKE) -C uboot clean-build
+	$(MAKE) -C platform clean-build
 	$(MAKE) -C kernel clean-build
 	$(MAKE) -C chroot-build-helper clean-build
 	rm -rf build/bin/
 	rmdir build/ 2>/dev/null || true
 
 clean-build-all: clean-image-all clean-fs-all
-	$(MAKE) -C uboot clean-build
+	$(MAKE) -C platform clean-build
 	$(MAKE) -C kernel clean-build
 	$(MAKE) -C chroot-build-helper clean-build-all
 	rm -rf build/
