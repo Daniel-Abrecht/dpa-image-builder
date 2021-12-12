@@ -1,0 +1,331 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+shopt -s nullglob
+
+p="$0"
+obase="$PWD"
+LF=$'\n'
+
+help(){
+  if [ -n "$1" ] && grep -Fxq "$1" <<<"$functions"
+  then
+    "usage_$1"
+  else
+    (
+      echo "Usage: $p repo dist command args..."
+      echo "       $p help command"
+      echo
+      echo "Availabel sub commands are:"
+      printf " - %s\n" $functions
+      echo
+    ) >&2
+  fi
+}
+
+main(){
+  if [ "$1" = help ]
+  then
+    shift
+    help "$@"
+    exit 0
+  fi
+
+  if [ $# -lt 3 ] || ! grep -Fxq "$3" <<<"$functions"
+  then
+    help
+    exit 1
+  fi
+
+  repo="$1"; shift
+  dist="$1"; shift
+  action="$1"; shift
+  distdir="dists/$dist"
+  poolbasedir="pool/$dist"
+  config="$distdir/.repo_config"
+
+  if [ "$action" = "create" ]
+  then
+    do_create "$@"
+    exit 0
+  fi
+
+  cd "$repo"
+
+  if ! [ -f "$config" ]
+    then die "Error: repo config not found"
+  fi
+  . "$config"
+
+  DATE="$(date -R -u)"
+  base=.
+ 
+  "do_$action" "$@"
+}
+
+die(){
+  echo "$@" >&2
+  exit 1
+}
+
+quote(){ 
+  local quoted=${1//\'/\'\\\'\'};
+  printf "'%s'" "$quoted"
+}
+
+usage_create()(
+  exec >&2
+  echo "Usage: create  origin label codename description"
+  echo
+  echo "Creates a repo"
+  echo
+)
+
+do_create(){
+  if [ $# != 4 ]
+  then
+    usage_create
+    exit 1
+  fi
+  if [ -d "$repo/$distdir" ]
+    then die "Error: repo directory already exists"
+  fi
+  mkdir -p "$repo"
+  cd "$repo"
+  mkdir -p "$distdir"
+  for key in origin label codename description
+  do
+    value="$1"; shift
+    printf "%s=%s\n" "$key" "$(quote "$value")"
+  done >"$config"
+}
+
+usage_add()(
+  exec >&2
+  echo "Usage: add  component ./package.deb"
+  echo
+  echo "Adds a package to the repo"
+  echo
+)
+
+do_add(){
+  if [ $# != 2 ] || [ ! -f "$obase/$2" ]
+  then
+    usage_add
+    exit 1
+  fi
+  component="$1"; shift
+  deb="$1"; shift
+  control="$(deb_get_control_file "$obase/$deb")"
+  package="$(basename "$(sed -n 's/^Package: *\(.*\)/\1/p' <<<"$control")")"
+  arch="$(sed -n 's/^Architecture: *\(.*\)/\1/p' <<<"$control")"
+  case "$arch" in
+    any) arch=all ;;
+  esac
+  destdir="$poolbasedir/$arch/$component/$package/"
+  mkdir -p "$destdir"
+  cp "$obase/$deb" "$destdir"
+  do_regenerate
+}
+
+make_checksum(){
+  for file in "${files[@]}"
+  do
+    if [ -f "$file.new" ]
+      then mv "$file.new" "$file"
+    fi
+    checksum="$("$1" "$file" | grep -o '^[^ ]*')"
+    size="$(stat -c "%s" "$file")"
+    echo "$checksum" "$size" "$file"
+  done | column -t | sed 's|^| |'
+}
+
+make_checksums(){
+#  echo "SHA1:"
+#  make_checksum sha1sum
+  echo "SHA256:"
+  make_checksum sha256sum
+}
+
+make_bin_release_file(){
+  arch="$1"; shift
+  component="$1"; shift
+  cdir="$distdir/$component/binary-$arch"
+  mkdir -p "$cdir"
+  cat >"$cdir/Release.new" <<EOF
+Component: $component
+Origin: $origin
+Label: $label
+Architecture: $arch
+Description: $description
+EOF
+}
+
+deb_get_control_file(){
+  #dpkg-deb --info "$package" | sed -ne '/^ Package: /,$ p' | sed 's/^ //'
+  local deb="$1"
+  local tar="$(ar tf "$deb" | grep '^control\.tar\.\?.*$' | head -n 1)"
+  cmd=
+  case "$tar" in
+    control.tar.xz) cmd="xz -d" ;;
+    control.tar.gz) cmd="gzip -d" ;;
+    control.tar) cmd=cat ;;
+    *) return 1 ;;
+  esac
+  ar pf "$deb" "$tar" | $cmd | tar -xO ./control
+}
+
+make_packages_file()(
+  arch="$1"; shift
+  component="$1"; shift
+  cdir="$distdir/$component/binary-$arch"
+  mkdir -p "$cdir"
+  for package in "$poolbasedir/$arch/$component/"*/*.deb
+  do
+    deb_get_control_file "$package"
+    echo "Filename: $package"
+    echo
+  done >"$cdir/.Packages.new"
+  mv "$cdir/.Packages.new" "$cdir/Packages.new" 
+  gzip <"$cdir/Packages.new" >"$cdir/.Packages.gz.new"
+  mv "$cdir/.Packages.gz.new" "$cdir/Packages.gz.new"
+)
+
+make_release_file()(
+  files=()
+  archs=
+  components=
+
+  for componentdir in "$distdir/"*/
+  do
+    component="$(basename "$componentdir")"
+    for archdir in "$componentdir"binary-*/
+    do
+      arch="$(sed -n 's|^.*/binary-\([^/]\+\)/\?$|\1|p' <<<"$archdir")"
+      nfiles=(
+        "${archdir}Release"
+        "${archdir}Packages"
+        "${archdir}Packages.gz"
+      )
+      for file in "${nfiles[@]}"
+      do
+        if [ -f "$file" ] || [ -f "$file.new" ]
+        then
+          files+=( "$file" )
+          archs="$(sort -u <<<"$arch"$'\n'"$archs")"
+          components="$(sort -u <<<"$component"$'\n'"$components")"
+        fi
+      done
+    done
+  done
+
+  exec >"$distdir/.Release.new"
+
+  cat <<EOF
+Origin: $origin
+Label: $label
+Codename: $codename
+Date: $DATE
+Architectures: ${archs//$LF/ }
+Components: ${components//$LF/ }
+Description: $description
+EOF
+
+  make_checksums
+
+  mv "$distdir/.Release.new" "$distdir/Release.new"
+  gpg $GPG_ARGS --armor --output "$distdir/Release.gpg.new" --detach-sig "$distdir/Release.new"
+  gpg $GPG_ARGS --output "$distdir/InRelease.new" --clearsign "$distdir/Release.new"
+  mv "$distdir/Release.new" "$distdir/Release"
+  mv "$distdir/Release.gpg.new" "$distdir/Release.gpg"
+  mv "$distdir/InRelease.new" "$distdir/InRelease"
+)
+
+usage_regenerate()(
+  exec >&2
+  echo "Usage: regenerate"
+  echo
+  echo "Regenerate the files in the /dists/ directory of the repo"
+  echo
+)
+
+do_regenerate(){
+  if [ $# != 0 ]
+  then
+    usage_regenerate
+    exit 1
+  fi
+
+  find "$poolbasedir" -type d -empty -delete
+
+  for archdir in "$poolbasedir/"*/
+  do
+    arch="$(basename "$archdir")"
+    for componentdir in "$archdir/"*/
+    do
+      component="$(basename "$componentdir")"
+      mkdir -p "$distdir/$component/binary-$arch"
+      make_packages_file "$arch" "$component"
+      make_bin_release_file "$arch" "$component"
+    done
+  done
+
+  for componentdir in "$distdir/"*/
+  do
+    component="$(basename "$componentdir")"
+    for archdir in "$componentdir"/binary-*/
+    do
+      arch="$(sed -n 's|^.*/binary-\([^/]\+\)/\?$|\1|p' <<<"$archdir")"
+      if [ ! -d "$poolbasedir/$arch/$component" ]
+      then
+        rm -r "$archdir"
+        continue
+      fi
+    done
+    rmdir "$componentdir" 2>/dev/null || true
+  done
+
+  make_release_file
+}
+
+usage_clean()(
+  exec >&2
+  echo "Usage: clean n"
+  echo
+  echo "Delete all debs in pool where there is more than n debs in a directory, based on last modified date"
+  echo
+)
+
+do_clean(){
+  if [ $# != 1 ] || ! [[ "$1" =~ ^[0-9]+$ ]]
+  then
+    usage_clean
+    exit 1
+  fi
+
+  n="$1"; shift
+
+  for archdir in "$poolbasedir/"*/
+  do
+    arch="$(basename "$archdir")"
+    for componentdir in "$archdir/"*/
+    do
+      component="$(basename "$componentdir")"
+      for packagedir in "$componentdir/"*/
+      do
+        package="$(basename "$componentdir")"
+        (
+          cd "$packagedir"
+          ls -1tr *.deb | head -n -"$n" | xargs -d '\n' rm -f --
+        )
+      done
+    done
+  done
+
+  do_regenerate
+}
+
+functions="$(compgen -A function do_ | sed 's/^do_//')"
+
+main "$@"

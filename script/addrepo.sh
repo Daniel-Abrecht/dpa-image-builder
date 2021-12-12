@@ -7,30 +7,13 @@ set -ex
 [ -n "$DISTRO" ]
 [ -n "$RELEASE" ]
 [ -n "$NEW_PKG_ORIGIN" ]
-[ -n "$NEW_PKG_COMPONENT" ]
-[ -n "$NEW_PKG_KEY" ]
 
-outdir="$REPO_DIR"
-dbdir="$outdir/db/$DISTRO-$RELEASE"
-repodir="$outdir/repo/$DISTRO-$RELEASE"
+repodir="$REPO_DIR"
 
-mkdir -p "$dbdir/conf" "$repodir"
+# Create repo / release if it doesn't exist yet
+if [ ! -d "$repodir/dists/$DISTRO-$RELEASE" ]
+  then dparepo "$repodir" "$DISTRO-$RELEASE" create "$NEW_PKG_ORIGIN" "$DISTRO $RELEASE $EXTRA_REPO_LABELS" "$DISTRO-$RELEASE" "Images built using the dpa-image-builder"
+fi
 
-cat >"$dbdir/conf/distributions" <<EOF
-Origin: $NEW_PKG_ORIGIN
-Label: librem5 $DISTRO $RELEASE
-Codename: $DISTRO-$RELEASE
-Architectures: arm64
-Components: $NEW_PKG_COMPONENT
-Description: Automatically built packages for the librem5
-SignWith: $NEW_PKG_KEY
-
-EOF
-
-sed -n '/^Files:$/ { :s; n; s/^ \([^ ]\+ \)\+\([^ ]\+\)$/\2/p; b s }' <"$1" |
-while read deb
-  do reprepro -Vb "$dbdir" --outdir "$repodir" remove "$DISTRO-$RELEASE" "$(dpkg-deb -f "$deb" Package)" || true
-done
-
-reprepro -Vb "$dbdir" --ignore=wrongdistribution -T dsc --outdir "$repodir" include "$DISTRO-$RELEASE" "$1" || true
-reprepro -Vb "$dbdir" --ignore=wrongdistribution -T deb --outdir "$repodir" include "$DISTRO-$RELEASE" "$1"
+# Add package
+dparepo "$repodir" "$DISTRO-$RELEASE" add "$BUILDER_PLATFORM" "$1"

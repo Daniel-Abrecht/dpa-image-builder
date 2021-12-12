@@ -89,9 +89,9 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  if [ \"\$$USE_IMAGE_BUILDER_REPO\" = yes ] && [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && [ -n \"\$$IMAGE_BUILDER_REPO\" ] && [ -n \"\$$IMAGE_BUILDER_REPO_KEY\" ]; \
 	  then \
 	    wget -O- \"\$$IMAGE_BUILDER_REPO_KEY\" | apt-key add -; \
-	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/librem5-image-builder.list; \
+	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/dpa-image-builder.list; \
 	  else \
-	    rm -f /etc/apt/sources.list.d/librem5-image-builder.list; \
+	    rm -f /etc/apt/sources.list.d/dpa-image-builder.list; \
 	  fi; \
 	  apt-get update; \
 	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
@@ -104,7 +104,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	    ); \
 	  then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; \
 	  else \
-	    dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by librem5-image-builder. Git commit \$$commit.\" <&-; \
+	    dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\" <&-; \
 	    sed -i 's/\(libsystemd-dev\)[^,]*/\1 | libelogind-dev/g' debian/control; \
 	    apt-get -y build-dep .; \
 	    if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
