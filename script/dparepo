@@ -128,7 +128,9 @@ do_add(){
       sed -n '/^Files:$/ { :s; n; s/^ \([^ ]\+ \)\+\([^ ]\+\)$/\2/p; b s }' <"$deb" |
       while IFS= read -r file
       do
-        do_add "$component" "$dir/$file"
+        if ar tf "$dir/$file" >/dev/null 2>&1
+          then do_add "$component" "$dir/$file"
+        fi
       done
       return 0
     ;;
