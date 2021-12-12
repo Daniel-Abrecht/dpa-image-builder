@@ -117,6 +117,17 @@ do_add(){
   fi
   component="$1"; shift
   deb="$1"; shift
+  case "$deb" in
+    *.changes)
+      dir="$(dirname "$deb")"
+      sed -n '/^Files:$/ { :s; n; s/^ \([^ ]\+ \)\+\([^ ]\+\)$/\2/p; b s }' <"$deb" |
+      while IFS= read -r file
+      do
+        do_add "$component" "$dir/$file"
+      done
+      return 0
+    ;;
+  esac
   control="$(deb_get_control_file "$obase/$deb")"
   package="$(basename "$(sed -n 's/^Package: *\(.*\)/\1/p' <<<"$control")")"
   arch="$(sed -n 's/^Architecture: *\(.*\)/\1/p' <<<"$control")"
