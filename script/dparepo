@@ -110,13 +110,18 @@ usage_add()(
 )
 
 do_add(){
-  if [ $# != 2 ] || [ ! -f "$obase/$2" ]
+  if [ $# != 2 ]
   then
     usage_add
     exit 1
   fi
   component="$1"; shift
   deb="$(cd "$obase"; realpath "$1")"; shift
+  if [ ! -f "$deb" ]
+  then
+    usage_add
+    exit 1
+  fi
   case "$deb" in
     *.changes)
       dir="$(dirname "$deb")"
