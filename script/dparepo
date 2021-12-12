@@ -148,14 +148,15 @@ do_add(){
 }
 
 make_checksum(){
-  for file in "${files[@]}"
+  for rfile in "${files[@]}"
   do
+    file="$distdir/$rfile"
     if [ -f "$file.new" ]
       then mv "$file.new" "$file"
     fi
     checksum="$("$1" "$file" | grep -o '^[^ ]*')"
     size="$(stat -c "%s" "$file")"
-    echo "$checksum" "$size" "$file"
+    echo "$checksum" "$size" "$rfile"
   done | column -t | sed 's|^| |'
 }
 
@@ -227,7 +228,7 @@ make_release_file()(
     do
       arch="$(sed -n 's|^.*/binary-\([^/]\+\)/\?$|\1|p' <<<"$archdir")"
       nfiles=(
-        "Release"
+        "${component}/binary-${arch}/Release"
         "${component}/binary-${arch}/Packages"
         "${component}/binary-${arch}/Packages.gz"
       )
