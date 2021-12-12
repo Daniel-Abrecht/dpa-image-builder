@@ -199,13 +199,18 @@ make_packages_file()(
   component="$1"; shift
   cdir="$distdir/$component/binary-$arch"
   mkdir -p "$cdir"
-  for package in "$poolbasedir/$arch/$component/"*/*.deb
-  do
-    deb_get_control_file "$package"
-    echo "Filename: $package"
-    echo
-  done >"$cdir/.Packages.new"
-  mv "$cdir/.Packages.new" "$cdir/Packages.new" 
+  (
+    for package in "$poolbasedir/$arch/$component/"*/*.deb
+    do
+      deb_get_control_file "$package"
+      echo "Filename: $package"
+      echo
+    done
+    if [ -f "$cdir/../binary-all/Packages.new" ]
+      then cat "$cdir/../binary-all/Packages.new"
+    fi
+  ) >"$cdir/.Packages.new"
+  mv "$cdir/.Packages.new" "$cdir/Packages.new"
   gzip <"$cdir/Packages.new" >"$cdir/.Packages.gz.new"
   mv "$cdir/.Packages.gz.new" "$cdir/Packages.gz.new"
 )
@@ -231,7 +236,9 @@ make_release_file()(
         if [ -f "$file" ] || [ -f "$file.new" ]
         then
           files+=( "$file" )
-          archs="$(sort -u <<<"$arch"$'\n'"$archs")"
+          if [ "$arch" != all ]
+            then archs="$(sort -u <<<"$arch"$'\n'"$archs")"
+          fi
           components="$(sort -u <<<"$component"$'\n'"$components")"
         fi
       done
@@ -268,6 +275,18 @@ usage_regenerate()(
   echo
 )
 
+gen_arch(){
+  arch="$1"
+  archdir="$poolbasedir/$arch"
+  for componentdir in "$archdir/"*/
+  do
+    component="$(basename "$componentdir")"
+    mkdir -p "$distdir/$component/binary-$arch"
+    make_packages_file "$arch" "$component"
+    make_bin_release_file "$arch" "$component"
+  done
+}
+
 do_regenerate(){
   if [ $# != 0 ]
   then
@@ -277,16 +296,15 @@ do_regenerate(){
 
   find "$poolbasedir" -type d -empty -delete
 
+  # All needs to be generated first, because the packages lists of the other archs include those packages
+  if [ -f "$poolbasedir/all" ]
+    then gen_arch all
+  fi
+
   for archdir in "$poolbasedir/"*/
   do
     arch="$(basename "$archdir")"
-    for componentdir in "$archdir/"*/
-    do
-      component="$(basename "$componentdir")"
-      mkdir -p "$distdir/$component/binary-$arch"
-      make_packages_file "$arch" "$component"
-      make_bin_release_file "$arch" "$component"
-    done
+    gen_arch "$arch"
   done
 
   for componentdir in "$distdir/"*/
