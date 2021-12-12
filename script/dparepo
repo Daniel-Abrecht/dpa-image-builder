@@ -116,7 +116,7 @@ do_add(){
     exit 1
   fi
   component="$1"; shift
-  deb="$1"; shift
+  deb="$obase/$1"; shift
   case "$deb" in
     *.changes)
       dir="$(dirname "$deb")"
@@ -128,7 +128,7 @@ do_add(){
       return 0
     ;;
   esac
-  control="$(deb_get_control_file "$obase/$deb")"
+  control="$(deb_get_control_file "$deb")"
   package="$(basename "$(sed -n 's/^Package: *\(.*\)/\1/p' <<<"$control")")"
   arch="$(sed -n 's/^Architecture: *\(.*\)/\1/p' <<<"$control")"
   case "$arch" in
@@ -136,7 +136,7 @@ do_add(){
   esac
   destdir="$poolbasedir/$arch/$component/$package/"
   mkdir -p "$destdir"
-  cp "$obase/$deb" "$destdir"
+  cp "$deb" "$destdir"
   do_regenerate
 }
 
