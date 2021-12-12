@@ -172,11 +172,11 @@ make_bin_release_file(){
   cdir="$distdir/$component/binary-$arch"
   mkdir -p "$cdir"
   cat >"$cdir/Release.new" <<EOF
+Archive: $dist
 Component: $component
 Origin: $origin
 Label: $label
 Architecture: $arch
-Description: $description
 EOF
 }
 
@@ -227,13 +227,13 @@ make_release_file()(
     do
       arch="$(sed -n 's|^.*/binary-\([^/]\+\)/\?$|\1|p' <<<"$archdir")"
       nfiles=(
-        "${archdir}Release"
-        "${archdir}Packages"
-        "${archdir}Packages.gz"
+        "Release"
+        "${component}/binary-${arch}/Packages"
+        "${component}/binary-${arch}/Packages.gz"
       )
       for file in "${nfiles[@]}"
       do
-        if [ -f "$file" ] || [ -f "$file.new" ]
+        if [ -f "$distdir/$file" ] || [ -f "$distdir/$file.new" ]
         then
           files+=( "$file" )
           if [ "$arch" != all ]
