@@ -116,7 +116,7 @@ do_add(){
     exit 1
   fi
   component="$1"; shift
-  deb="$obase/$1"; shift
+  deb="$(cd "$obase"; realpath "$1")"; shift
   case "$deb" in
     *.changes)
       dir="$(dirname "$deb")"
