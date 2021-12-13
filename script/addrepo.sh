@@ -2,7 +2,6 @@
 
 set -ex
 
-[ -n "$1" ]
 [ -n "$REPO_DIR" ]
 [ -n "$DISTRO" ]
 [ -n "$RELEASE" ]
@@ -16,4 +15,6 @@ if [ ! -d "$repodir/dists/$DISTRO/$RELEASE" ]
 fi
 
 # Add package
-dparepo "$repodir" "$DISTRO/$RELEASE" add "$BUILDER_PLATFORM" "$1"
+if [ -n "$1" ]
+  then dparepo "$repodir" "$DISTRO/$RELEASE" add "$BUILDER_PLATFORM" "$1"
+fi
