@@ -74,6 +74,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo | build-e
 
 bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source $(UEXEC)
 	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
+	# If repo is needed & packages to be built for it, make sure it's created if necessary
+	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ]; then addrepo.sh; fi
 	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -c "\
 	  set -ex; \
 	  cd /root/devrepo/; \
@@ -88,7 +90,6 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/
 	  apt-get -y autoremove --purge; \
 	  if [ \"\$$USE_IMAGE_BUILDER_REPO\" = yes ] && [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && [ -n \"\$$IMAGE_BUILDER_REPO\" ] && [ -n \"\$$IMAGE_BUILDER_REPO_KEY\" ]; \
 	  then \
-	    addrepo.sh; \
 	    wget -O- \"\$$IMAGE_BUILDER_REPO_KEY\" | apt-key add -; \
 	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/dpa-image-builder.list; \
 	  else \
