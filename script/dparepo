@@ -205,6 +205,8 @@ make_packages_file()(
     do
       deb_get_control_file "$package"
       echo "Filename: $package"
+      echo "Size: $(stat -c "%s" "$package")"
+      echo "SHA256: $(sha256sum "$package" | grep '^[^ ]*')"
       echo
     done
     if [ -f "$cdir/../binary-all/Packages.new" ]
