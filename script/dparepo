@@ -152,6 +152,9 @@ make_checksum(){
   for rfile in "${files[@]}"
   do
     file="$distdir/$rfile"
+    if [ "$rfile" = /dev/null ]
+      then file="$rfile"
+    fi
     if [ -f "$file.new" ]
       then mv "$file.new" "$file"
     fi
@@ -248,6 +251,13 @@ make_release_file()(
       done
     done
   done
+
+  # If there are no files in the repo, apt will complain about it being insecure,
+  # because it misinterprets the empty checksum field for the files as no such field at all.
+  # So if there are no files yet, just add a dummy
+  if [ "${#files[@]}" = 0 ]
+    then files=( /dev/null )
+  fi
 
   exec >"$distdir/.Release.new"
 
