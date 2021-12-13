@@ -79,7 +79,7 @@ make
 | BUILD_PACKAGES | no | Wheter or not to build packages using chroot-build-helper at all |
 | DONT_BUILD_IF_IN_REPO | yes | If the package to be built is already in the repo, don't rebuild it |
 | USE_IMAGE_BUILDER_REPO | yes | Wheter or not to use and add a sources.list for $IMAGE_BUILDER_REPO. If you don't want to use another repo and instead build all package yourself, set this to "no" and also set $BUILD_PACKAGES to "yes". |
-| IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)-$(RELEASE) $(BUILDER_PLATFORM)` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
+| IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)/$(RELEASE) $(BUILDER_PLATFORM)` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
 | IMAGE_BUILDER_REPO_KEY | https://repo.dpa.li/apt/dpa-image-builder/key.gpg | If $USE_IMAGE_BUILDER_REPO is set to "yes", this repo key is added. |
 
 You can use the config-set@% and the config-unset@% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.

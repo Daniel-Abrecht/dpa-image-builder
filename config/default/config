@@ -11,7 +11,7 @@ BUILD_PACKAGES = no
 USE_IMAGE_BUILDER_REPO = yes
 DONT_BUILD_IF_IN_REPO = yes
 
-IMAGE_BUILDER_REPO = deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)-$(RELEASE) $(BUILDER_PLATFORM)
+IMAGE_BUILDER_REPO = deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)/$(RELEASE) $(BUILDER_PLATFORM)
 IMAGE_BUILDER_REPO_KEY = https://repo.dpa.li/apt/dpa-image-builder/key.gpg
 
 IMAGE_NAME = $(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img

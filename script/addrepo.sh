@@ -11,9 +11,9 @@ set -ex
 repodir="$REPO_DIR"
 
 # Create repo / release if it doesn't exist yet
-if [ ! -d "$repodir/dists/$DISTRO-$RELEASE" ]
-  then dparepo "$repodir" "$DISTRO-$RELEASE" create "$NEW_PKG_ORIGIN" "$DISTRO $RELEASE $EXTRA_REPO_LABELS" "$DISTRO-$RELEASE" "Images built using the dpa-image-builder"
+if [ ! -d "$repodir/dists/$DISTRO/$RELEASE" ]
+  then dparepo "$repodir" "$DISTRO/$RELEASE" create "$NEW_PKG_ORIGIN" "$DISTRO $RELEASE $EXTRA_REPO_LABELS" "$DISTRO/$RELEASE" "Images built using the dpa-image-builder"
 fi
 
 # Add package
-dparepo "$repodir" "$DISTRO-$RELEASE" add "$BUILDER_PLATFORM" "$1"
+dparepo "$repodir" "$DISTRO/$RELEASE" add "$BUILDER_PLATFORM" "$1"
