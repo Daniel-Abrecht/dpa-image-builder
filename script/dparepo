@@ -298,7 +298,9 @@ do_regenerate(){
     exit 1
   fi
 
-  find "$poolbasedir" -type d -empty -delete
+  if [ -d "$poolbasedir" ]
+    then find "$poolbasedir" -type d -empty -delete
+  fi
 
   # All needs to be generated first, because the packages lists of the other archs include those packages
   if [ -f "$poolbasedir/all" ]
