@@ -7,6 +7,7 @@ shopt -s nullglob
 p="$0"
 obase="$PWD"
 LF=$'\n'
+DATE="$(date -R -u)"
 
 help(){
   if [ -n "$1" ] && grep -Fxq "$1" <<<"$functions"
@@ -56,11 +57,9 @@ main(){
   if ! [ -f "$config" ]
     then die "Error: repo config not found"
   fi
+
   . "$config"
 
-  DATE="$(date -R -u)"
-  base=.
- 
   "do_$action" "$@"
 }
 
@@ -99,6 +98,8 @@ do_create(){
     value="$1"; shift
     printf "%s=%s\n" "$key" "$(quote "$value")"
   done >"$config"
+  . "$config"
+  do_regenerate
 }
 
 usage_add()(
