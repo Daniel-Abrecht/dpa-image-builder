@@ -81,7 +81,7 @@ usage_create()(
   echo
 )
 
-do_create(){
+do_create()(
   if [ $# != 4 ]
   then
     usage_create
@@ -100,7 +100,7 @@ do_create(){
   done >"$config"
   . "$config"
   do_regenerate
-}
+)
 
 usage_add()(
   exec >&2
@@ -110,7 +110,7 @@ usage_add()(
   echo
 )
 
-do_add(){
+do_add()(
   if [ $# != 2 ]
   then
     usage_add
@@ -146,9 +146,9 @@ do_add(){
   mkdir -p "$destdir"
   cp "$deb" "$destdir"
   do_regenerate
-}
+)
 
-make_checksum(){
+make_checksum()(
   for rfile in "${files[@]}"
   do
     file="$distdir/$rfile"
@@ -162,16 +162,16 @@ make_checksum(){
     size="$(stat -c "%s" "$file")"
     echo "$checksum" "$size" "$rfile"
   done | column -t | sed 's|^| |'
-}
+)
 
-make_checksums(){
+make_checksums()(
 #  echo "SHA1:"
 #  make_checksum sha1sum
   echo "SHA256:"
   make_checksum sha256sum
-}
+)
 
-make_bin_release_file(){
+make_bin_release_file()(
   arch="$1"; shift
   component="$1"; shift
   cdir="$distdir/$component/binary-$arch"
@@ -183,12 +183,12 @@ Origin: $origin
 Label: $label
 Architecture: $arch
 EOF
-}
+)
 
-deb_get_control_file(){
+deb_get_control_file()(
   #dpkg-deb --info "$package" | sed -ne '/^ Package: /,$ p' | sed 's/^ //'
-  local deb="$1"
-  local tar="$(ar tf "$deb" | grep '^control\.tar\.\?.*$' | head -n 1)"
+  deb="$1"
+  tar="$(ar tf "$deb" | grep '^control\.tar\.\?.*$' | head -n 1)"
   cmd=
   case "$tar" in
     control.tar.xz) cmd="xz -d" ;;
@@ -197,7 +197,7 @@ deb_get_control_file(){
     *) return 1 ;;
   esac
   ar pf "$deb" "$tar" | $cmd | tar -xO ./control
-}
+)
 
 make_packages_file()(
   arch="$1"; shift
@@ -289,7 +289,7 @@ usage_regenerate()(
   echo
 )
 
-gen_arch(){
+gen_arch()(
   arch="$1"
   archdir="$poolbasedir/$arch"
   for componentdir in "$archdir/"*/
@@ -299,9 +299,9 @@ gen_arch(){
     make_packages_file "$arch" "$component"
     make_bin_release_file "$arch" "$component"
   done
-}
+)
 
-do_regenerate(){
+do_regenerate()(
   if [ $# != 0 ]
   then
     usage_regenerate
@@ -339,7 +339,7 @@ do_regenerate(){
   done
 
   make_release_file
-}
+)
 
 usage_clean()(
   exec >&2
@@ -349,7 +349,7 @@ usage_clean()(
   echo
 )
 
-do_clean(){
+do_clean()(
   if [ $# != 1 ] || ! [[ "$1" =~ ^[0-9]+$ ]]
   then
     usage_clean
@@ -376,7 +376,7 @@ do_clean(){
   done
 
   do_regenerate
-}
+)
 
 functions="$(compgen -A function do_ | sed 's/^do_//')"
 
