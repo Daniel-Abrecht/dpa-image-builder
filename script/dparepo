@@ -369,7 +369,8 @@ do_clean()(
         package="$(basename "$componentdir")"
         (
           cd "$packagedir"
-          ls -1tr *.deb | head -n -"$n" | xargs -d '\n' rm -f --
+          debs=( $(ls -t --quoting-style=shell-always *.deb) )
+          rm "${debs[@]:$((n + 1))}"
         )
       done
     done
