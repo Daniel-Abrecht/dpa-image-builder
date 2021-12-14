@@ -370,7 +370,14 @@ do_clean()(
         (
           cd "$packagedir"
           debs=( $(ls -t --quoting-style=shell-always *.deb) )
-          rm "${debs[@]:$((n + 1))}"
+          result=0
+          for deb in "${debs[@]:$((n + 1))}"
+          do
+            if ! rm "$deb"
+              then result=1
+            fi
+          done
+          exit "$result"
         )
       done
     done
