@@ -1,0 +1,11 @@
+#!/bin/sh -ex
+
+tmp="$(mktemp -d)"
+cleanup(){ cd /; rm -rf "$tmp"; }
+trap cleanup EXIT TERM INT
+
+cd "$tmp"
+apt-get download raspi-firmware
+dpkg-deb -xv raspi-firmware*.deb .
+cp ./lib/firmware/brcm/brcmfmac43455-sdio.txt /lib/firmware/brcm/brcmfmac43455-sdio.txt
+ln -s /lib/firmware/brcm/brcmfmac43455-sdio.txt /lib/firmware/brcm/brcmfmac43455-sdio.pine64,pinephone-pro.txt
