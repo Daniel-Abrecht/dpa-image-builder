@@ -71,7 +71,7 @@ make
 | BOARD |  | For which board the image is to be built. For example "librem5-devkit", "librem5-phone" or "pinephone-pro". |
 | IMGSIZE | 3GiB | The size of the image. Can be specified in GB, GiB, MB, MiB, etc. |
 | DISTRO | devuan | The distribution the image is based on |
-| RELEASE | chimaera | The release of the disribution to debootstrap |
+| RELEASE | daedalus | The release of the disribution to debootstrap |
 | VARIANT | base | A variation of the image to build, used to create image versions with some additional packages, repos, etc. |
 | REPO | http://pkgmaster.devuan.org/merged/ | The repository to use for debootstraping |
 | CHROOT_REPO | $REPO | The repository to use in the /etc/apt/sources.list |
