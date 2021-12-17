@@ -1,2 +1,2 @@
-RELEASE = bullseye
+RELEASE = bookworm
 REPO = http://deb.debian.org/debian/
