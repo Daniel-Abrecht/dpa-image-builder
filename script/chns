@@ -50,6 +50,16 @@ cleanup(){
 trap cleanup EXIT TERM INT
 trap true HUP
 
+if [ -n "$DO_LOCK" ]
+then
+  exec 57<.
+  if [ "$DO_LOCK" = 2 ]
+    then flock -n 57
+    else flock 57
+  fi
+fi
+unset DO_LOCK
+
 if [ -n "$CHNS_OVERLAY" ]
 then
   ovtmp="$(mktemp -d)"
@@ -82,13 +92,6 @@ ln -sf /proc/self/fd/1 dev/stdout
 ln -sf /proc/self/fd/2 dev/stderr
 ln -sf /dev/null run/initctl
 ln -sf /dev/pts/ptmx dev/ptmx
-
-if [ -n "$DO_LOCK" ]
-then
-  exec 57<.
-  flock 57
-fi
-unset DO_LOCK
 
 if [ -n "$CHNS_EXTRA" ]
   then eval "$CHNS_EXTRA"

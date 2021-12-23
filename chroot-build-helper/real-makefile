@@ -1,9 +1,6 @@
 include ../src/make-helper-functions.mk
 include $(GENERATED_DEPENDENCIES_FILE)
 
-# Only one thing at a time can chroot into the buildenv
-.NOTPARALLEL:
-
 UEXEC=../build/bin/uexec
 
 all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
@@ -47,13 +44,8 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir $(DEBOOTSTRAP_SCRIPT) $(UE
 	mv "$@.tmp" "$@"
 	uexec rm -rf "$@.old"
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo | build-env/$(DISTRO)/$(RELEASE)/rootfs
-	mkdir -p "$(dir $(dir $(dir $@)))"
-	rm -rf "$(dir $(dir $@))"
-	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
-
 bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
-	chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get update && apt-get dist-upgrade"; \
+	DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get update && apt-get dist-upgrade" || true; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
 	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
 	project="$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
