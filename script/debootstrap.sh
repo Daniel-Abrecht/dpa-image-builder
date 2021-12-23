@@ -10,23 +10,17 @@ set -ex
 # Make sure the current working directory is correct
 cd "$(dirname "$0")/.."
 base="$PWD"
-
-# If not root, fake being root using user namespace. Map root -> user and 1-subuidcount to subuidmin-subuidmax
-if [ $(id -u) != 0 ]
-then
-  exec uexec --allow-setgroups "$(realpath "$0")" "$@"
-fi
 tmp="$base/build/$IMAGE_NAME/"
 
-# Cleanup if any of the remaining steps fails
-cleanup(){
-  set +e
-  rm -rf "$tmp/rootfs" "$tmp/bootfs"
-}
-trap cleanup EXIT
+exec 9<"$tmp"
+if ! flock -n 9
+then
+  echo "It seams the build dir is still in use my another process. Refusing to proceed" >&2
+  exit 1
+fi
 
 # Remove old files from previous runs
-rm -rf "$tmp/rootfs" "$tmp/bootfs"
+uexec rm -rf "$tmp/rootfs"
 
 # Create temporary directories
 mkdir -p "$tmp/rootfs"
@@ -41,16 +35,7 @@ mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/post_debootstrap/"
 if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$(printf "%s" "$PACKAGES_INSTALL_DEBOOTSTRAP" | tr ' ' ',')"; fi
 
 # Create usable first-stage rootfs
-DEBOOTSTRAP_DIR="$X_DEBOOTSTRAP_DIR/usr/share/debootstrap/" "$X_DEBOOTSTRAP_DIR/usr/sbin/debootstrap" --foreign --arch=arm64 $debootstrap_include "$RELEASE" "$tmp/rootfs" "$REPO" "$DEBOOTSTRAP_SCRIPT"
-
-touch "$tmp/rootfs/dev/null" # yes, this is a really bad idea, but hacking together a fuse file system just for this is overkill. Also, unionfs-fuse won't work here (fuse default is mounting as nodev), and there is no way to create a proper device file.
-chmod 666 "$tmp/rootfs/dev/null"
-mkdir -p "$tmp/rootfs/root/helper"
-echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mknod" # Don't worry about this, on boot, the kernel mounts /dev as devtmpfs before calling init anyway
-echo '#!/bin/sh' >"$tmp/rootfs/root/helper/mount"
-chmod +x "$tmp/rootfs/root/helper/"*
-
-chroot_qemu_static.sh "$tmp/rootfs/" /debootstrap/debootstrap --second-stage
+debootstrap-base.sh "$tmp/rootfs" $debootstrap_include
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
 cp kernel/bin/linux-image.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
@@ -108,7 +93,7 @@ done
 
 # Temporary source list
 (
-  export CHROOT_REPO="$REPO" 
+  export CHROOT_REPO="$REPO"
   getrfsfile.sh "rootfs/etc/apt/sources.list"
   rfslsdir.sh "rootfs/etc/apt/sources.list.d/" | grep '^f' | while read t config file
     do getrfsfile.sh "rootfs/etc/apt/sources.list.d$file"
@@ -120,23 +105,11 @@ done
 # Do some stuff inside the chroot
 (
   cp script/rootfs_setup.sh "$tmp/rootfs/usr/share/first-boot-setup/rootfs_setup.sh"
-  chroot_qemu_static.sh "$tmp/rootfs/" /usr/share/first-boot-setup/rootfs_setup.sh
+  chns "$tmp/rootfs/" /usr/share/first-boot-setup/rootfs_setup.sh
   rm "$tmp/rootfs/usr/share/first-boot-setup/rootfs_setup.sh"
 )
 
-# Cleanup
-rm -f "$tmp/rootfs/etc/hostname"
-
-# Split /boot and /
-mv "$tmp/rootfs/boot" "$tmp/bootfs"
-mkdir "$tmp/rootfs/boot"
-
-rm -rf "$tmp/rootfs/root/helper"
-rm -f "$tmp/rootfs/dev/null"
-rm -f "$tmp/rootfs/dev/urandom"
-
 # Move rootfs and bootfs to signal they're done
-rm -rf "$tmp/root.fs" "$tmp/boot.fs"
-touch -c "$tmp/rootfs" "$tmp/bootfs"
+rm -rf "$tmp/root.fs"
+touch -c "$tmp/rootfs"
 mv "$tmp/rootfs" "$tmp/root.fs"
-mv "$tmp/bootfs" "$tmp/boot.fs"

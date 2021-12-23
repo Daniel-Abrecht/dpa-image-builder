@@ -4,23 +4,14 @@ include $(GENERATED_DEPENDENCIES_FILE)
 # Only one thing at a time can chroot into the buildenv
 .NOTPARALLEL:
 
-CURDIR=$(realpath .)
-
 UEXEC=../build/bin/uexec
 
-# Packages using seccomp will hang qemu-user, so let's replace them
-CHROOT_DUMMY_PACKAGES_FILES = $(addprefix dummy-packages/,$(addsuffix .deb,$(PACKAGES_BOOTSTRAP_WORKAROUND)))
-
-all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD)) $(CHROOT_DUMMY_PACKAGES_FILES)
+all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
 repo: $(addprefix repo@,$(PACKAGES_TO_BUILD))
 
 build@%: DONT_BUILD_IF_IN_REPO=no
 build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
 	@true
-
-dummy-packages/%.deb:
-	mkdir -p "$(dir $@)"
-	mkdummydeb.sh "$@"
 
 build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
 	getdeb.sh "$@"
@@ -38,87 +29,78 @@ build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEA
 $(UEXEC):
 	make -C .. build/bin/usernsexec
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE) $(CHROOT_DUMMY_PACKAGES_FILES) $(UEXEC)
+$(DEBOOTSTRAP_SCRIPT):
+	make -C .. "$(DEBOOTSTRAP_SCRIPT)"
+
+build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
 	mkdir -p "$@.tmp"
-	uexec rm -rf "$(CURDIR)/$@.tmp"
-	DEBOOTSTRAP_DIR="$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/" uexec --allow-setgroups "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/sbin/debootstrap" --foreign --arch=arm64 "$(RELEASE)" "$(CURDIR)/$@.tmp" "$(REPO)" "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE)"
-	mkdir -p "$@.tmp/root/helper" "$@.tmp/root/dummy-debs" "$@.tmp/root/devrepo"
-	# Stub things which won't work in a chroot
-	if [ -n "$(CHROOT_DUMMY_PACKAGES_FILES)" ]; \
-	  then cp $(CHROOT_DUMMY_PACKAGES_FILES) "$@.tmp/root/dummy-debs/"; \
-	fi
-	echo '#!/bin/sh' >"$@.tmp/root/helper/mknod"
-	chmod +x "$@.tmp/root/helper/mknod"
-	echo '#!/bin/sh' >"$@.tmp/root/helper/mount"
-	chmod +x "$@.tmp/root/helper/mount"
-	touch "$@.tmp/dev/null"
-	chmod 666 "$@.tmp/dev/null"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" /debootstrap/debootstrap --second-stage
+	uexec rm -rf "$@.tmp"
+	debootstrap-base.sh "$@.tmp"
 	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get update
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
+	chns "$@.tmp" apt-get update
+	chns "$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
-	  then uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
-	  else uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
+	  then chns "$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
+	  else chns "$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
 	fi
-	printf "\ndeb [trusted=yes] file:///root/devrepo/ ./\n" >>"$@.tmp/etc/apt/sources.list"
-	uexec rm -rf "$(CURDIR)/$@"
+	if [ -f "$@" ]; then mv "$@" "$@.old"; fi
 	mv "$@.tmp" "$@"
+	uexec rm -rf "$@.old"
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source: repo/.%.repo | build-env/$(DISTRO)/$(RELEASE)/rootfs
 	mkdir -p "$(dir $(dir $(dir $@)))"
 	rm -rf "$(dir $(dir $@))"
 	cp -r "$(<:repo/.%.repo=repo/%/)" "$(dir $@)"
-	( cd "$(<:repo/.%.repo=repo/%/)" && printf "%s%s" "$$(git rev-parse HEAD)" "$$([ -z "$$(git status --porcelain)" ] || echo -dirty)"; ) > "$@.hash"
-	( cd "$(<:repo/.%.repo=repo/%/)" && echo "$$(dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+l5ib~c$$(git rev-list HEAD --count)"; ) >"$@"
 
-bin/$(DISTRO)/$(RELEASE)/%/.build: build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source $(UEXEC)
-	find "$(<:%/src/.source=%)/" -maxdepth 1 -type f -delete
+bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
+	chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get update && apt-get dist-upgrade"; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
-	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ]; then addrepo.sh; fi
-	uexec --allow-setgroups chroot_qemu_static.sh "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -c "\
-	  set -ex; \
-	  cd /root/devrepo/; \
-	  rm -f Packages Packages.gz Packages.xz; \
-	  dpkg-scanpackages -m . > Packages; \
-	  gzip -k Packages; \
-	  xz -k Packages; \
-	  for package in \$$(grep '^Package: ' Packages | grep -o '[^ ]*$$'); \
-	  do if [ \"\$$(dpkg-query -W --showformat='\$${Status}\n' "\$$package" 2>&-)\" = 'install ok installed' ]; \
-	    then apt-get -y purge \"\$$package\"; \
-	  fi; done; \
-	  apt-get -y autoremove --purge; \
+	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
+	project="$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
+	branch="$(repo-branch@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
+	CHNS_OVERLAY=1 \
+	CHNS_EXTRA="( \
+	  set -x; \
+	  mkdir -p tmp/repo/pool/ build/; \
+	  mount -o rbind,rprivate \"\$$project_root/chroot-build-helper/bin/\$$DISTRO/\$$RELEASE/\" tmp/repo/pool/; \
+	  git clone --shared -b \"\$$branch\" \"\$$project_root/repo/\$$project/.git\" build/src; \
+	); \
+	export commit=\"\$$(cd build/src/ && git rev-parse HEAD)\$$([ -z \"\$$(cd build/src/ && git status --porcelain)\" ] || echo -dirty)\"; \
+	export version=\"\$$(cd build/src/ && dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+ib~c\$$(cd build/src/ && git rev-list HEAD --count)-\$$commit\"; \
+	" \
+	chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "\
 	  if [ \"\$$USE_IMAGE_BUILDER_REPO\" = yes ] && [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && [ -n \"\$$IMAGE_BUILDER_REPO\" ] && [ -n \"\$$IMAGE_BUILDER_REPO_KEY\" ]; \
 	  then \
 	    wget -O- \"\$$IMAGE_BUILDER_REPO_KEY\" | apt-key add -; \
 	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/dpa-image-builder.list; \
-	  else \
-	    rm -f /etc/apt/sources.list.d/dpa-image-builder.list; \
 	  fi; \
-	  apt-get update; \
-	  cd /root/$(notdir $(<:build-env/$(DISTRO)/$(RELEASE)/rootfs/root/%/src/.source=%))/src/; \
-	  version=\"\$$(cat .source)\"; \
-	  commit=\"\$$(cat .source.hash)\"; \
-	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
-	      for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
-	        do apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1 || exit 1; \
-	      done; \
-	    ); \
-	  then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; \
-	  else \
-	    dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\" <&-; \
-	    sed -i 's/\(libsystemd-dev\)[^,]*/\1 | libelogind-dev/g' debian/control; \
-	    apt-get -y build-dep .; \
-	    if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
-	      then debuild -us -uc; \
-	      else debuild -b -us -uc; \
-	    fi; \
-	    cp ../*.deb /root/devrepo/; \
+	  ( \
+	    cd /tmp/repo/; \
+	    dpkg-scanpackages -m pool > Packages; \
+	    gzip -k Packages; \
+	    xz -k Packages; \
+	  ); \
+	  echo \"deb [trusted=yes] file:///tmp/repo/ ./\" >\"/etc/apt/sources.list.d/devrepo.list\"; \
+	  apt-get update && apt-get dist-upgrade; \
+	  cd /build/src/; \
+          if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
+              for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
+                do if apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1; then exit 0; fi; \
+              done; \
+              exit 1; \
+            ); \
+            then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; exit 0; \
 	  fi; \
+	  dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\" <&-; \
+	  apt-get -y build-dep .; \
+	  if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
+	    then debuild -us -uc; \
+	    else debuild -b -us -uc; \
+	  fi; \
+	  mkdir -p \"/tmp/repo/pool/\$$project/\"; \
+	  rm -f \"/tmp/repo/pool/\$$project/\"*; \
+	  find .. -maxdepth 1 -type f -exec cp {} \"/tmp/repo/pool/\$$project/\" ';' -print; \
 	"
-	mkdir -p "$(dir $@)"
-	rm -f "$(dir $@)"/*
-	find "$(<:%/src/.source=%)" -maxdepth 1 -iname '*.deb' -exec cp {} "$(dir $@)/" \; ; \
 	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
 	  then make -f real-makefile "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
 	fi
@@ -134,10 +116,10 @@ clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
 clean-buildenv: $(UEXEC)
-	rm -rf dummy-packages/
-	uexec rm -rf "$(CURDIR)/build-env/$(DISTRO)/$(RELEASE)"
-	rmdir "$(CURDIR)/build-env/$(DISTRO)/" || true
-	rmdir "$(CURDIR)/build-env/" || true
+	uexec rm -rf "build-env/$(DISTRO)/$(RELEASE)"
+	rmdir "build-env/$(DISTRO)/" || true
+	rm -f "build-env/.dir"
+	rmdir "build-env/" || true
 
 clean-build: clean-buildenv
 	rm -rf bin/$(DISTRO)/$(RELEASE)
@@ -145,4 +127,4 @@ clean-build: clean-buildenv
 	rmdir bin || true
 
 clean-build-all:
-	uexec rm -rf "$(CURDIR)/build-env/" "$(CURDIR)/bin/"
+	uexec rm -rf "build-env/" "bin/"

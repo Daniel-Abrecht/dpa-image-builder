@@ -11,16 +11,13 @@ set -ex
 cd "$(dirname "$0")/.."
 export base="$PWD"
 
-asroot=""
-if [ $(id -u) != 0 ]
-  then asroot=uexec
-fi
-
 # Make sure sbin is in path, tools like sload.f2fs are in there
 PATH="/sbin:/usr/sbin:$PATH"
 
+export rootfsdir="$base/build/$IMAGE_NAME/root.fs"
+
 if [ -z "$IMGSIZE" ] || [ "$IMGSIZE" = auto ]; then
-  rootfs_size="$($asroot du --block-size=1 -s "$base/build/$IMAGE_NAME/root.fs" | grep -o '^[0-9]*')"
+  rootfs_size="$(uexec du --block-size=1 -s "$rootfsdir" | grep -o '^[0-9]*')"
   IMGSIZE="$(expr "$(expr "$(expr "$rootfs_size" \* 120 / 100 + 268435456 + 2048 + 1023)" / 1024 + 1023)" / 1024 + 1024)"MiB
 fi
 
@@ -100,8 +97,8 @@ mkfs.ext2 -L boot "$bootdev"
 "$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
 
 # Write data to partitions
-$asroot sload.ext2 -P -f "$base/build/$IMAGE_NAME/boot.fs" "$bootdev"
-$asroot "sload.$FSTYPE" -P -f "$base/build/$IMAGE_NAME/root.fs" "$rootdev"
+uexec sload.ext2 -P -f "$rootfsdir/boot/" "$bootdev"
+uexec unshare -m sh -ex -c "mount -t tmpfs none \"\$rootfsdir/boot/\"; \"sload.\$FSTYPE\" -P -f \"\$rootfsdir\" \"\$rootdev\"; umount \"\$rootfsdir/boot/\""
 
 # Unmount & remove fuse loop devices
 umount_wait

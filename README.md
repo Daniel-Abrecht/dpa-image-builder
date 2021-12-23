@@ -36,6 +36,7 @@ You need the following packages for this to work:
  * `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * `uidmap`
  * `binfmt-support` (optional)
+ * `fuse-overlayfs`
 
 ## Other requirements & things to check first
 

@@ -1,0 +1,117 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$project_root" ]
+then
+  echo "Error: project_root is not set! This script has to be called from the makefile build env" >&2
+  exit 1
+fi
+
+if [ $# -lt 2 ]
+then
+  echo "Usage: $(basename "$0") directory program [args]" >&2
+  exit 1
+fi
+
+export LANG=C LC_ALL=C
+self="$(realpath "$0")"
+rootfs="$(realpath "$1")"; shift
+ret=1
+
+if [ -z "$__inside__" ]
+  then __inside__=1 exec uexec --allow-setgroups unshare -miupf "$self" "$rootfs" "$@"
+fi
+unset __inside__
+[ "$$" = 1 ]
+
+export PATH='/root/helper/:/sbin:/usr/sbin:/bin:/usr/bin'
+
+# Don't leak the real hostname
+hostname "meow"
+
+cleanup(){
+  set +e
+  trap - EXIT TERM INT
+  rm -f usr/sbin/policy-rc.d
+  rm -f etc/dpkg/dpkg.cfg.d/workaround
+  for m in run tmp sys dev boot "$rootfs" "$ovtmp/ovmerged" proc
+  do
+    if mountpoint -q "$m"
+      then umount -lr "$m"
+    fi
+  done
+  cd /
+  if [ -n "$ovtmp" ]
+    then rm -rf "$ovtmp"
+  fi
+  exit $ret
+}
+trap cleanup EXIT TERM INT
+trap true HUP
+
+if [ -n "$CHNS_OVERLAY" ]
+then
+  ovtmp="$(mktemp -d)"
+  mkdir "$ovtmp/ovworkdir" "$ovtmp/ovupperdir" "$ovtmp/ovmerged"
+  fuse-overlayfs -o lowerdir="$rootfs",upperdir="$ovtmp/ovupperdir",workdir="$ovtmp/ovworkdir" "$ovtmp/ovmerged"
+  # While -t overlay can be mounted, moving a directory return an EXDEV error, with the intent the userspace program will switch to copying.
+  # the redirect_dir option is intended to fix that, except, without actual root, it can't set the trusted.overlay. xattrs, so it'll fall back to returning EXDEV.
+  # To fix that, there is userxattr but it can't actually be specified together with redirect_dir!?!?!?!?!?!
+  # mount -t overlay -o volatile,lowerdir="$rootfs",upperdir="$ovtmp/ovupperdir",workdir="$ovtmp/ovworkdir",redirect_dir=on overlay "$ovtmp/ovmerged"
+  cd "$ovtmp/ovmerged"
+else
+  mount -o rbind,rprivate "$rootfs" "$rootfs"
+  cd "$rootfs"
+fi
+mkdir -p proc run tmp sys dev
+mount -o noexec,nodev,nosuid -t proc proc proc
+for tmpfs in run tmp dev
+  do mount -t tmpfs tmpfs "$tmpfs"
+done
+touch dev/{full,null,zero,urandom,random,tty}
+mkdir -p dev/shm dev/pts
+mount -t tmpfs tmpfs dev/shm
+for x in sys dev/{full,null,zero,urandom,random,tty}
+  do mount -o rbind,rprivate "/$x" "$x"
+done
+mount -t devpts -o ptmxmode=0666 none /dev/pts
+ln -sf /proc/self/fd dev/fd
+ln -sf /proc/self/fd/0 dev/stdin
+ln -sf /proc/self/fd/1 dev/stdout
+ln -sf /proc/self/fd/2 dev/stderr
+ln -sf /dev/null run/initctl
+ln -sf /dev/pts/ptmx dev/ptmx
+
+if [ -n "$DO_LOCK" ]
+then
+  exec 57<.
+  flock 57
+fi
+unset DO_LOCK
+
+if [ -n "$CHNS_EXTRA" ]
+  then eval "$CHNS_EXTRA"
+fi
+unset CHNS_EXTRA
+
+chmod 0555 dev
+
+cat >usr/sbin/policy-rc.d <<EOF
+#!/bin/sh
+exit 101
+EOF
+chmod +x usr/sbin/policy-rc.d
+
+# We create another mount ns, so we can pivor_root in there, while keeping the old root here.
+# We need this to clean up stuff after whatever we execute in the container exits
+unshare -m sh -c "
+  mkdir -p .root
+  pivot_root . .root
+  umount -lr .root
+  cd /
+  exec chroot . \"\$@\"
+" -- "$@"
+
+# Note: The exit trap will execute when the script ends 
+ret=0

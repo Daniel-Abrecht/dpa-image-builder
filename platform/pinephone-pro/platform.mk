@@ -4,4 +4,4 @@ export BOOTLOADER_BIN = $(UBOOT_DIR)/bin/u-boot.bin
 PLATFORM_FILES = $(BOOTLOADER_BIN)
 
 $(BOOTLOADER_BIN):
-	make -c $(UBOOT_DIR)
+	make -C $(UBOOT_DIR)
