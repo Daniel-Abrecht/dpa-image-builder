@@ -10,7 +10,6 @@ set -ex
 cd /usr/share/first-boot-setup/
 
 printf '%s\n' $PACKAGES_INSTALL_TARGET > "packages_to_install"
-printf '%s\n' $PACKAGES_BOOTSTRAP_WORKAROUND > "dummy_packages_to_replace"
 
 ## Update & download packages
 

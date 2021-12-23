@@ -18,7 +18,6 @@ PACKAGES_INSTALL_EARLY        = $(call parse_package_list,install_early)
 PACKAGES_INSTALL_TARGET       = $(call parse_package_list,install_target)
 PACKAGES_TO_DOWNLOAD          = $(call parse_package_list,download)
 PACKAGES_TO_BUILD             = $(call parse_package_list,build)
-PACKAGES_BOOTSTRAP_WORKAROUND = $(call parse_package_list,defer_installation_of_problemetic_package)
 
 repo-schema = $(shell printf '%s' "$(REPO)" | grep -o '^[^:]*')
 ch-repo-schema = $(shell printf '%s' "$(CHROOT_REPO)" | grep -o '^[^:]*')
@@ -40,4 +39,3 @@ export PACKAGES_INSTALL_EARLY
 export PACKAGES_INSTALL_TARGET
 export PACKAGES_TO_DOWNLOAD
 export PACKAGES_TO_BUILD
-export PACKAGES_BOOTSTRAP_WORKAROUND

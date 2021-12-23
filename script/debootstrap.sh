@@ -49,10 +49,6 @@ do
   fi
 done
 
-for dummy in $PACKAGES_BOOTSTRAP_WORKAROUND
-  do mkdummydeb.sh "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/$dummy" 00
-done
-
 # Note: The /etc/fstab is generated in assemble_image.sh
 rfslsdir.sh -r "rootfs" | while read t config file
 do
