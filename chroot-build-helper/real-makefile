@@ -99,7 +99,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/r
 
 repo-add@%:
 	set -x; \
-	cd "build-env/$(DISTRO)/$(RELEASE)/rootfs/root/$(patsubst repo-add@%,%,$@)/"; \
+	cd "bin/$(DISTRO)/$(RELEASE)/$(patsubst repo-add@%,%,$@)/"; \
 	name="$$(printf '%s' *.changes)"; \
 	addrepo.sh "$$name"
 
