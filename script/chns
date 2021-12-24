@@ -85,7 +85,7 @@ mount -t tmpfs tmpfs dev/shm
 for x in sys dev/{full,null,zero,urandom,random,tty}
   do mount -o rbind,rprivate "/$x" "$x"
 done
-mount -t devpts -o ptmxmode=0666 none /dev/pts
+mount -t devpts -o ptmxmode=0666 none dev/pts
 ln -sf /proc/self/fd dev/fd
 ln -sf /proc/self/fd/0 dev/stdin
 ln -sf /proc/self/fd/1 dev/stdout
