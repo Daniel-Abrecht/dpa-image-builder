@@ -221,3 +221,15 @@ that come with the corresponding sources applied to them.
 Things unpacked after the debootstrapping currently don't have acls applied to them.
 I don't know if any package unpacked at that stage would have them otherwise, but it's something I should
 fix eventually and which should be kept in mind when adding packages to that phase of debootstrapping.
+
+If you get an error message like "mount: something/proc: permission denied.", it means something is fishy with the proc mount of the host system.
+Usually, this means something is mounted inside proc. Container engines / hypervisors like to do this for "security" resons.
+But mounting proc in an unprivileged container would not have those mounts, thus revealing the files mounted over to the container, which kernel people considered a security issue.
+Anyway, to fix this, just don't mount stuff in proc, except what's there by default anyway.
+In my libvirt-lxc containers, I work around this by simply unmounting and mounting proc again in an init wrapper script:
+```
+#!/bin/sh
+umount /proc
+mount -t proc -o nodev,nosuid,noexec /proc /proc
+exec /sbin/init
+```
