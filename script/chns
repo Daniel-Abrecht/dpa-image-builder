@@ -113,8 +113,11 @@ unshare -m sh -c "
   pivot_root . .root
   umount -lr .root
   cd /
-  exec chroot . \"\$@\"
+  if [ -n \"\$CHNS_INTERACTIVE\" ]
+    then exec chroot . \"\$@\"
+    else exec setsid --wait chroot . \"\$@\" </dev/null
+  fi
 " -- "$@"
 
-# Note: The exit trap will execute when the script ends 
+# Note: The exit trap will execute when the script ends
 ret=0

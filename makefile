@@ -120,7 +120,7 @@ clean-build-all: clean-image-all clean-fs-all
 	rm -rf build/
 
 chroot:
-	chns build/$(IMAGE_NAME)/rootfs/
+	CHNS_INTERACTIVE=1 chns build/$(IMAGE_NAME)/rootfs/
 
 emulate: bin/$(IMAGE_NAME) kernel/bin/linux-image.deb
 	qemu-system-aarch64 -M virt -cpu cortex-a53 -m 3G -kernel repo/linux/debian/tmp/boot/vmlinuz-* -append "root=/dev/vda3" -drive if=none,file=bin/"$(IMAGE_NAME)",format=raw,id=hd -device virtio-blk-device,drive=hd -nographic

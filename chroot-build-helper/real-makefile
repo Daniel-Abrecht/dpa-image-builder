@@ -83,7 +83,7 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/r
             ); \
             then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; exit 0; \
 	  fi; \
-	  dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\" <&-; \
+	  dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\"; \
 	  apt-get -y build-dep .; \
 	  if [ \"$(DO_BUILD_SOURCE_PACKAGES)\" = yes ]; \
 	    then debuild -us -uc; \

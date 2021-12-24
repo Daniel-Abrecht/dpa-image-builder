@@ -85,9 +85,9 @@ generate_make_build_dependencies_for_debs:
 	mkdir -p "$(dir $@)"
 	touch "$@"
 
-%@chroot:
+chroot@%:
 	export PROMPT_COMMAND="export PS1='$@ (\u)> '"; \
-	chns "$(realpath $(patsubst %@chroot,%,$@))" /bin/bash
+	CHNS_INTERACTIVE=1 chns "$(realpath $(patsubst chroot@%,%,$@))" /bin/bash
 
 clean:
 	! echo -n "Please use one of:\n * make clean-build\t# remove all files built for the target image (includes the image)\n * make clean-build-all\t# remove all files that have been built\n * make clean-repo\t# remove the downloaded repos\n * make reset-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# same as 'make clean-repo clean-build'\n * make clean-all-all\t# same as 'make clean-repo clean-build-all'\n * make reset\t\t# same as 'make reset-repo clean-build'\n * make reset-all\t# same as 'make reset-repo clean-build-all'\n"
