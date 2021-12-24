@@ -29,7 +29,7 @@ $(UEXEC):
 $(DEBOOTSTRAP_SCRIPT):
 	make -C .. "$(DEBOOTSTRAP_SCRIPT)"
 
-build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
+build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
 	mkdir -p "$@.tmp"
 	uexec rm -rf "$@.tmp"
 	debootstrap-base.sh "$@.tmp"
@@ -44,7 +44,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir $(DEBOOTSTRAP_SCRIPT) $(UE
 	mv "$@.tmp" "$@"
 	uexec rm -rf "$@.old"
 
-bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
+bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
 	DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get update && apt-get dist-upgrade" || true; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
 	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
