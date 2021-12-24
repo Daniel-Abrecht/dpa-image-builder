@@ -35,7 +35,6 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(
 	debootstrap-base.sh "$@.tmp"
 	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
 	chns "$@.tmp" apt-get update
-	chns "$@.tmp" sh -c "dpkg -i /root/dummy-debs/*.deb" || true
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
 	  then chns "$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
 	  else chns "$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
