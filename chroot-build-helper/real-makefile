@@ -106,16 +106,18 @@ repo-add@%:
 clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
 reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
 
-clean-buildenv: $(UEXEC)
+clean-buildenv: | $(UEXEC)
 	uexec rm -rf "build-env/$(DISTRO)/$(RELEASE)"
 	rmdir "build-env/$(DISTRO)/" || true
 	rm -f "build-env/.dir"
 	rmdir "build-env/" || true
 
-clean-build: clean-buildenv
+clean-bin:
 	rm -rf bin/$(DISTRO)/$(RELEASE)
 	rmdir bin/$(DISTRO)/ || true
 	rmdir bin || true
+
+clean-build: clean-buildenv clean-bin
 
 clean-build-all:
 	uexec rm -rf "build-env/" "bin/"
