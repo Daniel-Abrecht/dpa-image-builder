@@ -20,7 +20,7 @@ The uuu scripts this image builder uses are in `script/uuu/`.
 | uuu-flash | flash the image to emmc0 using uuu. You can specify a different image using IMAGE_NAME. If this image doesn't have an uboot usable for flashing, use IMAGE_UBOOT_UNFLASHABLE=1 to use the uboot from uboot/bin/uboot_firmware_and_dtb.bin instead for that step. |
 | uuu-uboot-flash | flash uboot (doesn't include m4) |
 | uuu-test-uboot | Just boot using uboot bootloader from uboot/bin/uboot_firmware_and_dtb.bin (doesn't quiet work as intended yet) |
-| uuu-test-uboot@image | Just boot using uboot bootloader from bin/$(IMAGE_NAME). (doesn't quiet work as intended yet) |
+| uuu-test-uboot//image | Just boot using uboot bootloader from bin/$(IMAGE_NAME). (doesn't quiet work as intended yet) |
 | uuu-test-kernel | Just boot using kernel from .(kernel/bin/linux-image-*.deb. (doesn't quiet work as intended yet) |
 
 ## Other important stuff

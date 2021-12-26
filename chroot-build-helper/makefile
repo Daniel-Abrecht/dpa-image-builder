@@ -15,7 +15,7 @@ include ../src/make-helper-functions.mk
 # the make dependencies for all debian packages, and thus also checks out the
 # repos of all packages to be built.
 
-repo reset-repo clean-repo clean-build clean-build-all: force
+repo update-repo clean-repo clean-build clean-build-all: force
 	$(MAKE) -f real-makefile "$@"
 
 %: force

@@ -1,4 +1,8 @@
 
+# I don't like doing this, but dash removes environment variables which aren't named to it's liking
+# I use some bash scripts anyway, and bash doesn't do such nonesense, so... yea, this'll use bash now too, sorry.
+SHELL=/bin/bash
+
 default_target: all
 
 .SECONDARY:
@@ -54,7 +58,7 @@ CONF = user_config_override
 ifndef TO
 ifndef BUILDER_PLATFORM
 KNOWN_BOARDS=$(shell basename -a "$(project_root)/config/default/"b-*/ | sed 's|^b-||')
-$(error "Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set@BOARD TO=my-board`. Availabe boards are: $(KNOWN_BOARDS)")
+$(error "Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set//BOARD TO=my-board`. Availabe boards are: $(KNOWN_BOARDS)")
 endif
 endif
 
@@ -73,6 +77,11 @@ endif
 export X_DEBOOTSTRAP_DIR = $(project_root)/build/$(IMAGE_NAME)/debootstrap_script/
 export DEBOOTSTRAP_SCRIPT = $(X_DEBOOTSTRAP_DIR)/usr/share/debootstrap/scripts/$(RELEASE)
 
+define repodir
+repo/$(shell printf '%s\n' "$(repo-source@$(1))" | sed 's / ∕ g').git
+endef
+
+
 generate_make_build_dependencies_for_debs:
 	export DEP_PREFIX=$(DEP_PREFIX); \
 	export DEP_SUFFIX=$(DEP_SUFFIX); \
@@ -85,62 +94,43 @@ generate_make_build_dependencies_for_debs:
 	mkdir -p "$(dir $@)"
 	touch "$@"
 
-chroot@%:
+chroot//%:
 	export PROMPT_COMMAND="export PS1='$@ (\u)> '"; \
-	CHNS_INTERACTIVE=1 chns "$(realpath $(patsubst chroot@%,%,$@))" /bin/bash
+	CHNS_INTERACTIVE=1 chns "$(realpath $(patsubst chroot//%,%,$@))" /bin/bash
 
 clean:
-	! echo -n "Please use one of:\n * make clean-build\t# remove all files built for the target image (includes the image)\n * make clean-build-all\t# remove all files that have been built\n * make clean-repo\t# remove the downloaded repos\n * make reset-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# same as 'make clean-repo clean-build'\n * make clean-all-all\t# same as 'make clean-repo clean-build-all'\n * make reset\t\t# same as 'make reset-repo clean-build'\n * make reset-all\t# same as 'make reset-repo clean-build-all'\n"
+	! echo -n "Please use one of:\n * make clean-build\t# remove all files built for the target image (includes the image)\n * make clean-build-all\t# remove all files that have been built\n * make clean-repo\t# remove the downloaded repos\n * make update-repo\t# clean up all changes made to the repo & update it if possible\n * make clean-all\t# same as 'make clean-repo clean-build'\n * make clean-all-all\t# same as 'make clean-repo clean-build-all'\n * make reset\t\t# same as 'make update-repo clean-build'\n * make reset-all\t# same as 'make update-repo clean-build-all'\n"
 
-repo/.%.repo:
-	branch="$(repo-branch@$(patsubst repo/.%.repo,%,$@))"; \
-	source="$(repo-source@$(patsubst repo/.%.repo,%,$@))"; \
-	mkdir -p "repo/$(patsubst repo/.%.repo,%,$@)" && cd "repo/$(patsubst repo/.%.repo,%,$@)" && git clone -b "$$branch" "$$source" . && git submodule init && git submodule update
-	touch "repo/$(patsubst repo/.%.repo,%,$@)"
-	touch "$@"
+repo/%.git:
+	repo="$(shell echo "$(patsubst repo/%.git,%,$@)" | sed 's ∕ / g')"; \
+	git clone --mirror "$$repo" "$@"
 
-repo@%:
-	make repo/.$(patsubst repo@%,%,$@).repo
+mirror//%:
+	$(MAKE) "repo/$(shell echo "$(patsubst mirror//%,%,$@)" | sed 's / ∕ g').git"
 
-clean-repo@%:
-	rm -rf "repo/$(patsubst clean-repo@%,%,$@)"
-	rm -f "repo/.$(patsubst clean-repo@%,%,$@).repo"
+repo//%:
+	$(MAKE) "$(call repodir,$(patsubst repo//%,%,$@))"
 
-reset-repo@%:
-	set -e; \
-	repo="repo/$(patsubst reset-repo@%,%,$@)"; \
-	source="$(repo-source@$(patsubst reset-repo@%,%,$@))"; \
-	branch="$(repo-branch@$(patsubst reset-repo@%,%,$@))"; \
-	if [ -d "$$repo/.git" ]; \
-	then \
-	  cd "$$repo"; \
-	  git remote set-url origin "$$source"; \
-	  git fetch origin || [ -z "$(FETCH_REQUIRED_TO_SUCCEED)" ]; \
-	  find -maxdepth 1 -not -name .git -not -name . -exec rm -rf {} \;; \
-	  git reset --hard; \
-	  git -c checkout.defaultRemote=origin checkout -f --detach || true; \
-	  git branch -D "$$branch" || true; \
-	  git -c checkout.defaultRemote=origin checkout -f "$$branch" >/dev/null; \
-	  git reset --hard >/dev/null; \
-	  git submodule init; \
-	  git submodule update; \
-	  touch .; \
-	  touch "../.$(patsubst reset-repo@%,%,$@).repo"; \
-	fi
+clean-repo//%:
+	rm -rf "$(call repodir,$(patsubst clean-repo//%,%,$@))"
+
+update-repo//%:
+	repo="$(call repodir,$(patsubst update-repo//%,%,$@))"; \
+	if [ -f "$$repo" ]; then cd "$$repo" && git remote update && touch .; fi
 
 config-list:
 	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
 
-config-after-update@%:
+config-after-update//%:
 	@ set -e; \
-	case "$(patsubst config-after-update@%,%,$@)" in \
+	case "$(patsubst config-after-update//%,%,$@)" in \
 	  "IMGSIZE"    ) $(MAKE) clean-image ;; \
 	  "REPO"       ) $(MAKE) clean-fs ;; \
 	  "CHROOT_REPO") $(MAKE) clean-fs ;; \
 	  "KERNEL_DTB" ) $(MAKE) clean-fs ;; \
 	  "IMAGE_NAME" ) $(MAKE) clean-image ;; \
-	  "repo-branch@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-branch@%,%,$@)" ;; \
-	  "repo-source@"*) $(MAKE) "reset-repo@$(patsubst config-after-update@repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
+	  "repo-branch@"*) $(MAKE) "update-repo//$(patsubst config-after-update//repo-branch@%,%,$@)" ;; \
+	  "repo-source@"*) $(MAKE) "update-repo//$(patsubst config-after-update//repo-source@%,%,$@)" FETCH_REQUIRED_TO_SUCCEED=true ;; \
 	  "UBOOT_DTB" | "UBOOT_CONFIG_TARGET" | "repo-source@uboot" | "repo-branch@uboot") \
 	    $(MAKE) -C "$(project_root)/platform/$(BUILDER_PLATFORM)/" clean-build \
 	  ;; \
@@ -149,29 +139,24 @@ config-after-update@%:
 	  ;; \
 	esac
 
-config-pre-set-check@%:
-	@case "$(patsubst config-pre-set-check@%,%,$@)" in \
-	  *) ;; \
-	esac
-
-config-set@%: config-pre-set-check@%
+config-set//%:
 	@ if [ -z "$(TO)" ]; \
-	  then echo "Usage: config-set@variablename TO=new_value"; \
+	  then echo "Usage: config-set//variablename TO=new_value"; \
 	  false; \
 	fi
-	V="$(patsubst config-set@%,%,$@)"; \
+	V="$(patsubst config-set//%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF)" 2>&-; \
 	echo "$$V = $(TO)" >> $(project_root)/config/$(CONF)
-	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-set@%,%,$@))" "config-after-update@$(patsubst config-set@%,%,$@)"
+	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-set//%,%,$@))" "config-after-update//$(patsubst config-set//%,%,$@)"
 
-config-unset@%:
-	V="$(patsubst config-unset@%,%,$@)"; \
+config-unset//%:
+	V="$(patsubst config-unset//%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF)"
-	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset@%,%,$@))" "config-after-update@$(patsubst config-unset@%,%,$@)"
+	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset//%,%,$@))" "config-after-update@$(patsubst config-unset//%,%,$@)"
 
 clean-all: clean-repo clean-build
 clean-all-all: clean-repo clean-build-all
-reset: reset-repo clean-build
-reset-all: reset-repo clean-build-all
+reset: update-repo clean-build
+reset-all: update-repo clean-build-all
 
-.PHONY: all repo reset-repo clean-repo clean clean-all clean-all-all clean-build clean-build-all
+.PHONY: all repo update-repo clean-repo clean clean-all clean-all-all clean-build clean-build-all

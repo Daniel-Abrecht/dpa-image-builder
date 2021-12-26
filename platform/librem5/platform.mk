@@ -46,13 +46,13 @@ uuu-image-do-%: script/uuu/%.lst build/.dir
 uuu-test-uboot: uuu-uboot-do-test-uboot
 	@true
 
-uuu-test-uboot@image: uuu-image-do-test-uboot
+uuu-test-uboot//image: uuu-image-do-test-uboot
 	@true
 
 uuu-uboot-flash: uuu-uboot-do-uboot-flash
 	@true
 
-uuu-flash uuu-flash@image: uuu-image-do-flash
+uuu-flash uuu-flash//image: uuu-image-do-flash
 	@true
 
 uuu-test-kernel: kernel/bin/linux-image.deb

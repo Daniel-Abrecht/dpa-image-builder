@@ -4,10 +4,10 @@ include $(GENERATED_DEPENDENCIES_FILE)
 UEXEC=../build/bin/uexec
 
 all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
-repo: $(addprefix repo@,$(PACKAGES_TO_BUILD))
+repo: $(addprefix repo//,$(PACKAGES_TO_BUILD))
 
-build@%: DONT_BUILD_IF_IN_REPO=no
-build@%: bin/$(DISTRO)/$(RELEASE)/%/.build
+build//%: DONT_BUILD_IF_IN_REPO=no
+build//%: bin/$(DISTRO)/$(RELEASE)/%/.build
 	@true
 
 build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
@@ -43,18 +43,45 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(
 	mv "$@.tmp" "$@"
 	uexec rm -rf "$@.old"
 
-bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
+repo-add//%:
+	set -x; \
+	cd "bin/$(DISTRO)/$(RELEASE)/$(patsubst repo-add//%,%,$@)/"; \
+	name="$$(printf '%s' *.changes)"; \
+	addrepo.sh "$$name"
+
+clean-repo: $(addprefix clean-repo//,$(PACKAGES_TO_BUILD))
+update-repo: $(addprefix update-repo//,$(PACKAGES_TO_BUILD))
+
+clean-buildenv: | $(UEXEC)
+	uexec rm -rf "build-env/$(DISTRO)/$(RELEASE)"
+	rmdir "build-env/$(DISTRO)/" || true
+	rm -f "build-env/.dir"
+	rmdir "build-env/" || true
+
+clean-bin:
+	rm -rf bin/$(DISTRO)/$(RELEASE)
+	rmdir bin/$(DISTRO)/ || true
+	rmdir bin || true
+
+clean-build: clean-buildenv clean-bin
+
+clean-build-all:
+	uexec rm -rf "build-env/" "bin/"
+
+.SECONDEXPANSION:
+bin/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
 	DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get -y update && apt-get -y dist-upgrade" || true; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
 	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
 	project="$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
 	branch="$(repo-branch@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
+	repodir="$(call repodir,$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
 	CHNS_OVERLAY=1 \
 	CHNS_EXTRA="( \
 	  set -x; \
 	  mkdir -p tmp/repo/pool/ build/; \
 	  mount -o rbind,rprivate \"\$$project_root/chroot-build-helper/bin/\$$DISTRO/\$$RELEASE/\" tmp/repo/pool/; \
-	  git clone --shared -b \"\$$branch\" \"\$$project_root/repo/\$$project/.git\" build/src; \
+	  git clone --shared -b \"\$$branch\" \"$$project_root/\$$repodir\" build/src; \
 	); \
 	export commit=\"\$$(cd build/src/ && git rev-parse HEAD)\$$([ -z \"\$$(cd build/src/ && git status --porcelain)\" ] || echo -dirty)\"; \
 	export version=\"\$$(cd build/src/ && dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+ib~c\$$(cd build/src/ && git rev-list HEAD --count)-\$$commit\"; \
@@ -74,13 +101,14 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/r
 	  echo \"deb [trusted=yes] file:///tmp/repo/ ./\" >\"/etc/apt/sources.list.d/devrepo.list\"; \
 	  apt-get -y update && apt-get -y dist-upgrade; \
 	  cd /build/src/; \
-          if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && ( \
-              for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
-                do if apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1; then exit 0; fi; \
-              done; \
-              exit 1; \
-            ); \
-            then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; exit 0; \
+	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] \
+	    && ( \
+	      for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
+	        do if apt-cache show \"\$$package=\$$version\" >/dev/null 2>&1; then exit 0; fi; \
+	      done; \
+	      exit 1; \
+	    ); \
+	    then echo 'Not building package, this version is already in the repo, and DONT_BUILD_IF_IN_REPO is set to yes'; exit 0; \
 	  fi; \
 	  dch -b -D \"\$$DISTRO-\$$RELEASE\" --force-distribution -v \"\$$version\" \"Version suffix automatically added by dpa-image-builder. Git commit \$$commit.\"; \
 	  apt-get -y build-dep .; \
@@ -93,31 +121,6 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: repo/.%.repo build-env/$(DISTRO)/$(RELEASE)/r
 	  find .. -maxdepth 1 -type f -exec cp {} \"/tmp/repo/pool/\$$project/\" ';' -print; \
 	"
 	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
-	  then make -f real-makefile "repo-add@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
+	  then make -f real-makefile "repo-add//$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
 	fi
 	touch "$@"
-
-repo-add@%:
-	set -x; \
-	cd "bin/$(DISTRO)/$(RELEASE)/$(patsubst repo-add@%,%,$@)/"; \
-	name="$$(printf '%s' *.changes)"; \
-	addrepo.sh "$$name"
-
-clean-repo: $(addprefix clean-repo@,$(PACKAGES_TO_BUILD))
-reset-repo: $(addprefix reset-repo@,$(PACKAGES_TO_BUILD))
-
-clean-buildenv: | $(UEXEC)
-	uexec rm -rf "build-env/$(DISTRO)/$(RELEASE)"
-	rmdir "build-env/$(DISTRO)/" || true
-	rm -f "build-env/.dir"
-	rmdir "build-env/" || true
-
-clean-bin:
-	rm -rf bin/$(DISTRO)/$(RELEASE)
-	rmdir bin/$(DISTRO)/ || true
-	rmdir bin || true
-
-clean-build: clean-buildenv clean-bin
-
-clean-build-all:
-	uexec rm -rf "build-env/" "bin/"

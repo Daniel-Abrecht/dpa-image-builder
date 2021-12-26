@@ -83,7 +83,7 @@ make
 | IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)/$(RELEASE) $(BUILDER_PLATFORM)` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
 | IMAGE_BUILDER_REPO_KEY | https://repo.dpa.li/apt/dpa-image-builder/key.gpg | If $USE_IMAGE_BUILDER_REPO is set to "yes", this repo key is added. |
 
-You can use the config-set@% and the config-unset@% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
+You can use the config-set//% and the config-unset//% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
 
 You can also specify them in the make command directly instead, but if you do it that way, you need to take care of the following yourself:
 
@@ -95,7 +95,7 @@ There are also make targets for that.
 Packages can be built even if BUILD_PACKAGES is set to "no". For this, just enter
 the `chroot-build-helper` subdirectory. In there, you can use `make` as normal,
 including the `repo`, `reset*` and `clean*` make targets. You can also build an individual
-package that way, using the `make build@%` make target (just replace `%` with the repo name).
+package that way, using the `make build//%` make target (just replace `%` with the repo name).
 
 ## Platform specific things
 
@@ -108,8 +108,8 @@ package that way, using the `make build@%` make target (just replace `%` with th
 | ---- | ------- |
 | all  | Build the image |
 | config-list | List all config variables, this includes the repo urls and branches |
-| [CONF=path/to/config] config-set@variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
-| [CONF=path/to/config] config-unset@variable-name | Remove variable from file conf/$CONF. This will also clean up or reset images and repos as needed. |
+| [CONF=path/to/config] config-set//variable-name TO=new-value | Set variable-name to new-value in file conf/$CONF, which defaults to userdefined. This will also clean up or reset images and repos as needed. |
+| [CONF=path/to/config] config-unset//variable-name | Remove variable from file conf/$CONF. This will also clean up or reset images and repos as needed. |
 | bootloader | builds the uboot bootloader at uboot/bin/uboot_firmware_and_dtb.bin |
 | enter-buildenv | Setup environment & PATH most scripts of this repo use & execute $SHELL (unfortunately, make sets thet to sh...) |
 | linux | builds the kernel packages |
@@ -119,15 +119,15 @@ package that way, using the `make build@%` make target (just replace `%` with th
 | clean-image | Removes the image for the current release. |
 | clean-image-all | Removes all images in the bin/ folder |
 | repo | Clones all repositories into repo/* |
-| repo@reponame | Clones the specified repository to repo/reponame |
+| repo//reponame | Clones the specified repository to repo/remote |
 | clean-build	| remove all build files. (the files in build/, bin/ etc.) |
 | clean-repo | Completely removes all repositories |
-| clean-repo@reponame | Completly removes repo/reponame |
-| reset-repo | Remove all files in the repos except .git, cleanly check them out again from the local repo in .git, and update them if possible |
-| reset-repo@reponame | same as the above, but for a speciffic repo |
+| clean-repo//reponame | Completly removes repo |
+| update-repo | Update mirror all repos |
+| update-repo//reponame | same as the above, but for a speciffic repo |
 | clean-all | short for clean-repo and clean-build, removes pretty much everithing. |
 | reset | Short for reset-repo and clean-build, mostly the same as clean-all, but doesn't require downloading all repos again |
-| chroot@path/to/env/ | Chroot to a directory. Useful to look into a build environment in chroot-build-helper/build-env/*/ and similar stuff. |
+| chroot//path/to/env/ | Chroot to a directory. Useful to look into a build environment in chroot-build-helper/build-env/*/ and similar stuff. |
 
 The urls and reponame of all used repositories as well as the defaults of most variables can be found in the config/ directory, with the exception of the imx firmware from nxp, which is still in src/repositories.mk.
 
@@ -164,8 +164,8 @@ These subdirectories contain the following files:
 
 All config and package lists in the search path are combined. Config settings
 in config files later in the path override earlier ones. The special config file
-`config/user_config_override`, which is the default for the `config-set@%' and
-`config-unset@%` makefile targets, can override the settings from all other config
+`config/user_config_override`, which is the default for the `config-set//%' and
+`config-unset//%` makefile targets, can override the settings from all other config
 files and will be ignored in the git repo. It is useful for changing local
 settings & preferences, such as the repos to use for bootstrapping, the image
 files size, or using a different branch or remote for a repo, or generally
@@ -181,7 +181,7 @@ These files can also have an extension with a special meaning:
  * `.ignore`: If there was a file with the same name earlier in the config path, ignore it.
 
 The recommended way of creating an image with your own additional packages & files
-in it is to create a new image variant. Use `make config-set@VARIANT TO=your-new-variant`
+in it is to create a new image variant. Use `make config-set//VARIANT TO=your-new-variant`
 to change the default variant. After that, you can check in which directories
 the build script will now search the configs: `make config-list | grep '^CONFIG_PATH'`.
 You can then add & make changes to the configs related to your new image variant.
