@@ -42,7 +42,7 @@ cp kernel/bin/linux-image.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/
 cp kernel/bin/linux-libc.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 cp kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 
-for deb in chroot-build-helper/bin/"$DISTRO"/"$RELEASE"/*/*.deb
+for deb in chroot-build-helper/bin/"$BUILDER_PLATFORM"/"$DISTRO"/"$RELEASE"/*/*.deb
 do
   if [ -f "$deb" ]
     then cp "$deb" "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"

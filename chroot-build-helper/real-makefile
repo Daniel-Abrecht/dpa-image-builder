@@ -59,8 +59,9 @@ clean-buildenv: | $(UEXEC)
 	rmdir "build-env/" || true
 
 clean-bin:
-	rm -rf bin/$(DISTRO)/$(RELEASE)
-	rmdir bin/$(DISTRO)/ || true
+	rm -rf "bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)"
+	rmdir bin/$(BUILDER_PLATFORM)/$(DISTRO)/ || true
+	rmdir bin/$(BUILDER_PLATFORM)/ || true
 	rmdir bin || true
 
 clean-build: clean-buildenv clean-bin
