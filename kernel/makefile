@@ -5,7 +5,7 @@ include ../src/make-helper-functions.mk
 all: bin/.done
 	@true
 
-menuconfig: $$(call repodir,linux) 
+menuconfig: $$(call repodir,linux)
 	with-repo.sh linux bash -ex -c '\
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
 	    then cp "configs/$$KERNEL_CONFIG_TARGET" "repo/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
@@ -23,6 +23,10 @@ bin/.done: $$(call repodir,linux) | bin/.dir
 	with-repo.sh linux bash -ex -c '\
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
 	    then cp "configs/$$KERNEL_CONFIG_TARGET" "repo/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
+	  fi; \
+	  patchdir="$$(realpath "patch/$$BUILDER_PLATFORM/$$KERNEL_PATCHES")"; \
+	  if [ -n "$$KERNEL_PATCHES" ] && [ -d "$$patchdir" ]; \
+	    then ( cd "$$repodir/linux"; git apply "$$patchdir"/*.patch; ); \
 	  fi; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" "$$KERNEL_CONFIG_TARGET"_defconfig; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg; \

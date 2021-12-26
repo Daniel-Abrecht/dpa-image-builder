@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+# Hopefully https://salsa.debian.org/kernel-team/initramfs-tools/-/merge_requests/53
+# will be merged eventually, then it'll automatically add it if necessary
+
+if [ "$1" = "prereqs" ]; then exit 0; fi
+. /usr/share/initramfs-tools/hook-functions
+
+add_firmware brcm/brcmfmac43455-sdio.pine64,pinephone-pro.txt
