@@ -22,7 +22,7 @@ repo update-repo clean-repo clean-build clean-build-all: force
 	tmpdep=$$(mktemp); \
 	cleanup(){ rm -f "$$tmpdep"; }; \
 	trap cleanup EXIT INT; \
-	make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$$tmpdep" DEP_PREFIX="bin/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs; \
+	make -f "../src/make-helper-functions.mk" TMP_TARGET_FILE="$$tmpdep" DEP_PREFIX="bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/" DEP_SUFFIX="/.build" generate_make_build_dependencies_for_debs; \
 	$(MAKE) -f real-makefile GENERATED_DEPENDENCIES_FILE="$$tmpdep" "$@"
 
 force: ;

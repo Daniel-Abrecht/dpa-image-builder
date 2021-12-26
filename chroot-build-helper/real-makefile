@@ -3,11 +3,11 @@ include $(GENERATED_DEPENDENCIES_FILE)
 
 UEXEC=../build/bin/uexec
 
-all: $(patsubst %,bin/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
+all: $(patsubst %,bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
 repo: $(addprefix repo//,$(PACKAGES_TO_BUILD))
 
 build//%: DONT_BUILD_IF_IN_REPO=no
-build//%: bin/$(DISTRO)/$(RELEASE)/%/.build
+build//%: bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build
 	@true
 
 build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
@@ -45,7 +45,7 @@ build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(
 
 repo-add//%:
 	set -x; \
-	cd "bin/$(DISTRO)/$(RELEASE)/$(patsubst repo-add//%,%,$@)/"; \
+	cd "bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/$(patsubst repo-add//%,%,$@)/"; \
 	name="$$(printf '%s' *.changes)"; \
 	addrepo.sh "$$name"
 
@@ -69,18 +69,18 @@ clean-build-all:
 	uexec rm -rf "build-env/" "bin/"
 
 .SECONDEXPANSION:
-bin/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(DISTRO)/$(RELEASE)/.dir
+bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.dir
 	DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get -y update && apt-get -y dist-upgrade" || true; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
 	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
-	project="$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
-	branch="$(repo-branch@$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
-	repodir="$(call repodir,$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
+	project="$(patsubst bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
+	branch="$(repo-branch@$(patsubst bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
+	repodir="$(call repodir,$(patsubst bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,%,$@))" \
 	CHNS_OVERLAY=1 \
 	CHNS_EXTRA="( \
 	  set -x; \
 	  mkdir -p tmp/repo/pool/ build/; \
-	  mount -o rbind,rprivate \"\$$project_root/chroot-build-helper/bin/\$$DISTRO/\$$RELEASE/\" tmp/repo/pool/; \
+	  mount -o rbind,rprivate \"\$$project_root/chroot-build-helper/bin/\$$BUILDER_PLATFORM/\$$DISTRO/\$$RELEASE/\" tmp/repo/pool/; \
 	  git clone --shared -b \"\$$branch\" \"$$project_root/\$$repodir\" build/src; \
 	); \
 	export commit=\"\$$(cd build/src/ && git rev-parse HEAD)\$$([ -z \"\$$(cd build/src/ && git status --porcelain)\" ] || echo -dirty)\"; \
@@ -121,6 +121,6 @@ bin/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-env/$(DISTRO)/$(RELE
 	  find .. -maxdepth 1 -type f -exec cp {} \"/tmp/repo/pool/\$$project/\" ';' -print; \
 	"
 	if [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; \
-	  then make -f real-makefile "repo-add//$(patsubst bin/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
+	  then make -f real-makefile "repo-add//$(patsubst bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" || true; \
 	fi
 	touch "$@"
