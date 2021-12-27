@@ -116,7 +116,7 @@ clean-repo//%:
 
 update-repo//%:
 	repo="$(call repodir,$(patsubst update-repo//%,%,$@))"; \
-	if [ -f "$$repo" ]; then cd "$$repo" && git remote update && touch .; fi
+	if [ -d "$$repo" ]; then cd "$$repo" && git remote update && touch .; fi
 
 config-list:
 	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
