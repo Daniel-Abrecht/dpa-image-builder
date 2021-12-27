@@ -4,5 +4,5 @@ deb     $CHROOT_REPO $RELEASE-updates   $S_COMPONENTS
 deb-src $CHROOT_REPO $RELEASE-updates   $S_COMPONENTS
 deb     $CHROOT_REPO $RELEASE-security  $S_COMPONENTS
 deb-src $CHROOT_REPO $RELEASE-security  $S_COMPONENTS
-#deb     $CHROOT_REPO $RELEASE-backports main universe
-#deb-src $CHROOT_REPO $RELEASE-backports main universe
+#deb     $CHROOT_REPO $RELEASE-backports $S_COMPONENTS
+#deb-src $CHROOT_REPO $RELEASE-backports $S_COMPONENTS

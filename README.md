@@ -114,7 +114,6 @@ package that way, using the `make build//%` make target (just replace `%` with t
 | enter-buildenv | Setup environment & PATH most scripts of this repo use & execute $SHELL (unfortunately, make sets thet to sh...) |
 | linux | builds the kernel packages |
 | clean-fs | Removes the tar archives which contain the bootstrapped rootfs and bootfs of the current release |
-| emulate | Works with BOARD=imx8 only. Uses the image and kernel last built and tries to start it using qemu-system-aarch64. This works a lot different than how the devkit or phone would do it, but it is useful to check if the bootstrapping and init scripts work. |
 | clean-fs-all | Removes the whole build/filesystem folder. This is enough for most purposes. |
 | clean-image | Removes the image for the current release. |
 | clean-image-all | Removes all images in the bin/ folder |

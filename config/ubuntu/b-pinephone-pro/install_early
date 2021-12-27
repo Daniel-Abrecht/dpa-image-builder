@@ -1,0 +1,4 @@
+# Ubuntu names it's firmware differently... 
+!firmware-misc-nonfree
+!firmware-brcm80211
+linux-firmware

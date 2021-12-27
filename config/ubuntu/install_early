@@ -1,0 +1,2 @@
+# Apparently, lightdm hard depends on it on ubuntu, so we can't remove it!?!
+!plymouth-

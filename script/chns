@@ -33,6 +33,7 @@ hostname "meow"
 cleanup(){
   set +e
   trap - EXIT TERM INT
+  mv etc/resolv.conf{.bak,}
   rm -f usr/sbin/policy-rc.d
   rm -f etc/dpkg/dpkg.cfg.d/workaround
   for m in run tmp sys dev boot "$rootfs" "$ovtmp/ovmerged" proc
@@ -92,6 +93,11 @@ ln -sf /proc/self/fd/1 dev/stdout
 ln -sf /proc/self/fd/2 dev/stderr
 ln -sf /dev/null run/initctl
 ln -sf /dev/pts/ptmx dev/ptmx
+
+# On ubuntu, this may be a symlink to ../run/systemd/resolve/stub-resolv.conf
+# I can't mount over this in that case, and without a good resolv.conf, things which need internet won't work, so this seams to be the only option...
+mv etc/resolv.conf{,.bak}
+cp {/,}etc/resolv.conf
 
 if [ -n "$CHNS_EXTRA" ]
   then eval "$CHNS_EXTRA"
