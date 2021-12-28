@@ -86,6 +86,8 @@ mount -t tmpfs tmpfs dev/shm
 for x in sys dev/{full,null,zero,urandom,random,tty}
   do mount -o rbind,rprivate "/$x" "$x"
 done
+# Hide /sys/firmware. It can confuse flash-kernel
+mount -t tmpfs tmpfs sys/firmware
 mount -t devpts -o ptmxmode=0666 none dev/pts
 ln -sf /proc/self/fd dev/fd
 ln -sf /proc/self/fd/0 dev/stdin
