@@ -193,6 +193,8 @@ deb_get_control_file()(
   case "$tar" in
     control.tar.xz) cmd="xz -d" ;;
     control.tar.gz) cmd="gzip -d" ;;
+    control.tar.zst) cmd="zstd -d" ;;
+    control.tar.bz2) cmd="bzip2 -d" ;;
     control.tar) cmd=cat ;;
     *) return 1 ;;
   esac
