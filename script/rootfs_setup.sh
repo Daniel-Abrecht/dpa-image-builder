@@ -97,3 +97,5 @@ apt-get update
 
 # In case the C.UTF-8 locale wasn't generated yet. Usually not that important though
 locale-gen || true
+
+update-initramfs -u
