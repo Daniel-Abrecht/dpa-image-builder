@@ -33,7 +33,7 @@ findall(){
   done
   for dir in $(printf '%s\n' $CONFIG_PATH | tac)
   do
-    if [ -d "$dir/$basepath$f" ]
+    if [ ! -h "$dir/$basepath$f" ] && [ -d "$dir/$basepath$f" ]
     then
       if [ $rc = 1 ]
         then printf "d\t-\t%s/\n" "$f"
@@ -60,7 +60,7 @@ findall(){
       elif [ -f "$dir/$basepath$f.in" ]
       then
         printf "s\t%s\t%s\n" "$dir" "$f"
-      elif [ -f "$dir/$basepath$f" ]
+      elif [ -h "$dir/$basepath$f" ] || [ -f "$dir/$basepath$f" ]
       then
         printf "f\t%s\t%s\n" "$dir" "$f"
       fi
