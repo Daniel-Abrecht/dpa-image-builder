@@ -7,9 +7,9 @@ locales # Has to be installed before console keyboard, because it needs locale C
 console-setup
 
 # audio & modem stuff
-wys
 pulseaudio
 callaudiod
+feedbackd
 
 # For the initial setup
 first-boot-setup
