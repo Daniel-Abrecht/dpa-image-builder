@@ -105,7 +105,7 @@ bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-
 	  if [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] \
 	    && ( \
 	      for package in \$$(gawk 'BEGIN{RS=\"\\n\\n\";FS=\"\\n\"}{ if (\$$0 ~ /\\nArchitecture:.* (arm64|any|all).*\\n/ && \$$1 ~ /Package:/) { match(\$$1, /Package: *([^ ]*) */, package); print package[1] } }' <debian/control); \
-	        do if ! apt-cache show \"\$$package=\$$version\" 2>&1 | grep -q '^[EN]: No packages found\$$'; then exit 0; fi; \
+	        do if apt-cache show \"\$$package=\$$version\" 2>&1 | grep -q '^Package: '; then exit 0; fi; \
 	      done; \
 	      exit 1; \
 	    ); \
