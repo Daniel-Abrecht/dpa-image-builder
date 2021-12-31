@@ -8,12 +8,12 @@ all: bin/.done
 menuconfig: $$(call repodir,linux)
 	with-repo.sh linux bash -ex -c '\
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
-	    then cp "configs/$$KERNEL_CONFIG_TARGET" "repo/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
+	    then cp "configs/$$KERNEL_CONFIG_TARGET" "$$repodir/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
 	  fi; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" "$$KERNEL_CONFIG_TARGET"_defconfig; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" menuconfig; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" savedefconfig; \
-	  cp "$$repodir/linux" "configs/$$KERNEL_CONFIG_TARGET"; \
+	  cp "$$repodir/linux/defconfig" "configs/$$KERNEL_CONFIG_TARGET"; \
 	'
 
 repo: $$(call repodir,linux)
@@ -22,7 +22,7 @@ repo: $$(call repodir,linux)
 bin/.done: $$(call repodir,linux) | bin/.dir
 	with-repo.sh linux bash -ex -c '\
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
-	    then cp "configs/$$KERNEL_CONFIG_TARGET" "repo/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
+	    then cp "configs/$$KERNEL_CONFIG_TARGET" "$$repodir/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
 	  fi; \
 	  patchdir="$$(realpath "patch/$$BUILDER_PLATFORM/$$KERNEL_PATCHES")"; \
 	  if [ -n "$$KERNEL_PATCHES" ] && [ -d "$$patchdir" ]; \
