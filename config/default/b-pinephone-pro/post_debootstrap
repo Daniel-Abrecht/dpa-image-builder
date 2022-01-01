@@ -1,0 +1,5 @@
+#!/bin/sh
+
+update-rc.d modem defaults || true
+update-rc.d modem enable || true
+systemctl enable modem || true
