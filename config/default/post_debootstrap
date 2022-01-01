@@ -13,3 +13,6 @@ then
   printf '%s' "$IMAGE_BUILDER_REPO" >>/usr/share/first-boot-setup/temporary-local-repo.list
   printf '%s' "$IMAGE_BUILDER_REPO" >/etc/apt/sources.list.d/librem5-image-builder.list
 fi
+
+update-rc.d volkeyttyswitcher defaults || true
+update-rc.d volkeyttyswitcher enable || true
