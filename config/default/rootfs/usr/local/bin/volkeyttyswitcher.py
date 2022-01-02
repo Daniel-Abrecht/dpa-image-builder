@@ -6,7 +6,7 @@ from evdev import InputDevice, categorize, ecodes
 VT_GETSTATE = 0x5603
 VT_ACTIVATE = 0x5606
 
-dev = InputDevice('/dev/input/by-path/platform-gpio-keys-event')
+dev = InputDevice('/etc/dev/volume-keys')
 dev.grab()
 
 tty0 = os.open("/dev/tty0", os.O_RDONLY)
