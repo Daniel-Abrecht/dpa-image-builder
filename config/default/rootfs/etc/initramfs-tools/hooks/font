@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "prereqs" ]; then exit 0; fi
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /bin/setfont
+copy_exec /bin/gzip
+copy_file font /usr/share/consolefonts/Uni3-TerminusBold32x16.psf.gz
+
+exit 0
