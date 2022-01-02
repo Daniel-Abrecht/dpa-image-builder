@@ -7,25 +7,33 @@ import os
 import sys
 import evdev
 
+sys_touchscreen_path = os.readlink("/etc/dev/touchscreen")
+sys_touchscreen_driver = os.path.dirname(sys_touchscreen_path)
+sys_touchscreen_node = os.path.basename(sys_touchscreen_path)
+
 def enable_touchscreen():
   try:
-    with open("/sys/bus/i2c/drivers/edt_ft5x06/bind","w") as f:
-      f.write("2-0038\n")
+    with open(sys_touchscreen_driver+"/bind","w") as f:
+      f.write(sys_touchscreen_node+"\n")
   except: pass
 
 def disable_touchscreen():
   try:
-    with open("/sys/bus/i2c/drivers/edt_ft5x06/unbind","w") as f:
-      f.write("2-0038\n")
+    with open(sys_touchscreen_driver+"/unbind","w") as f:
+      f.write(sys_touchscreen_node+"\n")
   except: pass
 
 def get_screen_brightness():
-  with open("/sys/class/backlight/backlight-dsi/brightness") as f:
+  with open("/etc/dev/backlight/brightness") as f:
     return int(f.read())
 
 def set_screen_brightness(brightness):
-  with open("/sys/class/backlight/backlight-dsi/brightness", "w") as f:
+  with open("/etc/dev/backlight/brightness", "w") as f:
     f.write(str(brightness) + "\n")
+
+def readall(path):
+  with open(path, "r") as f:
+    return f.read()
 
 def on():
   enable_touchscreen()
@@ -33,16 +41,12 @@ def on():
 def off():
   disable_touchscreen()
 
-last_brightness = get_screen_brightness() or 200
+last_brightness = get_screen_brightness() or readall("/etc/dev/default-brightness")
 
 def main(args):
   global last_brightness
 
-  powerkeyname = '30370000.snvs:snvs-powerkey'
-
-  path = [path for path in evdev.list_devices() if evdev.InputDevice(path).name == powerkeyname]
-  foundpath = ''.join(path)
-  dev = InputDevice(foundpath)
+  dev = InputDevice("/etc/dev/power-key")
 
   while True:
     # Block for a 1s or until there are events to be read.
