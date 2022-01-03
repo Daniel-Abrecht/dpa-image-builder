@@ -1,0 +1,8 @@
+#!/bin/sh
+
+onrandr ScreenChange -- /usr/bin/xinput map-to-output "pointer:Goodix Capacitive TouchScreen" "DSI-1" &
+
+(
+  sleep 0.5
+  /usr/bin/xinput map-to-output "pointer:Goodix Capacitive TouchScreen" "DSI-1"
+) &

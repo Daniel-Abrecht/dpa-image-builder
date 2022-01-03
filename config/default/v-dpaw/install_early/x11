@@ -1,3 +1,5 @@
 xserver-xorg
 dbus-x11 # Needed for things like onboard onscreen keyboard
+# For mapping touchscreen coordinates to correct output
 onrandr
+xinput

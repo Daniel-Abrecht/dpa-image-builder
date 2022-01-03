@@ -1,5 +1,7 @@
 #!/bin/sh
 
+/usr/local/bin/x-map-touchscreen
+
 # Unlike what lightdm does per default, this does nothing
 # That means there's nothing that could case problems...
 
