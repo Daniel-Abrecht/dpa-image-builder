@@ -82,7 +82,8 @@ bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-
 	  set -x; \
 	  mkdir -p tmp/repo/pool/ build/; \
 	  mount -o rbind,rprivate \"\$$project_root/chroot-build-helper/bin/\$$BUILDER_PLATFORM/\$$DISTRO/\$$RELEASE/\" tmp/repo/pool/; \
-	  git clone --shared -b \"\$$branch\" \"$$project_root/\$$repodir\" build/src; \
+	  git clone --shared -n \"$$project_root/\$$repodir\" build/src; \
+	  ( cd build/src; git checkout \"\$$branch\"; ); \
 	); \
 	export commit=\"\$$(cd build/src/ && git rev-parse HEAD)\$$([ -z \"\$$(cd build/src/ && git status --porcelain)\" ] || echo -dirty)\"; \
 	export version=\"\$$(cd build/src/ && dpkg-parsechangelog --show-field Version | grep -o '^[^+~-]*' | tr -d '\n')+ib~c\$$(cd build/src/ && git rev-list HEAD --count)-\$$commit\"; \

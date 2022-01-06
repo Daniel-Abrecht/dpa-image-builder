@@ -26,7 +26,7 @@ bin/.done: $$(call repodir,linux) | bin/.dir
 	  fi; \
 	  patchdir="$$(realpath "patch/$$BUILDER_PLATFORM/$$KERNEL_PATCHES")"; \
 	  if [ -n "$$KERNEL_PATCHES" ] && [ -d "$$patchdir" ]; \
-	    then ( cd "$$repodir/linux"; git apply "$$patchdir"/*.patch; ); \
+	    then ( cd "$$repodir/linux"; for patch in "$$patchdir"/*.patch; do git apply "$$patch"; done ); \
 	  fi; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" "$$KERNEL_CONFIG_TARGET"_defconfig; \
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg; \

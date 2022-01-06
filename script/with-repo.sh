@@ -16,7 +16,8 @@ clone_repo(){
   repo_branch="$(printenv -- "repo-branch@$name")"
   repo_source="$(printenv -- "repo-source@$name")"
   gitrepo="$project_root/repo/$(sed "s / ∕ g" <<<"$repo_source").git"
-  git clone --shared -b "$repo_branch" "$gitrepo" "$repodir/$name"
+  git clone --shared -n "$gitrepo" "$repodir/$name"
+  ( cd "$repodir/$name"; git checkout "$repo_branch"; )
 }
 export repodir="$project_root/build/repo"
 while IFS=, read name; do clone_repo "$name"; done <<<"$1"
