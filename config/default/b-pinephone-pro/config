@@ -2,10 +2,9 @@ BUILDER_PLATFORM = pinephone-pro
 KERNEL_CONFIG_TARGET = pinephone_pro
 FK_MACHINE = Pine64 PinePhonePro
 
-S_COMPONENTS += non-free
+S_COMPONENTS += contrib non-free
 
-#repo-branch@linux = orange-pi-5.16
-repo-branch@linux = c6fda0a09217b8c183cf1ef4782746fcfcf055f1
+repo-branch@linux = orange-pi-5.16
 repo-source@linux = https://github.com/megous/linux.git
 
 UBOOT_CONFIG_TARGET = pinephone-pro-rk3399_defconfig

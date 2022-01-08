@@ -51,7 +51,7 @@ index 13ca1e8d5..c9365e604 100644
  			color = <LED_COLOR_ID_BLUE>;
 -			default-state = "off";
 -			function = LED_FUNCTION_CHARGING;
--			gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_HIGH>;
+-			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
 -			label = "blue:charging";
 +			function = LED_FUNCTION_INDICATOR;
 +			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
