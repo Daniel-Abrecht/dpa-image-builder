@@ -40,7 +40,7 @@ bin/.done: $$(call repodir,linux) | bin/.dir
 clean-repo: clean-repo//linux
 	@true
 
-reset-repo: reset-repo//linux
+update-repo: update-repo//linux
 	@true
 
 clean-build-all: clean-build

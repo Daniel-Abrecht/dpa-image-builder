@@ -58,7 +58,7 @@ CONF = user_config_override
 ifndef TO
 ifndef BUILDER_PLATFORM
 KNOWN_BOARDS=$(shell basename -a "$(project_root)/config/default/"b-*/ | sed 's|^b-||')
-$(error "Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set//BOARD TO=my-board`. Availabe boards are: $(KNOWN_BOARDS)")
+$(error "$(newline)Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set//BOARD TO=my-board`.$(newline)Availabe boards are: $(KNOWN_BOARDS)$(newline)")
 endif
 endif
 

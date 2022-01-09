@@ -23,19 +23,19 @@ You need the following packages for this to work:
  * `gcc-arm-none-eabi`
  * `libnewlib-arm-none-eabi`
  * `libstdc++-arm-none-eabi-newlib`
- * `libext2fs-dev` (a newer, renamed version of e2fslibs-dev, if you use devuan ascii, it's in ascii-backports)
+ * `libext2fs-dev`
  * `util-linux`
  * `libtar-dev`
  * `bison`
  * `flex`
- * `fuse`
+ * `libfuse-dev`
+ * `pkg-config`
  * `device-tree-compiler`
  * `comerr-dev`
  * `jq`
  * `equivs`
- * `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
+ * `binfmt-support` `qemu-user-static` (for /usr/bin/qemu-aarch64-static, needed on non-aarch64 hosts only)
  * `uidmap`
- * `binfmt-support` (optional)
  * `fuse-overlayfs`
 
 ## Other requirements & things to check first
@@ -62,7 +62,7 @@ used subuid is a good idea.
 
 Everithing in this repo is designed to work without root. I haven't tested if it even works when run as root.
 
-Creating an image in bin/$(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img
+Creating an image in `bin/$(DISTRO)-$(RELEASE)-$(BOARD)-$(VARIANT).img`
 ```
 make
 ```
@@ -83,7 +83,7 @@ make
 | IMAGE_BUILDER_REPO | `deb https://repo.dpa.li/apt/dpa-image-builder/ $(DISTRO)/$(RELEASE) $(BUILDER_PLATFORM)` | If $USE_IMAGE_BUILDER_REPO is set to yes, this repos is used & added. |
 | IMAGE_BUILDER_REPO_KEY | https://repo.dpa.li/apt/dpa-image-builder/key.gpg | If $USE_IMAGE_BUILDER_REPO is set to "yes", this repo key is added. |
 
-You can use the config-set//% and the config-unset//% targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
+You can use the `config-set//%` and the `config-unset//%` targets to change these variables or the urls or branches of any of the repos. See the next section on how to use that feature.
 
 You can also specify them in the make command directly instead, but if you do it that way, you need to take care of the following yourself:
 
@@ -163,7 +163,7 @@ These subdirectories contain the following files:
 
 All config and package lists in the search path are combined. Config settings
 in config files later in the path override earlier ones. The special config file
-`config/user_config_override`, which is the default for the `config-set//%' and
+`config/user_config_override`, which is the default for the `config-set//%` and
 `config-unset//%` makefile targets, can override the settings from all other config
 files and will be ignored in the git repo. It is useful for changing local
 settings & preferences, such as the repos to use for bootstrapping, the image
@@ -206,7 +206,7 @@ Just install reprepro and set the following variables:
 | NEW_PKG_KEY | Set the GPG key to use for signing |
 
 You may also want to change: BUILD_PACKAGES, USE_IMAGE_BUILDER_REPO,
-IMAGE_BUILDER_REPO and IMAGE_BUILDER_REPO_KEY. See section [Usage] for details.
+IMAGE_BUILDER_REPO and IMAGE_BUILDER_REPO_KEY. See section [Usage](#usage) for details.
 
 You can build the packages even if BUILD_PACKAGES is set to no
 
