@@ -4,8 +4,8 @@ FK_MACHINE = Pine64 PinePhonePro
 
 S_COMPONENTS += contrib non-free
 
-repo-branch@linux = orange-pi-5.16
-repo-source@linux = https://github.com/megous/linux.git
+repo-branch@linux = pine64-kernel-ppp-5.16.y-release
+repo-source@linux = https://gitlab.com/pine64-org/linux.git
 
 UBOOT_CONFIG_TARGET = pinephone-pro-rk3399_defconfig
 repo-branch@uboot = upstream
@@ -16,3 +16,7 @@ KERNEL_PATCHES=.
 ATF_PLATFORM = rk3399
 repo-branch@arm-trusted-firmware = v2.6
 repo-source@arm-trusted-firmware = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+
+# This manages starting & stopping the modem
+repo-branch@eg25-manager=mobian
+repo-source@eg25-manager=https://gitlab.com/mobian1/devices/eg25-manager.git

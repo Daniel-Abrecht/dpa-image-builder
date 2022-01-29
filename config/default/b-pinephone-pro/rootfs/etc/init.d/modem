@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/lib/init/init-d-script
 ### BEGIN INIT INFO
 # Provides:          modem
 # Required-Start:
@@ -9,23 +9,6 @@
 # Description:       Turn the modem on / off
 ### END INIT INFO
 
-do_start(){
-  echo "Turning modem on..."
-  echo 1 >/sys/class/modem-power/modem-power/device/powered_blocking
-  do_status
-}
-
-do_stop(){
-  echo "Turning modem off..."
-  echo 0 >/sys/class/modem-power/modem-power/device/powered_blocking
-  ! do_status
-}
-
-do_status(){
-  if [ "$(cat /sys/class/modem-power/modem-power/device/powered)" = 1 ]
-    then echo "Modem: ON"; return 0
-    else echo "Modem: OFF"; return 1
-  fi
-}
-
-do_"$1"
+DAEMON=/usr/bin/eg25manager
+PIDFILE=/var/run/eg25manager.pid
+START_ARGS="--background -m"
