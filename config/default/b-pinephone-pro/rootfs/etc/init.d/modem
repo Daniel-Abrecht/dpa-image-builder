@@ -9,6 +9,6 @@
 # Description:       Turn the modem on / off
 ### END INIT INFO
 
-DAEMON=/usr/bin/eg25manager
-PIDFILE=/var/run/eg25manager.pid
+DAEMON=/usr/bin/eg25-manager
+PIDFILE=/var/run/eg25-manager.pid
 START_ARGS="--background -m"
