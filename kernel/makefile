@@ -24,7 +24,7 @@ bin/.done: $$(call repodir,linux) | bin/.dir
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
 	    then cp "configs/$$KERNEL_CONFIG_TARGET" "$$repodir/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
 	  fi; \
-	  patchdir="$$(realpath "patch/$$BUILDER_PLATFORM/$$KERNEL_PATCHES")"; \
+	  patchdir="$$(realpath "patch/$$BUILDER_PLATFORM/$$KERNEL_PATCHES" || true)"; \
 	  if [ -n "$$KERNEL_PATCHES" ] && [ -d "$$patchdir" ]; \
 	    then ( cd "$$repodir/linux"; for patch in "$$patchdir"/*.patch; do git apply "$$patch"; done ); \
 	  fi; \
