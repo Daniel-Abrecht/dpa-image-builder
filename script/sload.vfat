@@ -1,0 +1,40 @@
+#!/bin/sh
+
+set -e
+
+name="$(basename "$0")"
+
+die(){
+  cat <<EOF
+Usage: $name  [options]  -f directory  device
+[options]:
+  -t mount point [prefix of target fs path, default:/]
+  -P preserve owner: user and group
+EOF
+  exit 1
+}
+
+has_source=0
+has_prefix=0
+has_dev=0
+preserve_perms=0
+prefix=/
+
+while [ "$#" != 0 ]
+do
+  arg="$1"; shift
+  case "$arg" in
+    -f) source="$1"; shift; has_source=1; ;;
+    -t) prefix="$1"; shift; has_prefix=1; ;;
+    -P) preserve_perms=1; ;;
+     *) [ "$has_dev" = 0 ] || die; dev="$arg"; has_dev=1; ;;
+  esac
+done
+
+[ "$has_source" = 1 ] || die
+[ "$has_dev" = 1 ] || die
+
+source="$(realpath "$source")"
+
+# The // is intentional. It's a hack to make it copy the directory contents instead of the directory.
+mcopy -spQm -i "$dev" "$source//" "::$prefix"

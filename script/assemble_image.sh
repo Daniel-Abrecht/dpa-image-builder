@@ -7,6 +7,9 @@ fi
 
 set -ex
 
+[ -n "$BOOT_FSTYPE" ] || BOOT_FSTYPE=ext2
+[ -n "$BOOT_DIR"    ] || BOOT_DIR=boot
+
 # Make sure the current working directory is correct
 cd "$(dirname "$0")/.."
 export base="$PWD"
@@ -88,17 +91,25 @@ mkfsoptions=
 case "$FSTYPE" in
   ext?) mkfsoptions="$mkfsoptions -L root -E discard -O encrypt" ;;
   f2fs) mkfsoptions="$mkfsoptions -l root -O extra_attr,inode_checksum,compression,inode_crtime,lost_found,encrypt" ;; # Can't enable "quota", sload.f2fs doesn't handle it properly...
+  vfat) bootmkfsoptions="$bootmkfsoptions -n root" ;;
+esac
+
+bootmkfsoptions=
+case "$BOOT_FSTYPE" in
+  ext?) bootmkfsoptions="$bootmkfsoptions -L boot -E discard" ;;
+  f2fs) bootmkfsoptions="$bootmkfsoptions -l boot -O inode_checksum,compression,inode_crtime,lost_found" ;;
+  vfat) bootmkfsoptions="$bootmkfsoptions -n boot -F 32" ;;
 esac
 
 # Format partitions
-mkfs.ext2 -L boot "$bootdev"
+"mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$bootdev"
 "mkfs.$FSTYPE" $mkfsoptions "$rootdev"
 
 "$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
 
 # Write data to partitions
-uexec sload.ext2 -P -f "$rootfsdir/boot/" "$bootdev"
-uexec unshare -m sh -ex -c "mount -t tmpfs none \"\$rootfsdir/boot/\"; \"sload.\$FSTYPE\" -P -f \"\$rootfsdir\" \"\$rootdev\"; umount \"\$rootfsdir/boot/\""
+uexec "sload.$BOOT_FSTYPE" -P -f "$rootfsdir/$BOOT_DIR/" "$bootdev"
+uexec unshare -m sh -ex -c "mount -t tmpfs none \"\$rootfsdir/$BOOT_DIR/\"; \"sload.\$FSTYPE\" -P -f \"\$rootfsdir\" \"\$rootdev\"; umount \"\$rootfsdir/$BOOT_DIR/\""
 
 # Unmount & remove fuse loop devices
 umount_wait

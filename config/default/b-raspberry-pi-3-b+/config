@@ -1,0 +1,7 @@
+BUILDER_PLATFORM = raspberry-pi
+FK_MACHINE = Raspberry Pi 3 Model B+
+
+BOOT_FSTYPE = vfat
+BOOT_DIR = boot/firmware
+
+S_COMPONENTS += contrib non-free

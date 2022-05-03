@@ -38,7 +38,7 @@ if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$
 debootstrap-base.sh "$tmp/rootfs" $debootstrap_include
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
-cp kernel/bin/linux-image.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
+cp kernel/bin/linux-image.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 cp kernel/bin/linux-libc.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 cp kernel/bin/linux-headers.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 

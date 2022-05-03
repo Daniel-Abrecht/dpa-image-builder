@@ -2,6 +2,10 @@ include src/make-helper-functions.mk
 
 all: bin/$(IMAGE_NAME)
 
+ifdef KERNEL_CONFIG_TARGET
+KERNEL_DEB=kernel/bin/linux-image.deb
+endif
+
 linux: kernel/bin/linux-image.deb
 	@true
 
@@ -47,7 +51,7 @@ $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
 	touch "$@"
 
 build/$(IMAGE_NAME)/root.fs/: \
-  kernel/bin/linux-image.deb \
+  $(KERNEL_DEB) \
   build/bin/usernsexec \
   $(DEBOOTSTRAP_SCRIPT) \
   bin/.dir
@@ -55,11 +59,11 @@ build/$(IMAGE_NAME)/root.fs/: \
 	./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \
+  $(KERNEL_DEB) \
   build/bin/fuseloop \
   build/bin/tar2ext \
   build/$(IMAGE_NAME)/root.fs/ \
-  $(PLATFORM_FILES) \
-  kernel/bin/linux-image.deb
+  $(PLATFORM_FILES)
 	./script/assemble_image.sh
 
 always:
