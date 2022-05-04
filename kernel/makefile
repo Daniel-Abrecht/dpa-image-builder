@@ -1,3 +1,4 @@
+ifdef KERNEL_CONFIG_TARGET
 include ../src/make-helper-functions.mk
 
 .SECONDEXPANSION:
@@ -47,3 +48,9 @@ clean-build-all: clean-build
 
 clean-build:
 	rm -rf bin
+else
+all:
+	@true
+%:
+	@true
+endif

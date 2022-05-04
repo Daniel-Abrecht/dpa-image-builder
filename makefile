@@ -6,8 +6,13 @@ ifdef KERNEL_CONFIG_TARGET
 KERNEL_DEB=kernel/bin/linux-image.deb
 endif
 
+ifdef KERNEL_CONFIG_TARGET
 linux: kernel/bin/linux-image.deb
 	@true
+else
+linux:
+	@true
+endif
 
 extra_packages:
 	if [ "$(BUILD_PACKAGES)" != no ]; \
