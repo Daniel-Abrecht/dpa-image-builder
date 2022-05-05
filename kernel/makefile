@@ -1,5 +1,5 @@
-ifdef KERNEL_CONFIG_TARGET
 include ../src/make-helper-functions.mk
+ifdef KERNEL_CONFIG_TARGET
 
 .SECONDEXPANSION:
 
