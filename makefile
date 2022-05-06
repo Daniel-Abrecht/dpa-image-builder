@@ -3,12 +3,11 @@ include src/make-helper-functions.mk
 all: bin/$(IMAGE_NAME)
 
 ifdef KERNEL_CONFIG_TARGET
-KERNEL_DEB=kernel/bin/linux-image.deb
-endif
-
-ifdef KERNEL_CONFIG_TARGET
-linux: kernel/bin/linux-image.deb
+KERNEL_TARGET=kernel/bin/$(KERNEL_CONFIG_TARGET)/.done
+linux: $(KERNEL_TARGET)
 	@true
+$(KERNEL_TARGET):
+	$(MAKE) -C kernel
 else
 linux:
 	@true
@@ -35,9 +34,6 @@ enter-buildenv:
 	export PROMPT_COMMAND='if [ -z "$$PS_SET" ]; then PS_SET=1; PS1="(buildenv) $$PS1"; fi'; \
 	$(USER_SHELL)
 
-kernel/bin/linux-image.deb:
-	$(MAKE) -C kernel
-
 %/.dir:
 	mkdir -p "$(dir $@)"
 	touch "$@"
@@ -56,7 +52,7 @@ $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
 	touch "$@"
 
 build/$(IMAGE_NAME)/root.fs/: \
-  $(KERNEL_DEB) \
+  $(KERNEL_TARGET) \
   build/bin/usernsexec \
   $(DEBOOTSTRAP_SCRIPT) \
   bin/.dir
@@ -64,7 +60,7 @@ build/$(IMAGE_NAME)/root.fs/: \
 	./script/debootstrap.sh
 
 bin/$(IMAGE_NAME): \
-  $(KERNEL_DEB) \
+  $(KERNEL_TARGET) \
   build/bin/fuseloop \
   build/bin/tar2ext \
   build/$(IMAGE_NAME)/root.fs/ \

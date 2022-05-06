@@ -17,7 +17,7 @@ NONFREE_FIRMWARE_CRAP += firmware/signed_dp_imx8m.bin
 
 BOOTLOADER_COMPONENTS += $(NONFREE_FIRMWARE_CRAP)
 
-all: bin/uboot_firmware_and_dtb.bin
+all: bin/$(UBOOT_CONFIG_TARGET)/uboot_firmware_and_dtb.bin
 	@true
 
 repo: \
@@ -26,7 +26,7 @@ repo: \
   $$(call repodir,arm-trusted-firmware) \
   $$(call repodir,uboot)
 
-bin/uboot_firmware_and_dtb.bin: $$(call repodir,uboot) $(BOOTLOADER_COMPONENTS) | bin/.dir
+bin/$(UBOOT_CONFIG_TARGET)/uboot_firmware_and_dtb.bin: $$(call repodir,uboot) $(BOOTLOADER_COMPONENTS) | bin/$(UBOOT_CONFIG_TARGET)/.dir
 	with-repo.sh uboot bash -ex -c '\
 	  cp $(BOOTLOADER_COMPONENTS) "$$repodir/uboot/"; \
 	  $(UMAKE) -C "$$repodir/uboot/" ARCH=arm CROSS_COMPILE="$$CROSS_COMPILER" "$$UBOOT_CONFIG_TARGET"; \
@@ -41,7 +41,7 @@ firmware/m4.bin: $$(call repodir,Cortex_M4) | firmware/.dir
 	  cp "$$repodir/Cortex_M4/m4.bin" "$@"; \
 	'
 
-firmware/bl31.bin: $$(call repodir,arm-trusted-firmware) | bin/.dir
+firmware/bl31.bin: $$(call repodir,arm-trusted-firmware) | firmware/.dir
 	with-repo.sh arm-trusted-firmware bash -ex -c '\
 	  $(UMAKE) -C "$$repodir/arm-trusted-firmware/" PLAT="$$ATF_PLATFORM" CROSS_COMPILE="$$CROSS_COMPILER" bl31; \
 	  cp "$$repodir/arm-trusted-firmware/build/imx8mq/release/bl31.bin" "$@"; \
@@ -68,4 +68,4 @@ update-repo: update-repo//uboot update-repo//arm-trusted-firmware
 clean-build-all: clean-build
 
 clean-build:
-	rm -rf firmware bin
+	rm -rf firmware "bin/$(UBOOT_CONFIG_TARGET)"

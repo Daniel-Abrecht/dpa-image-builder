@@ -1,5 +1,5 @@
 export UBOOT_DIR = $(project_root)/platform/$(BUILDER_PLATFORM)/uboot/
-export BOOTLOADER_BIN = $(UBOOT_DIR)/bin/uboot_firmware_and_dtb.bin
+export BOOTLOADER_BIN = $(UBOOT_DIR)/bin/$(UBOOT_CONFIG_TARGET)/uboot_firmware_and_dtb.bin
 export M4_FIRMWARE_BIN = $(UBOOT_DIR)/firmware/m4.bin
 
 PLATFORM_FILES = $(BOOTLOADER_BIN)
