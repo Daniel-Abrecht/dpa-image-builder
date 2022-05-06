@@ -7,6 +7,8 @@ S_COMPONENTS=main
 # Can be changed to f2fs once sload.f2fs supports preserving the file owner: https://sourceforge.net/p/linux-f2fs/mailman/linux-f2fs-devel/thread/685cd73aea4daa72236ec53aa9c3a7fe%40abrecht.li/#msg37240606
 FSTYPE = ext4
 
+USE_EFI = y
+
 BUILD_PACKAGES = no
 USE_IMAGE_BUILDER_REPO = yes
 DONT_BUILD_IF_IN_REPO = yes
