@@ -38,7 +38,7 @@ if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$
 debootstrap-base.sh "$tmp/rootfs" $debootstrap_include
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
-cp "kernel/$$KERNEL_CONFIG_TARGET/bin/"linux-*.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
+cp "kernel/$KERNEL_CONFIG_TARGET/bin/"linux-*.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
 rm -f "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"linux-*dbg*.deb
 
 for deb in chroot-build-helper/bin/"$BUILDER_PLATFORM"/"$DISTRO"/"$RELEASE"/*/*.deb
