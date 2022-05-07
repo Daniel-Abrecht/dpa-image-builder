@@ -371,7 +371,7 @@ do_clean()(
         package="$(basename "$componentdir")"
         (
           cd "$packagedir"
-          debs=( $(ls -t --quoting-style=shell-always *.deb) )
+          eval "debs=( $(ls -t --quoting-style=shell-always -- *.deb) )"
           result=0
           for deb in "${debs[@]:$((n + 1))}"
           do
