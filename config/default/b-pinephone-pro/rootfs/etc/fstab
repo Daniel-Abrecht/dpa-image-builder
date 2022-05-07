@@ -1,6 +1,0 @@
-# <file system>		<mount point>	<type>	<options>				<dump>  <pass>
-
-proc			/proc		proc	nosuid,noexec,nodev,hidepid=2		0	0
-/dev/mmcblk1p3		/		auto	defaults,discard,relatime		0	1
-/dev/mmcblk1p2		/boot		ext2    defaults,ro,relatime			0	1
-tmpfs			/tmp		tmpfs	defaults,noexec,nosuid,nodev		0	0

@@ -127,5 +127,9 @@ unshare -m sh -c "
   fi
 " -- "$@"
 
+if [ -n "$CHNS_EXTRA_POST" ]
+  then eval "$CHNS_EXTRA_POST"
+fi
+
 # Note: The exit trap will execute when the script ends
 ret=0

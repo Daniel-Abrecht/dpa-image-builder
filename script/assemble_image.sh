@@ -10,6 +10,8 @@ set -ex
 [ -n "$BOOT_FSTYPE" ] || BOOT_FSTYPE=ext2
 [ -n "$BOOT_DIR"    ] || BOOT_DIR=boot
 
+export BOOT_FSTYPE BOOT_DIR
+
 # Make sure the current working directory is correct
 cd "$(dirname "$0")/.."
 export base="$PWD"
@@ -37,7 +39,8 @@ part_file="$base/platform/$BUILDER_PLATFORM/part.sfdisk"
 sfdisk "$tmp/$IMAGE_NAME" <"$part_file"
 
 # Get partition offsets
-partitions="$(sfdisk -J "$tmp/$IMAGE_NAME" | jq -r '.partitiontable.partitions[] | "start=\(.start) size=\(.size) type=\(.type) bootable=\(.bootable)"')"
+sfdisk -J "$tmp/$IMAGE_NAME"
+partitions="$(sfdisk -J "$tmp/$IMAGE_NAME" | jq -r '.partitiontable.partitions[] | "start=\(.start) size=\(.size) type=\(.type) bootable=\(.bootable // false) PARTUUID=\(.uuid // "" | ascii_downcase)"')"
 partition_names="$(sed 's/#.*//' <"$part_file" | grep -v ':\|^$' | sed 's/.*\(name=\([^ ,]*\)\).*\|.*/\2/')"
 
 # Unmount & remove fuse loop devices
@@ -76,8 +79,11 @@ do
   touch "$tmp/part$i"
   fuseloop -O "$(expr "$start" \* $blocksize)" -S "$(expr "$size" \* $blocksize)" "$tmp/$IMAGE_NAME" "$tmp/part$i"
   part_name="$(printf "%s\n" "$partition_names" | sed "$i"'q;d')"
+  printf "%s\n" "$partinfos" >"$tmp/pinfo$i"
   if [ -n "$part_name" ]
-    then ln -s "part$i" "$tmp/part-$part_name"
+  then
+    ln -s "part$i" "$tmp/part-$part_name"
+    printf "%s\n" "$partinfos" >"$tmp/pinfo-$part_name"
   fi
 done
 
@@ -107,9 +113,36 @@ esac
 
 "$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
 
-# Write data to partitions
-uexec "sload.$BOOT_FSTYPE" -P -f "$rootfsdir/$BOOT_DIR/" "$bootdev"
-uexec unshare -m sh -ex -c "mount -t tmpfs none \"\$rootfsdir/$BOOT_DIR/\"; \"sload.\$FSTYPE\" -P -f \"\$rootfsdir\" \"\$rootdev\"; umount \"\$rootfsdir/$BOOT_DIR/\""
+# Inject UUID into fstab, update initramfs, & write data to partitions
+# This is done in an overlay, the changes will only apply to the data written to the image
+imgdir="$tmp" OLDPATH="$PATH" CHNS_EXTRA='(
+  PATH="$OLDPATH"
+  set -x
+  for part in "$imgdir/"part*
+  do (
+    part_name="$(basename "$part" | sed "s/^part-\?//")"
+    part_info="$imgdir/$(basename "$part" | sed "s/^part/pinfo/")"
+    . "$part_info"
+    eval "$(blkid -p "$part" | sed "s/^[^:]*: //")"
+    FSTAB_ID=
+    if [ -n "$PARTUUID" ]
+      then FSTAB_ID="PARTUUID=$PARTUUID"
+    elif [ -n "$UUID" ]
+      then FSTAB_ID="UUID=$UUID"
+    fi
+    if [ -n "$FSTAB_ID" ]
+      then sed -i "s/{UUID_$part_name}/$FSTAB_ID/" etc/fstab
+    fi
+  ); done
+)' CHNS_OVERLAY=1 CHNS_EXTRA_POST='(
+  PATH="$OLDPATH"
+  for m in run tmp sys dev proc; do umount -lr "$m" || true; done
+  set -x
+  "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
+  mount -t tmpfs none "./$BOOT_DIR/"
+  "sload.$FSTYPE" -P -f "./" "$imgdir/part-root"
+  umount "./$BOOT_DIR/"
+)' chns "$rootfsdir" update-initramfs -u
 
 # Unmount & remove fuse loop devices
 umount_wait
