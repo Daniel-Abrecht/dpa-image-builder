@@ -1,4 +1,6 @@
-FK_MACHINE = Purism Librem 5 devkit
+# Flash kernel expects amd64 in the kernel image name, as specified in it's upstream db, but the kernel we curently build doesn't have that.
+# TODO: Maybe switch to mainline linux and undo this commit or something
+#FK_MACHINE = Purism Librem 5 devkit
 
 KERNEL_CONFIG_TARGET = librem5
 KERNEL_DTB = freescale/imx8mq-librem5-devkit.dtb

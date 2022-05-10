@@ -1,0 +1,9 @@
+Machine: Librem 5 devkit
+Kernel-Flavors: any
+DTB-Id: freescale/imx8mq-librem5-devkit.dtb
+Boot-Initrd-Path: /boot/initrd.img
+Boot-Kernel-Path: /boot/vmlinuz
+Boot-Script-Path: /boot/boot.scr
+U-Boot-Script-Name: bootscr.uboot-generic
+Required-Packages: u-boot-tools
+
