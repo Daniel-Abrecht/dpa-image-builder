@@ -21,6 +21,9 @@ repo: $$(call repodir,linux)
 	@true
 
 bin/$(KERNEL_CONFIG_TARGET)/.done: $$(call repodir,linux) | bin/$(KERNEL_CONFIG_TARGET)/.dir
+	exec 8>bin/$(KERNEL_CONFIG_TARGET)/.lock; \
+	flock 8; \
+	if [ -f "$@" ]; then exit 0; fi; \
 	with-repo.sh linux bash -ex -c '\
 	  if [ -f "configs/$$KERNEL_CONFIG_TARGET" ]; \
 	    then cp "configs/$$KERNEL_CONFIG_TARGET" "$$repodir/linux/arch/arm64/configs/$${KERNEL_CONFIG_TARGET}_defconfig"; \
@@ -36,7 +39,7 @@ bin/$(KERNEL_CONFIG_TARGET)/.done: $$(call repodir,linux) | bin/$(KERNEL_CONFIG_
 	  cp "$$repodir"/linux-*.deb "bin/$$KERNEL_CONFIG_TARGET/"; \
 	'
 	# Note: Trying to make bindeb-pkg again without KBUILD_IMAGE=arch/arm64/boot/Image if it failed, because some downstream kernels do some funny stuff (https://source.puri.sm/Librem5/linux/-/commit/038b6b85e8b7738e7081780e79bab8410ab07101#b48fea44aa4aea680003375368b4d138ebd75204)
-	touch "bin/$$KERNEL_CONFIG_TARGET/.done";
+	touch "$@";
 
 clean-repo: clean-repo//linux
 	@true
