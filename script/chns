@@ -30,13 +30,23 @@ export PATH='/root/helper/:/sbin:/usr/sbin:/bin:/usr/bin'
 # Don't leak the real hostname
 hostname "meow"
 
-cleanup(){
-  set +e
-  trap - EXIT TERM INT
+cleanup_1(){
   mv etc/resolv.conf{.bak,}
   rm -f usr/sbin/policy-rc.d
   rm -f etc/dpkg/dpkg.cfg.d/workaround
-  for m in run tmp sys dev boot "$rootfs" "$ovtmp/ovmerged" proc
+  for m in run tmp sys dev boot
+  do
+    if mountpoint -q "$m"
+      then umount -lr "$m"
+    fi
+  done
+}
+
+cleanup(){
+  set +e
+  trap - EXIT TERM INT
+  cleanup_1
+  for m in "$rootfs" "$ovtmp/ovmerged" proc
   do
     if mountpoint -q "$m"
       then umount -lr "$m"
@@ -128,7 +138,9 @@ unshare -m sh -c "
 " -- "$@"
 
 if [ -n "$CHNS_EXTRA_POST" ]
-  then eval "$CHNS_EXTRA_POST"
+then
+  cleanup_1
+  eval "$CHNS_EXTRA_POST"
 fi
 
 # Note: The exit trap will execute when the script ends

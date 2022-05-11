@@ -136,7 +136,7 @@ imgdir="$tmp" OLDPATH="$PATH" CHNS_EXTRA='(
   ); done
 )' CHNS_OVERLAY=1 CHNS_EXTRA_POST='(
   PATH="$OLDPATH"
-  for m in run tmp sys dev proc; do umount -lr "$m" || true; done
+  umount -lr proc || true
   set -x
   "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
   mount -t tmpfs none "./$BOOT_DIR/"
