@@ -30,18 +30,22 @@ $(DEBOOTSTRAP_SCRIPT):
 	make -C .. "$(DEBOOTSTRAP_SCRIPT)"
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
-	mkdir -p "$@.tmp"
-	uexec rm -rf "$@.tmp"
-	debootstrap-base.sh "$@.tmp"
-	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"
-	chns "$@.tmp" apt-get -y update
+	set -ex; \
+	mkdir -p "$@.tmp"; \
+	exec 8>"$@.lock"; \
+	flock 8; \
+	uexec rm -rf "$@.tmp"; \
+	if [ -d "$@" ]; then exit 0; fi; \
+	debootstrap-base.sh "$@.tmp"; \
+	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"; \
+	chns "$@.tmp" apt-get -y update; \
 	if [ -n "$(BUILD_DEP_RELEASE)" ]; \
 	  then chns "$@.tmp" apt-get -y -t "$(BUILD_DEP_RELEASE)" install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
 	  else chns "$@.tmp" apt-get -y install --no-install-recommends build-essential dh-make debhelper devscripts meson wget gnupg2 gawk $(EXTRA_BUILD_TOOLS); \
-	fi
-	if [ -f "$@" ]; then mv "$@" "$@.old"; fi
-	mv "$@.tmp" "$@"
-	uexec rm -rf "$@.old"
+	fi; \
+	if [ -f "$@" ]; then mv "$@" "$@.old"; fi; \
+	mv "$@.tmp" "$@"; \
+	uexec rm -rf "$@.old";
 
 repo-add//%:
 	set -x; \
