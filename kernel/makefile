@@ -32,10 +32,10 @@ bin/$(KERNEL_CONFIG_TARGET)/.done: $$(call repodir,linux) | bin/$(KERNEL_CONFIG_
 	  if [ -n "$$KERNEL_PATCHES" ] && [ -d "$$patchdir" ]; \
 	    then ( cd "$$repodir/linux"; for patch in "$$patchdir"/*.patch; do git apply "$$patch"; done ); \
 	  fi; \
-	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" "$$KERNEL_CONFIG_TARGET"_defconfig; \
-	  if [ "$$USE_EFI" = y ]; then ( cd "$$repodir/linux"; ./scripts/config --set-val CONFIG_EFI y; make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig; ); fi; \
-	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg \
-	   || $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" bindeb-pkg; \
+	  $(MAKE) --debug=n -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" "$$KERNEL_CONFIG_TARGET"_defconfig; \
+	  if [ "$$USE_EFI" = y ]; then ( cd "$$repodir/linux"; ./scripts/config --set-val CONFIG_EFI y; make --debug=n ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig; ); fi; \
+	  $(MAKE) --debug=n -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg \
+	   || $(MAKE) --debug=n -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" bindeb-pkg; \
 	  cp "$$repodir"/linux-*.deb "bin/$$KERNEL_CONFIG_TARGET/"; \
 	'; \
 	touch "$@";
