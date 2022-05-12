@@ -37,9 +37,9 @@ bin/$(KERNEL_CONFIG_TARGET)/.done: $$(call repodir,linux) | bin/$(KERNEL_CONFIG_
 	  $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" KBUILD_IMAGE=arch/arm64/boot/Image bindeb-pkg \
 	   || $(MAKE) -C "$$repodir/linux" ARCH=arm64 CROSS_COMPILE="$$CROSS_COMPILER" bindeb-pkg; \
 	  cp "$$repodir"/linux-*.deb "bin/$$KERNEL_CONFIG_TARGET/"; \
-	'
-	# Note: Trying to make bindeb-pkg again without KBUILD_IMAGE=arch/arm64/boot/Image if it failed, because some downstream kernels do some funny stuff (https://source.puri.sm/Librem5/linux/-/commit/038b6b85e8b7738e7081780e79bab8410ab07101#b48fea44aa4aea680003375368b4d138ebd75204)
+	'; \
 	touch "$@";
+	# Note: Trying to make bindeb-pkg again without KBUILD_IMAGE=arch/arm64/boot/Image if it failed, because some downstream kernels do some funny stuff (https://source.puri.sm/Librem5/linux/-/commit/038b6b85e8b7738e7081780e79bab8410ab07101#b48fea44aa4aea680003375368b4d138ebd75204)
 
 clean-repo: clean-repo//linux
 	@true
