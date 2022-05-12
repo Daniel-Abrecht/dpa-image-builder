@@ -1,6 +1,10 @@
 #!/bin/sh
 
-# raspi-firmware adds a hook which determines this wrongly using "findmnt -n --output=source /", but this is a chroot with pwrking proc, so that'd give the wrong result.
-# Other parts of initramfs-tools would have known how to figure out the right device, so they just break it by doing unnecessary stuff with good intentions...
-# Anyway, overriding it to the default:
-sed -i 's/^#ROOTPART=/ROOTPART=/' /etc/default/raspi-firmware
+# Ubuntu does it differently
+if [ -f /etc/default/raspi-firmware ]
+then
+  # raspi-firmware adds a hook which determines this wrongly using "findmnt -n --output=source /", but this is a chroot with pwrking proc, so that'd give the wrong result.
+  # Other parts of initramfs-tools would have known how to figure out the right device, so they just break it by doing unnecessary stuff with good intentions...
+  # Anyway, overriding it to the default:
+  sed -i 's/^#ROOTPART=/ROOTPART=/' /etc/default/raspi-firmware
+fi
