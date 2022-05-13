@@ -10,32 +10,19 @@ build//%: DONT_BUILD_IF_IN_REPO=no
 build//%: bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build
 	@true
 
-build-env/$(DISTRO)/$(RELEASE)/deb/%.deb: build-env/$(DISTRO)/$(RELEASE)/deb/.dir
-	getdeb.sh "$@"
-
-build-env/$(DISTRO)/$(RELEASE)/debootstrap/usr/share/debootstrap/scripts/$(RELEASE): build-env/$(DISTRO)/$(RELEASE)/deb/debootstrap.deb
-	set -e; \
-	rm -rf "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	mkdir -p "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	cd "build-env/$(DISTRO)/$(RELEASE)/debootstrap/"; \
-	ar x ../deb/debootstrap.deb; \
-	tar xzf data.tar.*;
-	[ -e "$@" ]
-	touch "$@"
-
 $(UEXEC):
 	make -C .. build/bin/usernsexec
 
 $(DEBOOTSTRAP_SCRIPT):
-	make -C .. "$(DEBOOTSTRAP_SCRIPT)"
+	$(MAKE) -C .. "$(DEBOOTSTRAP_SCRIPT)"
 
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
 	set -ex; \
 	mkdir -p "$@.tmp"; \
 	exec 8>"$@.lock"; \
 	flock 8; \
-	uexec rm -rf "$@.tmp"; \
 	if [ -d "$@" ]; then exit 0; fi; \
+	uexec rm -rf "$@.tmp"; \
 	debootstrap-base.sh "$@.tmp"; \
 	CHROOT_REPO="$$REPO" getrfsfile.sh "rootfs/etc/apt/sources.list" >"$@.tmp/etc/apt/sources.list"; \
 	chns "$@.tmp" apt-get -y update; \

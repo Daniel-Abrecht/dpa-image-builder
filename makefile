@@ -42,7 +42,10 @@ build/$(IMAGE_NAME)/deb/%.deb: | build/$(IMAGE_NAME)/deb/.dir
 	getdeb.sh "$@"
 
 $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
-	set -e; \
+	set -ex; \
+	exec 8>"$@.lock"; \
+	flock 8; \
+	if [ -e "$@" ]; then exit 0; fi; \
 	rm -rf "build/$(IMAGE_NAME)/debootstrap_script/"; \
 	mkdir -p "build/$(IMAGE_NAME)/debootstrap_script/"; \
 	cd "build/$(IMAGE_NAME)/debootstrap_script/"; \
