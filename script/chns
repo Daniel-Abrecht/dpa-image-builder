@@ -64,10 +64,11 @@ trap true HUP
 if [ -n "$DO_LOCK" ]
 then
   exec 57<.
-  if [ "$DO_LOCK" = 2 ]
-    then flock -n 57
-    else flock 57
-  fi
+  case "$DO_LOCK" in
+    2) flock -n 57 ;;
+    3) flock -s 57 ;;
+    *) flock 57 ;;
+  esac
 fi
 unset DO_LOCK
 
