@@ -43,7 +43,7 @@ build/$(IMAGE_NAME)/deb/%.deb: | build/$(IMAGE_NAME)/deb/.dir
 
 $(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
 	set -ex; \
-	exec 8>"$@.lock"; \
+	exec 8>"build/.$(IMAGE_NAME).lock"; \
 	flock 8; \
 	if [ -e "$@" ]; then exit 0; fi; \
 	rm -rf "build/$(IMAGE_NAME)/debootstrap_script/"; \
