@@ -19,7 +19,7 @@ $(DEBOOTSTRAP_SCRIPT):
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
 	set -ex; \
 	mkdir -p "$@.tmp"; \
-	exec 8>".$@.lock"; \
+	exec 8>"$(dir $@).lock"; \
 	flock 8; \
 	if [ -d "$@" ]; then exit 0; fi; \
 	uexec rm -rf "$@.tmp"; \
