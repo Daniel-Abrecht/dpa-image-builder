@@ -57,7 +57,8 @@ build/$(IMAGE_NAME)/root.fs/: \
   $(KERNEL_TARGET) \
   build/bin/usernsexec \
   $(DEBOOTSTRAP_SCRIPT) \
-  bin/.dir
+  bin/.dir \
+  build/$(IMAGE_NAME)/.dir
 	$(MAKE) extra_packages
 	./script/debootstrap.sh
 
