@@ -1,7 +1,7 @@
-include ../src/make-helper-functions.mk
+include helper.mk
 include $(GENERATED_DEPENDENCIES_FILE)
 
-UEXEC=../build/bin/uexec
+UEXEC = $(project_root)/build/bin/uexec
 
 all: $(patsubst %,bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,$(PACKAGES_TO_BUILD))
 repo: $(addprefix repo//,$(PACKAGES_TO_BUILD))
@@ -19,7 +19,7 @@ $(DEBOOTSTRAP_SCRIPT):
 build-env/$(DISTRO)/$(RELEASE)/rootfs: build-env/.dir | $(DEBOOTSTRAP_SCRIPT) $(UEXEC)
 	set -ex; \
 	mkdir -p "$@.tmp"; \
-	exec 8>"$@.lock"; \
+	exec 8>".$@.lock"; \
 	flock 8; \
 	if [ -d "$@" ]; then exit 0; fi; \
 	uexec rm -rf "$@.tmp"; \
@@ -42,6 +42,8 @@ repo-add//%:
 
 clean-repo: $(addprefix clean-repo//,$(PACKAGES_TO_BUILD))
 update-repo: $(addprefix update-repo//,$(PACKAGES_TO_BUILD))
+
+buildenv: build-env/$(DISTRO)/$(RELEASE)/rootfs
 
 clean-buildenv: | $(UEXEC)
 	uexec rm -rf "build-env/$(DISTRO)/$(RELEASE)"

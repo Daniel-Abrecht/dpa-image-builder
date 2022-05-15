@@ -1,3 +1,5 @@
+PLATFORM_AGNOSTIC_TARGETS += clean-fs-all clean-image-all
+
 include src/make-helper-functions.mk
 
 all: bin/$(IMAGE_NAME)
@@ -34,22 +36,19 @@ enter-buildenv:
 	export PROMPT_COMMAND='if [ -z "$$PS_SET" ]; then PS_SET=1; PS1="(buildenv) $$PS1"; fi'; \
 	$(USER_SHELL)
 
-%/.dir:
-	mkdir -p "$(dir $@)"
-	touch "$@"
-
-build/$(IMAGE_NAME)/deb/%.deb: | build/$(IMAGE_NAME)/deb/.dir
+build/$(DISTRO)-$(RELEASE)/deb/%.deb: | build/$(DISTRO)-$(RELEASE)/deb/.dir
 	getdeb.sh "$@"
 
-$(DEBOOTSTRAP_SCRIPT): build/$(IMAGE_NAME)/deb/debootstrap.deb
+$(DEBOOTSTRAP_SCRIPT): build/$(DISTRO)-$(RELEASE)/deb/debootstrap.deb
 	set -ex; \
-	exec 8>"build/.$(IMAGE_NAME).lock"; \
+	exec 8>"build/.debootstrap-$(DISTRO)-$(RELEASE).lock"; \
 	flock 8; \
 	if [ -e "$@" ]; then exit 0; fi; \
-	rm -rf "build/$(IMAGE_NAME)/debootstrap_script/"; \
-	mkdir -p "build/$(IMAGE_NAME)/debootstrap_script/"; \
-	cd "build/$(IMAGE_NAME)/debootstrap_script/"; \
-	ar x ../deb/debootstrap.deb; \
+	rm -rf "$$X_DEBOOTSTRAP_DIR"; \
+	mkdir -p "$$X_DEBOOTSTRAP_DIR"; \
+	debootstrap_deb="$$(realpath "build/$$DISTRO-$$RELEASE/deb/debootstrap.deb")"; \
+	cd "$$X_DEBOOTSTRAP_DIR"; \
+	ar x "$$debootstrap_deb"; \
 	tar xzf data.tar.*;
 	[ -e "$@" ]
 	touch "$@"
@@ -97,8 +96,8 @@ clean-build: clean-image clean-fs
 	rmdir build/ 2>/dev/null || true
 
 clean-build-all: clean-image-all clean-fs-all
-	$(MAKE) -C platform clean-build
-	$(MAKE) -C kernel clean-build
+	$(MAKE) -C platform clean-build-all
+	$(MAKE) -C kernel clean-build-all
 	$(MAKE) -C chroot-build-helper clean-build-all
 	rm -rf build/
 

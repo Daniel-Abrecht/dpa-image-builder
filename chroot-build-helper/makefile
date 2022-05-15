@@ -1,4 +1,4 @@
-include ../src/make-helper-functions.mk
+include helper.mk
 
 # Genereting the build dependencies for debian packages to be built requires
 # the repos of those packages to be checked out. Always cloning them

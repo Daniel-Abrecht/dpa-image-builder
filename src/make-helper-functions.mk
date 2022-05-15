@@ -55,11 +55,31 @@ export $(CONFIG_VARS)
 
 CONF = user_config_override
 
-ifndef TO
+X_DEBOOTSTRAP_DIR = $(project_root)/build/$(DISTRO)-$(RELEASE)/debootstrap_script/
+DEBOOTSTRAP_SCRIPT = $(X_DEBOOTSTRAP_DIR)/usr/share/debootstrap/scripts/$(RELEASE)
+
+PLATFORM_AGNOSTIC_TARGETS += config-set//% config-unset//% config-after-update//%
+PLATFORM_AGNOSTIC_TARGETS += mirror//% chroot//% %/.dir
+PLATFORM_AGNOSTIC_TARGETS += $(project_root)/build/$(DISTRO)-$(RELEASE)/%
+PLATFORM_AGNOSTIC_TARGETS += build/$(DISTRO)-$(RELEASE)/%
+PLATFORM_AGNOSTIC_TARGETS += $(project_root)/build/bin/%
+PLATFORM_AGNOSTIC_TARGETS += build/bin/%
+PLATFORM_AGNOSTIC_TARGETS += $(DEBOOTSTRAP_SCRIPT)
+PLATFORM_AGNOSTIC_TARGETS += config-list
+PLATFORM_AGNOSTIC_TARGETS += generate_make_build_dependencies_for_debs
+PLATFORM_AGNOSTIC_TARGETS += clean-build-all
+
+ifndef BUILDER_PLATFORM
+ifneq (,$(MAKECMDGOALS))
+ifeq (,$(filter-out $(PLATFORM_AGNOSTIC_TARGETS),$(MAKECMDGOALS)))
+BUILDER_PLATFORM=none
+endif
+endif
+endif
+
 ifndef BUILDER_PLATFORM
 KNOWN_BOARDS=$(shell basename -a "$(project_root)/config/default/"b-*/ | sed 's|^b-||')
 $(error "$(newline)Please specify a board. Pass BOARD= to make, or set it in the config using `make config-set//BOARD TO=my-board`.$(newline)Availabe boards are: $(KNOWN_BOARDS)$(newline)")
-endif
 endif
 
 include $(project_root)/src/repositories.mk
@@ -70,12 +90,12 @@ include $(project_root)/src/package_list.mk
 
 export DEBIAN_FRONTEND=noninteractive
 
-ifndef TO
+ifneq ($(BUILDER_PLATFORM),none)
 include $(project_root)/platform/$(BUILDER_PLATFORM)/platform.mk
 endif
 
-export X_DEBOOTSTRAP_DIR = $(project_root)/build/$(IMAGE_NAME)/debootstrap_script/
-export DEBOOTSTRAP_SCRIPT = $(X_DEBOOTSTRAP_DIR)/usr/share/debootstrap/scripts/$(RELEASE)
+export X_DEBOOTSTRAP_DIR
+export DEBOOTSTRAP_SCRIPT
 
 define repodir
 repo/$(shell printf '%s\n' "$(repo-source@$(1))" | sed 's / ∕ g').git
@@ -152,7 +172,7 @@ config-set//%:
 config-unset//%:
 	V="$(patsubst config-unset//%,%,$@)"; \
 	sed -i "/^$$V[ ]*=/d" "$(project_root)/config/$(CONF)"
-	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset//%,%,$@))" "config-after-update@$(patsubst config-unset//%,%,$@)"
+	@ $(MAKE) --no-print-directory OLD_VALUE="$($(patsubst config-unset//%,%,$@))" "config-after-update//$(patsubst config-unset//%,%,$@)"
 
 clean-all: clean-repo clean-build
 clean-all-all: clean-repo clean-build-all
