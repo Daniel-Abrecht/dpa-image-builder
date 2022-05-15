@@ -47,7 +47,8 @@ clean-repo: clean-repo//linux
 update-repo: update-repo//linux
 	@true
 
-clean-build-all: clean-build
+clean-build-all:
+	rm -rf "bin/"
 
 clean-build:
 	rm -rf "bin/$$KERNEL_CONFIG_TARGET/"
