@@ -136,7 +136,10 @@ clean-repo//%:
 
 update-repo//%:
 	repo="$(call repodir,$(patsubst update-repo//%,%,$@))"; \
-	if [ -d "$$repo" ]; then cd "$$repo" && git remote update && touch .; fi
+	if [ -d "$$repo" ] && ([ -z "$$UPDATE_REPO_ONLY_IF_OLDER_THAN" ] || [ "$$(($$(date '+%s') - $$(stat -c '%Y' "$$repo")))" -ge "$$UPDATE_REPO_ONLY_IF_OLDER_THAN" ]); \
+	then \
+	  cd "$$repo" && git remote update && touch .; \
+	fi
 
 config-list:
 	@$(foreach VAR,$(CONFIG_VARS), echo "$(VAR)" = "$($(VAR))"; )
