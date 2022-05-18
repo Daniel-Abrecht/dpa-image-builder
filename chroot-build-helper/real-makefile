@@ -64,7 +64,9 @@ clean-build-all:
 
 .SECONDEXPANSION:
 bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-env/$(DISTRO)/$(RELEASE)/rootfs | $(UEXEC) bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.dir
-	DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get -y update && apt-get -y dist-upgrade" || true; \
+	if [ -z "$$UPDATE_BUILDROOT_ONLY_IF_OLDER_THAN" ] || [ "$$(($$(date '+%s') - $$(stat -c '%Y' "build-env/$(DISTRO)/$(RELEASE)/rootfs/")))" -ge "$$UPDATE_BUILDROOT_ONLY_IF_OLDER_THAN" ]; \
+	  then DO_LOCK=2 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "apt-get -y update && apt-get -y dist-upgrade && touch /" || true; \
+	fi; \
 	# If repo is needed & packages to be built for it, make sure it's created if necessary
 	if [ "$(USE_IMAGE_BUILDER_REPO)" = yes ] && [ -n "$(IMAGE_BUILDER_REPO)" ] && [ -n "$(IMAGE_BUILDER_REPO_KEY)" ] && [ "$(ADD_TO_EXTERNAL_REPO)" = "yes" ]; then addrepo.sh; fi
 	project="$(patsubst bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build,%,$@)" \
