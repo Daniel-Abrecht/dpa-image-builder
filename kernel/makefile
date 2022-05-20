@@ -21,6 +21,7 @@ repo: $$(call repodir,linux)
 	@true
 
 bin/$(KERNEL_CONFIG_TARGET)/.done: $$(call repodir,linux) | bin/$(KERNEL_CONFIG_TARGET)/.dir
+	set -e; \
 	exec 8>bin/$(KERNEL_CONFIG_TARGET)/.lock; \
 	flock 8; \
 	if [ -f "$@" ]; then exit 0; fi; \
