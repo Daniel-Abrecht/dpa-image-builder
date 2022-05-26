@@ -8,6 +8,7 @@ S_COMPONENTS=main
 FSTYPE = ext4
 
 USE_EFI = y
+PATCH_DEV_FILES = etc/fstab
 
 BUILD_PACKAGES = no
 USE_IMAGE_BUILDER_REPO = yes

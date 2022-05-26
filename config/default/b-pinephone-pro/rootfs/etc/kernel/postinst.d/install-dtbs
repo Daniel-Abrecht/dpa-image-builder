@@ -1,0 +1,9 @@
+#!/bin/sh
+set -ex
+
+libdir="/usr/lib/$DPKG_MAINTSCRIPT_PACKAGE/"
+[ -d "$libdir" ] || exit 0
+
+cd "$libdir"
+mkdir -p /boot/efi/dtb/
+find -iname '*.dtb' -exec cp --parents {} /boot/efi/dtb/ \;

@@ -6,6 +6,7 @@ trap cleanup EXIT TERM INT
 
 cd "$tmp"
 
+# TODO: Does any of the /lib/firmware/brcm/brcmfmac43455-sdio.* files from firmware-brcm80211 / linux-firmware, which is installed, work?
 if apt-get download raspi-firmware
 then
   dpkg-deb -xv raspi-firmware*.deb .
@@ -15,3 +16,15 @@ else
   dpkg-deb -xv linux-firmware-raspi*.deb .
   cp ./lib/firmware/brcm/brcmfmac43455-sdio.raspberrypi,400.txt /lib/firmware/brcm/brcmfmac43455-sdio.pine64,pinephone-pro.txt
 fi
+
+# Create an initial grub config. It's not possible to get grub-install
+# working properly in the chroot, but grub-mkimage will work for the first boot,
+# we can do grub-instal and grub-update un the first boot after that.
+MODULES='
+  all_video boot cat configfile disk echo efi_gop ext2 fat fdt gzio help iso9660
+  linux ls normal part_gpt part_msdos reboot search search_fs_file search_fs_uuid
+  search_label test true probe
+'
+
+mkdir -p /boot/efi/EFI/boot/
+grub-mkimage -p /EFI/boot/ -O arm64-efi -o /boot/efi/EFI/boot/bootaa64.efi $MODULES

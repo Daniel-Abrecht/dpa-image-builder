@@ -1,3 +1,7 @@
+# Needed for booting, creates uboot scripts and so on
+flash-kernel
+
+# TODO: Is the following still needed? Is the new mesa nir default already in debian?
 libenvpreload
 
 # For forwarding modem audio

@@ -125,13 +125,18 @@ imgdir="$tmp" OLDPATH="$PATH" CHNS_EXTRA='(
     . "$part_info"
     eval "$(blkid -p "$part" | sed "s/^[^:]*: //")"
     FSTAB_ID=
+    if [ -n "$UUID" ]
+    then
+      FSTAB_ID="UUID=$UUID"
+      sed -i "s/{UUID_$part_name}/$UUID/" $PATCH_DEV_FILES
+    fi
     if [ -n "$PARTUUID" ]
-      then FSTAB_ID="PARTUUID=$PARTUUID"
-    elif [ -n "$UUID" ]
-      then FSTAB_ID="UUID=$UUID"
+    then
+      FSTAB_ID="PARTUUID=$PARTUUID"
+      sed -i "s/{PARTUUID_$part_name}/$PARTUUID/" $PATCH_DEV_FILES
     fi
     if [ -n "$FSTAB_ID" ]
-      then sed -i "s/{UUID_$part_name}/$FSTAB_ID/" etc/fstab
+      then sed -i "s/{FSTAB_$part_name}/$FSTAB_ID/" $PATCH_DEV_FILES
     fi
   ); done
 )' CHNS_OVERLAY=1 CHNS_EXTRA_POST='(

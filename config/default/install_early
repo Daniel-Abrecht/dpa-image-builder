@@ -1,6 +1,3 @@
-# Needed for booting, creates uboot scripts and so on
-flash-kernel
-
 locales # Has to be installed before console keyboard, because it needs locale C.UTF-8
 
 # Do make the text readable

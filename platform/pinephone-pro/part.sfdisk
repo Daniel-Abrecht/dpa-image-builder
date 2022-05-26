@@ -5,7 +5,7 @@ grain: 4MiB
 
 # Protective partition for firmware (The type / guid here was chowsen randomly)
 start=64, size=31MiB, type=59EB2C4A-6F39-4E7E-8A7A-2C32F189FA8F, name=loader, attrs="RequiredPartition,62,63"
-# /boot/ partition
-size=224MiB, type=BC13C2FF-59E6-4262-A352-B275FD6F7172, name=boot, attrs=LegacyBIOSBootable
+# /boot/efi partition
+size=224MiB, type=C12A7328-F81F-11d2-BA4B-00A0C93EC93B, name=boot
 # / partition, use remaining space
 type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE, name=root

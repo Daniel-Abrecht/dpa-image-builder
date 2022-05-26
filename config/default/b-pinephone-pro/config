@@ -2,7 +2,12 @@ BUILDER_PLATFORM = pinephone-pro
 KERNEL_CONFIG_TARGET = pinephonepro
 FK_MACHINE = Pine64 PinePhonePro
 
+BOOT_FSTYPE = vfat
+BOOT_DIR = boot/efi
+
 S_COMPONENTS += contrib non-free
+
+PATCH_DEV_FILES += boot/efi/EFI/boot/grub.cfg
 
 repo-branch@linux = pine64-kernel-ppp-5.16.y-release
 repo-source@linux = https://gitlab.com/pine64-org/linux.git

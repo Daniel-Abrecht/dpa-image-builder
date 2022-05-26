@@ -1,2 +1,4 @@
+# Needed for booting, creates uboot scripts and so on
+flash-kernel
 linux-image-arm64
 raspi-firmware
