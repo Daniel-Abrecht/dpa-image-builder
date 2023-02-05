@@ -3,4 +3,4 @@ BUILDER_PLATFORM = raspberry-pi
 BOOT_FSTYPE = vfat
 BOOT_DIR = boot/firmware
 
-S_COMPONENTS += contrib non-free
+S_COMPONENTS += non-free-firmware

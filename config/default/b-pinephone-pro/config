@@ -5,7 +5,7 @@ FK_MACHINE = Pine64 PinePhonePro
 BOOT_FSTYPE = vfat
 BOOT_DIR = boot/efi
 
-S_COMPONENTS += contrib non-free
+S_COMPONENTS += non-free-firmware
 
 PATCH_DEV_FILES += boot/efi/EFI/boot/grub.cfg
 

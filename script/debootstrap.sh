@@ -35,7 +35,7 @@ mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/post_debootstrap/"
 if [ -n "$PACKAGES_INSTALL_DEBOOTSTRAP" ]; then debootstrap_include="--include=$(printf "%s" "$PACKAGES_INSTALL_DEBOOTSTRAP" | tr ' ' ',')"; fi
 
 # Create usable first-stage rootfs
-debootstrap-base.sh "$tmp/rootfs" $debootstrap_include
+debootstrap-base.sh $DEBOOTSTRAP_EXTRA_OPTIONS "$tmp/rootfs" $debootstrap_include
 
 mkdir -p "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/"
 cp "kernel/bin/$KERNEL_CONFIG_TARGET/"linux-*.deb "$tmp/rootfs/usr/share/first-boot-setup/temp-repo/" || true
