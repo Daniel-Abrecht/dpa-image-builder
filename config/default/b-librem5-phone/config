@@ -1,4 +1,4 @@
-FK_MACHINE = Purism Librem 5r3
+FK_MACHINE = Purism Librem 5r4
 
 KERNEL_CONFIG_TARGET = librem5
 KERNEL_DTB = freescale/imx8mq-librem5.dtb
@@ -8,7 +8,7 @@ UBOOT_CONFIG_TARGET = librem5_defconfig
 UBOOT_DTB = librem5.dtb
 
 repo-branch@linux = pureos/byzantium
-repo-source@linux = https://source.puri.sm/Librem5/linux-next.git
+repo-source@linux = https://source.puri.sm/Librem5/linux.git
 
 repo-branch@uboot = librem5
 repo-source@uboot = https://source.puri.sm/Librem5/uboot-imx.git

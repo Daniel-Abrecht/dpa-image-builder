@@ -1,17 +1,17 @@
 uuu_version 1.0.1
 
-SDP: boot -f ../uboot/bin/uboot_firmware_and_dtb.bin
+SDP: boot -f "$UBOOT_BIN"
 
 SDPU: delay 1000
-SDPU: write -f ../uboot/bin/uboot_firmware_and_dtb.bin -offset 0x57c00
+SDPU: write -f "$UBOOT_BIN" -offset 0x57c00
 SDPU: jump
 SDPU: delay 1000
 
 SDPV: delay 1000
-SDPV: write -f ../uboot/bin/uboot_firmware_and_dtb.bin -skipspl
+SDPV: write -f "$UBOOT_BIN" -skipspl
 SDPV: jump
 
-SDPS: boot -f ../uboot/bin/uboot_firmware_and_dtb.bin
+SDPS: boot -f "$UBOOT_BIN"
 
 FB: ucmd setenv fastboot_dev mmc
 FB: ucmd setenv mmcdev 0

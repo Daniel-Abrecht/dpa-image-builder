@@ -1,17 +1,17 @@
 uuu_version 1.0.1
 
-SDP: boot -f "../$UBOOT_BIN"
+SDP: boot -f "$UBOOT_BIN"
 
 SDPU: delay 1000
-SDPU: write -f "../$UBOOT_BIN" -offset 0x57c00
+SDPU: write -f "$UBOOT_BIN" -offset 0x57c00
 SDPU: jump
 SDPU: delay 1000
 
 SDPV: delay 1000
-SDPV: write -f "../$UBOOT_BIN" -skipspl
+SDPV: write -f "$UBOOT_BIN" -skipspl
 SDPV: jump
 
-SDPS: boot -f "../$UBOOT_BIN"
+SDPS: boot -f "$UBOOT_BIN"
 
 FB: ucmd setenv mmcdev 0
 FB: acmd run distro_bootcmd

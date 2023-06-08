@@ -13,6 +13,7 @@ $(BOOTLOADER_BIN):
 uuu-do-%: script/uuu/%.lst build/.dir
 	# The sed stuff allows escaping $ using $$ in envsubst
 	set -e; \
+	UBOOT_BIN="$$(realpath --relative-to="build/" "$$UBOOT_BIN")"; \
 	export UBOOT_BIN; \
 	tmplstfile="build/uuu-script.lst"; \
 	cleanup(){ rm -f "$$tmplstfile"; }; \
