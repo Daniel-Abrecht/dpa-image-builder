@@ -2,7 +2,7 @@ include ../../../src/make-helper-functions.mk
 
 .SECONDEXPANSION:
 
-UMAKE=env -u MAKEFLAGS make
+UMAKE=env -u MAKEFLAGS CFLAGS="-Wno-error" LDFLAGS="-no-warn-rwx-segment" E=0 make
 
 BOOTLOADER_COMPONENTS += firmware/m4.bin
 BOOTLOADER_COMPONENTS += firmware/bl31.bin
