@@ -13,8 +13,8 @@ repo-branch@linux = pine64-kernel-ppp-5.16.y-release
 repo-source@linux = https://gitlab.com/pine64-org/linux.git
 
 UBOOT_CONFIG_TARGET = pinephone-pro-rk3399_defconfig
-repo-branch@uboot = upstream
-repo-source@uboot = https://git.sr.ht/~martijnbraam/u-boot
+repo-branch@uboot = v2023.10
+repo-source@uboot = https://source.denx.de/u-boot/u-boot.git
 
 ATF_PLATFORM = rk3399
 repo-branch@arm-trusted-firmware = v2.6
