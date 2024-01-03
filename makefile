@@ -32,6 +32,7 @@ clean-image-all:
 clean-image:
 	rm -f "bin/$(IMAGE_NAME)"
 
+shell: enter-buildenv
 enter-buildenv:
 	export PROMPT_COMMAND='if [ -z "$$PS_SET" ]; then PS_SET=1; PS1="(buildenv) $$PS1"; fi'; \
 	$(USER_SHELL)

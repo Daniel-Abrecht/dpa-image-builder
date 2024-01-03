@@ -58,7 +58,10 @@ main(){
     then die "Error: repo config not found"
   fi
 
-  . "$config"
+  exec {configfd}<"$config"
+  flock "$configfd"
+
+  . "/proc/self/fd/$configfd"
 
   "do_$action" "$@"
 }
@@ -93,12 +96,14 @@ do_create()(
   mkdir -p "$repo"
   cd "$repo"
   mkdir -p "$distdir"
+  exec {configfd}<>"$config"
+  flock -n "$configfd"
   for key in origin label codename description
   do
     value="$1"; shift
     printf "%s=%s\n" "$key" "$(quote "$value")"
-  done >"$config"
-  . "$config"
+  done >&$configfd
+  . "/proc/self/fd/$configfd"
   do_regenerate
 )
 
