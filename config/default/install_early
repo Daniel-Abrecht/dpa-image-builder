@@ -32,3 +32,7 @@ plymouth- # Make sure plymouth isn't installed. It interferes with the console o
 
 # "Fix" interface hotplugging
 netplug
+
+# Keep the time synced
+ntpsec
+ntpdate

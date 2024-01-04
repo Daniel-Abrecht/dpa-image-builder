@@ -6,6 +6,3 @@ dpkg-dev
 initramfs-tools
 
 file
-
-ntpsec
-ntpdate
