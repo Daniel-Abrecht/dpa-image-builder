@@ -35,4 +35,3 @@ netplug
 
 # Keep the time synced
 ntpsec
-ntpdate
