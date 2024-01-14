@@ -2,5 +2,5 @@
 
 proc			/proc		proc	nosuid,noexec,nodev,hidepid=2,gid=polkitd	0	0
 {FSTAB_root}		/		auto	defaults,discard,relatime			0	1
-{FSTAB_boot}		/boot		ext2    defaults,ro,relatime				0	1
+{FSTAB_boot}		/boot		ext2    defaults,relatime				0	1
 tmpfs			/tmp		tmpfs	defaults,noexec,nosuid,nodev			0	0

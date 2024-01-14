@@ -12,3 +12,8 @@ then
   ln -sfn "/boot/vmlinuz-${latest_version}" "/boot/vmlinuz"
   ln -sfn "/boot/initrd.img-${latest_version}" "/boot/initrd.img"
 fi
+
+img="$(echo "$DPKG_MAINTSCRIPT_PACKAGE" | sed 's/^linux-image-//')"
+if [ "/boot/efi/dtb-$latest_version/" != "/boot/efi/dtb-$img/" ]
+  then rm -rf "/boot/efi/dtb-$img/"
+fi
