@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-latest_version="$(linux-version list | tail -n 1)"
+latest_version="$(linux-version list | grep -v dpkg | tail -n 1)"
 
 if [ -n "$latest_version" ]
 then
