@@ -1,0 +1,6 @@
+Machine: Radxa ROCK 5B
+DTB-Id: rockchip/rk3588-rock-5b.dtb
+Boot-Script-Path: /boot/boot.scr
+U-Boot-Script-Name: bootscr.uboot-generic
+Required-Packages: u-boot-tools
+#Kernel-Flavors: arm64

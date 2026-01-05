@@ -1,4 +1,4 @@
-BUILDER_PLATFORM = pinephone-pro
+BUILDER_PLATFORM = rockchip
 KERNEL_CONFIG_TARGET = pinephonepro
 FK_MACHINE = Pine64 PinePhonePro
 
@@ -7,15 +7,17 @@ BOOT_DIR = boot/efi
 
 S_COMPONENTS += non-free-firmware
 
+#KERNEL_PATCHES = .
 PATCH_DEV_FILES += boot/efi/EFI/boot/grub.cfg
 
-repo-branch@linux = pine64-kernel-ppp-6.0.y
-repo-source@linux = https://gitlab.com/pine64-org/linux.git
+#repo-branch@linux = linux-pinephonepro-6.17.y
+#repo-branch@linux = pine64-kernel-ppp-6.0.y
+#repo-source@linux = https://gitlab.com/pine64-org/linux.git
+repo-branch@linux = orange-pi-6.18-20260105-0049
+repo-source@linux = https://codeberg.org/megi/linux.git
 
 UBOOT_CONFIG_TARGET = pinephone-pro-rk3399_defconfig
-repo-branch@uboot = v2023.10
-repo-source@uboot = https://source.denx.de/u-boot/u-boot.git
 
 ATF_PLATFORM = rk3399
-repo-branch@arm-trusted-firmware = v2.6
+repo-branch@arm-trusted-firmware = v2.12
 repo-source@arm-trusted-firmware = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git

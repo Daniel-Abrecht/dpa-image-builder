@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+latest_version="$(linux-version list | grep -v dpkg | tail -n 1)"
+
+if [ -n "$latest_version" ]
+then
+  mkdir -p "/boot/efi/dtb-$latest_version/"
+  cp -a "/usr/lib/linux-image-$latest_version/." "/boot/efi/dtb-$latest_version/"
+  rm -rf /boot/efi/dtb/
+  cp -a "/boot/efi/dtb-$latest_version/." /boot/efi/dtb
+  ln -sfn "/boot/vmlinuz-${latest_version}" "/boot/vmlinuz"
+  ln -sfn "/boot/initrd.img-${latest_version}" "/boot/initrd.img"
+fi
+
+img="$(echo "$DPKG_MAINTSCRIPT_PACKAGE" | sed 's/^linux-image-//')"
+if [ "/boot/efi/dtb-$latest_version/" != "/boot/efi/dtb-$img/" ]
+  then rm -rf "/boot/efi/dtb-$img/"
+fi

@@ -1,0 +1,15 @@
+#!/bin/sh -ex
+
+ln -s /lib/firmware/brcm/brcmfmac43455-sdio.raspberrypi,3-model-b-plus.txt /lib/firmware/brcm/brcmfmac43455-sdio.pine64,pinephone-pro.txt
+
+# Create an initial grub config. It's not possible to get grub-install
+# working properly in the chroot, but grub-mkimage will work for the first boot,
+# we can do grub-install and grub-update on the first boot after that.
+MODULES='
+  all_video boot cat configfile disk echo efi_gop ext2 fat fdt gzio help iso9660
+  linux ls normal part_gpt part_msdos reboot search search_fs_file search_fs_uuid
+  search_label test true probe
+'
+
+mkdir -p /boot/efi/EFI/boot/
+grub-mkimage -p /EFI/boot/ -O arm64-efi -o /boot/efi/EFI/boot/bootaa64.efi $MODULES

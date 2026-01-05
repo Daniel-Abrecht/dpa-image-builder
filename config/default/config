@@ -37,6 +37,14 @@ PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
 # Don't bother with running tests
 DEB_BUILD_OPTIONS=nocheck
 
+# Mainline u-boot
+repo-branch@uboot = v2025.10
+repo-source@uboot = https://source.denx.de/u-boot/u-boot.git
+
+# Mainline linux
+repo-branch@linux = v6.18.2
+repo-source@linux = https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+
 repo-branch@fuseloop = master
 repo-source@fuseloop = https://github.com/jmattsson/fuseloop.git
 

@@ -1,6 +1,8 @@
 #!/bin/sh
 
-update-rc.d modem defaults || true
-update-rc.d modem enable || true
-systemctl disable modem || true
-systemctl enable eg25-manager || true
+#update-rc.d eg25-manager defaults || true
+#update-rc.d eg25-manager enable || true
+update-rc.d modem-power defaults || true
+update-rc.d modem-power enable || true
+#systemctl enable eg25-manager || true
+systemctl enable modem-power || true

@@ -1,2 +1,2 @@
-RELEASE = bookworm
+RELEASE = trixie
 REPO = http://deb.debian.org/debian/

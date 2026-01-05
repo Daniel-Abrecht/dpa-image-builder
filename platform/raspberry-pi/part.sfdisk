@@ -3,6 +3,6 @@ unit: sectors
 grain: 4MiB
 
 # /boot/ partition
-size=224MiB, type=c, name=boot
+size=1GiB, type=c, name=boot
 # / partition, use remaining space
 type=83, name=root

@@ -1,0 +1,4 @@
+linux-image-arm64
+firmware-misc-nonfree
+firmware-brcm80211
+grub-efi
