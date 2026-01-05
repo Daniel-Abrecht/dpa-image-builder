@@ -1,0 +1,28 @@
+BUILDER_PLATFORM = rockchip
+# KERNEL_CONFIG_TARGET = rockchip # Use distro kernel
+FK_MACHINE = Radxa ROCK 5B
+
+BOOT_FSTYPE = vfat
+BOOT_DIR = boot/efi
+
+S_COMPONENTS += non-free-firmware
+
+PATCH_DEV_FILES += boot/efi/EFI/boot/grub.cfg
+
+KERNEL_PATCHES = .
+
+#repo-branch@linux = v6.12
+#repo-source@linux = https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+# https://github.com/radxa/kernel.git # Their kernel doesn't compile...
+
+UBOOT_CONFIG_TARGET = rock5b-rk3588_defconfig
+repo-branch@uboot = v2025.10
+repo-source@uboot = https://source.denx.de/u-boot/u-boot.git
+
+ATF_PLATFORM = rk3588
+repo-branch@arm-trusted-firmware = v2.12
+repo-source@arm-trusted-firmware = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+
+# Firmware
+repo-branch@rkbin = 7c35e21a8529b3758d1f051d1a5dc62aae934b2b
+repo-source@rkbin = https://github.com/rockchip-linux/rkbin.git

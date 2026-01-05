@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set +e
+
+# Properly install grub. Can't be done when bootstrapping.
+
+# Apparently, the modules needed for fat32 aren't in the initramfs
+modprobe fat
+modprobe vfat
+modprobe msdos
+modprobe nls_cp437
+modprobe nls_ascii
+
+# grub will be reinstalled here
+mount /boot/efi
+mount -o remount,rw /boot/efi
+
+# The following will fail, but maybe someone fixes EFI Varaiables un uboot some day?
+grub-install
+# EFI Varaiables aren't supported yet, skip just that step. That should work.
+grub-install --no-nvram
+# Without EFI variables, we need the fallback. It doesn't work without the above though. Probably a bug?
+grub-install --removable
+# Let's make sure the config and so one is present, too
+update-grub
+
+# Unmount it again, the system will mount it later, but may want to do an fsck first.
+umount /boot/efi

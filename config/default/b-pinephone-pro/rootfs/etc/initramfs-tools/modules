@@ -10,5 +10,13 @@
 # raid1
 # sd_mod
 
+# Touchscreen
 goodix_ts
 evdev
+
+# Display
+panel_himax_hx8394
+rockchipdrm
+rockchip_isp1
+rockchip_rga
+rockchip_vdec
