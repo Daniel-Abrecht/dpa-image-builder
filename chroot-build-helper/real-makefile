@@ -86,7 +86,7 @@ bin/$(BUILDER_PLATFORM)/$(DISTRO)/$(RELEASE)/%/.build: $$(call repodir,%) build-
 	DO_LOCK=3 chns "build-env/$(DISTRO)/$(RELEASE)/rootfs/" sh -ex -c "\
 	  if [ \"\$$USE_IMAGE_BUILDER_REPO\" = yes ] && [ \"\$$DONT_BUILD_IF_IN_REPO\" = yes ] && [ -n \"\$$IMAGE_BUILDER_REPO\" ] && [ -n \"\$$IMAGE_BUILDER_REPO_KEY\" ]; \
 	  then \
-	    wget -O- \"\$$IMAGE_BUILDER_REPO_KEY\" | apt-key add -; \
+	    wget -O "/etc/apt/trusted.gpg.d/image-builder.asc" \"\$$IMAGE_BUILDER_REPO_KEY\"; \
 	    printf '%s' \"\$$IMAGE_BUILDER_REPO\" >/etc/apt/sources.list.d/dpa-image-builder.list; \
 	  fi; \
 	  ( \
