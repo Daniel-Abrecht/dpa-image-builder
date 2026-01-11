@@ -10,3 +10,16 @@
 # raid1
 # sd_mod
 goodix
+edt-ft5x06
+mxsfb
+nwl_dsi
+phy_fsl_imx8_mipi_dphy
+mxc_mipi_csi2_yav
+usbcore
+usb_common
+imx_dcss
+cdns_mhdp_imx
+cdns_mhdp_drmcore
+panel_mantix_mlaf057we51
+panel_sitronix_st7703
+gpio_vibra

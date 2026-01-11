@@ -93,23 +93,39 @@ export rootdev="$tmp"/part-root
 [ -f "$bootdev" ]
 [ -f "$rootdev" ]
 
-mkfsoptions=
+PARTUUID_boot="$(. "$tmp/pinfo-boot"; echo "$PARTUUID")"
+PARTUUID_root="$(. "$tmp/pinfo-root"; echo "$PARTUUID")"
+
+export rmkld=
+export mkfsoptions=
 case "$FSTYPE" in
-  ext?) mkfsoptions="$mkfsoptions -L root -E discard -O encrypt" ;;
+  ext?)
+      rmkld=1
+      mkfsoptions="$mkfsoptions -L root -E discard -O encrypt -U $PARTUUID_root -d ."
+      echo "UUID=$PARTUUID_root" >> "$tmp/pinfo-root"
+    ;;
   f2fs) mkfsoptions="$mkfsoptions -l root -O extra_attr,inode_checksum,compression,inode_crtime,lost_found,encrypt" ;; # Can't enable "quota", sload.f2fs doesn't handle it properly...
-  vfat) bootmkfsoptions="$bootmkfsoptions -n root" ;;
+  vfat) mkfsoptions="$bootmkfsoptions -n root" ;;
 esac
 
-bootmkfsoptions=
+export bmkld=
+export bootmkfsoptions=
 case "$BOOT_FSTYPE" in
-  ext?) bootmkfsoptions="$bootmkfsoptions -L boot -E discard" ;;
+  ext?)
+      bmkld=1
+      bootmkfsoptions="$bootmkfsoptions -L boot -E discard -U $PARTUUID_boot -d ./$BOOT_DIR/"
+      echo "UUID=$PARTUUID_boot" >> "$tmp/pinfo-boot"
+    ;;
   f2fs) bootmkfsoptions="$bootmkfsoptions -l boot -O inode_checksum,compression,inode_crtime,lost_found" ;;
   vfat) bootmkfsoptions="$bootmkfsoptions -n boot -F 32" ;;
 esac
 
-# Format partitions
-"mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$bootdev"
-"mkfs.$FSTYPE" $mkfsoptions "$rootdev"
+if [ -z "$bmkld" ]
+  then "mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$bootdev"
+fi
+if [ -z "$rmkld" ]
+  then "mkfs.$FSTYPE" $mkfsoptions "$rootdev"
+fi
 
 "$base/platform/$BUILDER_PLATFORM/install-bootloader.sh"
 
@@ -143,9 +159,17 @@ imgdir="$tmp" OLDPATH="$PATH" CHNS_EXTRA='(
   PATH="$OLDPATH"
   umount -lr proc || true
   set -x
-  "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
+  # Format boot partitions. May already load rootfs.
+  if [ -n "$bmkld" ]
+    then "mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$imgdir/part-boot"
+    else "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
+  fi
   mount -t tmpfs none "./$BOOT_DIR/"
-  "sload.$FSTYPE" -P -f "./" "$imgdir/part-root"
+  # Format root partitions. May already load rootfs.
+  if [ -n "$rmkld" ]
+    then "mkfs.$FSTYPE" $mkfsoptions "$imgdir/part-root"
+    else "sload.$FSTYPE" -P -f "./" "$imgdir/part-root"
+  fi
   umount "./$BOOT_DIR/"
 )' chns "$rootfsdir" update-initramfs -u
 

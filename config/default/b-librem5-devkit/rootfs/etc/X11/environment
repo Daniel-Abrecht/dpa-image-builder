@@ -1,2 +1,0 @@
-ETNA_MESA_DEBUG=nir,no_supertile
-GDK_GL=gles

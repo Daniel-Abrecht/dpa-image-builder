@@ -66,7 +66,6 @@ build/$(IMAGE_NAME)/root.fs/: \
 bin/$(IMAGE_NAME): \
   $(KERNEL_TARGET) \
   build/bin/fuseloop \
-  build/bin/tar2ext \
   build/$(IMAGE_NAME)/root.fs/ \
   $(PLATFORM_FILES)
 	./script/assemble_image.sh
@@ -78,12 +77,12 @@ always:
 rebuild: clean-fs clean-image always
 	$(MAKE) all
 
-clean-repo: clean-repo//fuseloop clean-repo//usernsexec clean-repo//tar2ext
+clean-repo: clean-repo//fuseloop clean-repo//usernsexec
 	$(MAKE) -C platform clean-repo
 	$(MAKE) -C kernel clean-repo
 	$(MAKE) -C chroot-build-helper clean-repo
 
-update-repo: update-repo//fuseloop update-repo//usernsexec update-repo//tar2ext
+update-repo: update-repo//fuseloop update-repo//usernsexec
 	$(MAKE) -C platform update-repo
 	$(MAKE) -C kernel update-repo
 	if [ "$(BUILD_PACKAGES)" != no ]; \
@@ -106,8 +105,7 @@ clean-build-all: clean-image-all clean-fs-all
 .SECONDEXPANSION:
 repo: always \
   $$(call repodir,fuseloop) \
-  $$(call repodir,usernsexec) \
-  $$(call repodir,tar2ext)
+  $$(call repodir,usernsexec)
 	$(MAKE) -C platform repo
 	$(MAKE) -C kernel repo
 	if [ "$(BUILD_PACKAGES)" != no ]; \
@@ -126,11 +124,3 @@ build/bin/usernsexec: $$(call repodir,usernsexec) | build/bin/.dir
 	  cp \"\$$repodir/usernsexec/bin/usernsexec\" build/bin/; \
 	  cp \"\$$repodir/usernsexec/script/uexec\" build/bin/; \
 	"
-
-build/bin/tar2ext: $$(call repodir,tar2ext) | build/bin/.dir
-	with-repo.sh tar2ext bash -ex -c "\
-	  $(MAKE) -C \"\$$repodir/tar2ext/\"; \
-	  cp \"\$$repodir/tar2ext/scripts/sload.ext4\" build/bin/; \
-	  cp \"\$$repodir/tar2ext/bin/tar2ext\" build/bin/; \
-	"
-	( cd build/bin/; ln -sf sload.ext4 sload.ext3; ln -sf sload.ext4 sload.ext2; )

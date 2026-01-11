@@ -1,10 +1,13 @@
-label: dos
+label: gpt
 unit: sectors
+# We can't fit any more partition table entries before the firmware partition / first-lba
+table-length: 8
+first-lba: 4
 grain: 4MiB
 
 # Protective partition for Cortex M4 firmware and ARM trusted platform + uboot bootloader
-start=4, size=4092, type=da, name=firmware
+start=4, size=4092, type=59EB2C4A-6F39-4E7E-8A7A-2C32F189FA8F, name=firmware, attrs="RequiredPartition,62,63"
 # /boot/ partition
-size=256MiB, type=83, name=boot, bootable
+size=1GiB, type=BC13C2FF-59E6-4262-A352-B275FD6F7172, name=boot, bootable
 # / partition, use remaining space
-type=83, name=root
+type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE, name=root

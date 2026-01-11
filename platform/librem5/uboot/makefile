@@ -2,7 +2,9 @@ include ../../../src/make-helper-functions.mk
 
 .SECONDEXPANSION:
 
-UMAKE=env -u MAKEFLAGS CFLAGS="-Wno-error" LDFLAGS="-no-warn-rwx-segment" E=0 make
+UMAKE=env -u MAKEFLAGS CFLAGS="-Wno-error" LDFLAGS="--no-warn-rwx-segment" E=0 make
+# below line for mainline atf
+#UMAKE=env -u MAKEFLAGS CFLAGS="-Wno-error" LDFLAGS="-Wl,--no-warn-rwx-segment" E=0 make
 
 BOOTLOADER_COMPONENTS += firmware/m4.bin
 BOOTLOADER_COMPONENTS += firmware/bl31.bin
@@ -12,6 +14,7 @@ NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_1d_dmem.bin
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_1d_imem.bin
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_2d_dmem.bin
 NONFREE_FIRMWARE_CRAP += firmware/lpddr4_pmu_train_2d_imem.bin
+#NONFREE_FIRMWARE_CRAP += firmware/signed_hdmi.bin
 NONFREE_FIRMWARE_CRAP += firmware/signed_hdmi_imx8m.bin
 NONFREE_FIRMWARE_CRAP += firmware/signed_dp_imx8m.bin
 
@@ -31,8 +34,8 @@ bin/$(UBOOT_CONFIG_TARGET)/uboot_firmware_and_dtb.bin: $$(call repodir,uboot) $(
 	  cp $(BOOTLOADER_COMPONENTS) "$$repodir/uboot/"; \
 	  $(UMAKE) -C "$$repodir/uboot/" ARCH=arm CROSS_COMPILE="$$CROSS_COMPILER" "$$UBOOT_CONFIG_TARGET"; \
 	  $(UMAKE) -C "$$repodir/uboot/" ARCH=arm CROSS_COMPILE="$$CROSS_COMPILER" flash.bin; \
-	  $(UMAKE) -C "$$repodir/uboot/" ARCH=arm CROSS_COMPILE="$$CROSS_COMPILER" u-boot.imx; \
-	  cp "$$repodir/uboot/u-boot.imx" "$@"; \
+	  echo $(UMAKE) -C "$$repodir/uboot/" ARCH=arm CROSS_COMPILE="$$CROSS_COMPILER" u-boot.imx; \
+	  cp "$$repodir/uboot/flash.bin" "$@"; \
 	'
 
 firmware/m4.bin: $$(call repodir,Cortex_M4) | firmware/.dir
@@ -55,8 +58,8 @@ firmware/.fw: repo/.firmware-imx.repo
 	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem.bin firmware/
 	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem.bin firmware/
 	cp repo/firmware-imx/firmware-imx-*/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem.bin firmware/
-	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_hdmi_imx8m.bin firmware/
-	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_dp_imx8m.bin firmware/
+	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_hdmi_imx8m.bin firmware/signed_hdmi_imx8m.bin
+	cp repo/firmware-imx/firmware-imx-*/firmware/hdmi/cadence/signed_dp_imx8m.bin firmware/signed_dp_imx8m.bin
 	touch $@
 
 $(NONFREE_FIRMWARE_CRAP): firmware/.fw

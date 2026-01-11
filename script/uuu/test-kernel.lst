@@ -1,4 +1,4 @@
-uuu_version 1.0.1
+uuu_version 1.2.39
 
 SDP: boot -f "$UBOOT_BIN"
 
@@ -15,13 +15,37 @@ SDPS: boot -f "$UBOOT_BIN"
 
 FB: ucmd setenv fastboot_dev mmc
 FB: ucmd setenv mmcdev 0
-FB: ucmd setenv kernel 0x80800000
-FB: ucmd setenv fdt 0x83000000
-FB: ucmd setenv fastboot_buffer $${kernel}
+FB: ucmd setenv fastboot_buffer 0x43000000
+
+FB: ucmd setenv fastboot_bytes ""
 FB: download -f vmlinux
-FB: ucmd setenv fastboot_buffer $${fdt}
+FB: ucmd if test ! -n "$$fastboot_bytes"; then setenv fastboot_bytes $$filesize; else true; fi
+FB: ucmd cp.b $$fastboot_buffer $$kernel_addr_r $$fastboot_bytes
+FB: ucmd setenv kernel_size $${fastboot_bytes}
+
+FB: ucmd setenv fastboot_bytes ""
+FB: download -f initrd.img
+FB: ucmd if test ! -n "$$fastboot_bytes"; then setenv fastboot_bytes $$filesize; else true; fi
+FB: ucmd cp.b $$fastboot_buffer $$ramdisk_addr_r $$fastboot_bytes
+FB: ucmd setenv ramdisk_size $${fastboot_bytes}
+
+FB: ucmd setenv fastboot_bytes ""
 FB: download -f dtb
-FB: ucmd setenv bootargs "$$bootargs console=ttymxc0,115200 vmalloc=400M"
-FB: ucmd setenv bootargs "$$bootargs cma=256M consoleblank=0 root=/dev/mmcblk0p3 rootwait"
-FB: acmd booti $${kernel} - $${fdt}
+FB: ucmd if test ! -n "$$fastboot_bytes"; then setenv fastboot_bytes $$filesize; else true; fi
+FB: ucmd cp.b $$fastboot_buffer $$fdt_addr_r $$fastboot_bytes
+FB: ucmd setenv fdt_size $${fastboot_bytes}
+
+#FB: ucmd setenv bootargs "$$bootargs earlycon console=ttymxc0,115200 vmalloc=400M"
+FB: ucmd setenv bootargs "$$bootargs console=tty1"
+#FB: ucmd setenv bootargs "$$bootargs cma=256M consoleblank=0 root=/dev/mmcblk0p3 waitroot"
+FB: ucmd setenv bootargs "$$bootargs cma=256M consoleblank=0 root=/dev/sda3 waitroot"
+
+#FB: ucmd md.b $${kernel_addr_r} 10
+#FB: ucmd md.b $${fdt_addr_r} 10
+#FB: ucmd md.b $${ramdisk_addr_r} 10
+
+FB: ucmd setenv bootcmd "booti $${kernel_addr_r} $${ramdisk_addr_r}:$${ramdisk_size} $${fdt_addr_r}"
+#FB: ucmd setenv bootcmd "booti $${kernel_addr_r} - $${fdt_addr_r}"
+FB: ucmd echo "$${bootcmd}"
+FB: acmd $${bootcmd}
 FB: Done

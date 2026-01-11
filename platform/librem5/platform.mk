@@ -20,7 +20,7 @@ uuu-do-%: script/uuu/%.lst build/.dir
 	cleanup; \
 	trap cleanup EXIT; \
 	sed 's/\$$\$$/\x1/g' <"$<" | envsubst | sed 's/\x1/\$$/g' >"$$tmplstfile"; \
-	uuu "$$tmplstfile";
+	uuu -V -v "$$tmplstfile";
 
 uuu-uboot-do-%: script/uuu/%.lst $(BOOTLOADER_BIN)
 	$(MAKE) UBOOT_BIN=$(BOOTLOADER_BIN) uuu-do-$(patsubst uuu-uboot-do-%,%,$@)
@@ -56,9 +56,12 @@ uuu-uboot-flash: uuu-uboot-do-uboot-flash
 uuu-flash uuu-flash//image: uuu-image-do-flash
 	@true
 
-uuu-test-kernel: kernel/bin/linux-image.deb
-	ar p kernel/bin/linux-image.deb data.tar.xz | tar xJ --wildcards './boot/vmlinuz-*' -O | gunzip > build/vmlinux
-	ar p kernel/bin/linux-image.deb data.tar.xz | tar xJ --wildcards './usr/lib/linux-image-*/$(KERNEL_DTB)' -O > build/dtb
+uuu-test-kernel:
+	set -e; \
+	kernel_deb="$$(printf "%s\n" "kernel/bin/$$KERNEL_CONFIG_TARGET/"linux-image*.deb | grep -v dbg | head -n 1)"; \
+	echo "$$kernel_deb"; \
+	ar p "$$kernel_deb" data.tar.xz | tar xJ --wildcards './boot/vmlinuz-*' -O > build/.vmlinux; \
+	gunzip <build/.vmlinux >build/vmlinux || mv build/.vmlinux build/vmlinux; \
+	ar p "$$kernel_deb" data.tar.xz | tar xJ --wildcards './usr/lib/linux-image-*/$(KERNEL_DTB)' -O > build/dtb
 	$(MAKE) uuu-uboot-do-test-kernel || true
-	rm build/vmlinux
-	rm build/dtb
+	rm -f build/vmlinux build/dtb

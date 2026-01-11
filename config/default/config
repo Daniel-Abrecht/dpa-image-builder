@@ -38,11 +38,15 @@ PROJECT_GIT_SERVER_URL-github = https://github.com/Daniel-Abrecht
 DEB_BUILD_OPTIONS=nocheck
 
 # Mainline u-boot
-repo-branch@uboot = v2025.10
+repo-branch@uboot = v2026.01
 repo-source@uboot = https://source.denx.de/u-boot/u-boot.git
 
+# Mainline ATF
+repo-branch@arm-trusted-firmware = v2.14
+repo-source@arm-trusted-firmware = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+
 # Mainline linux
-repo-branch@linux = v6.18.2
+repo-branch@linux = v6.18.4
 repo-source@linux = https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
 
 repo-branch@fuseloop = master
