@@ -1,6 +1,7 @@
-/build/
-/bin/
-/repo/
+/build
+/bin
+/repo
+/chroot-build-helper/build-env
 /config/user_config_override
 mkimage_imx8
 *.deb
