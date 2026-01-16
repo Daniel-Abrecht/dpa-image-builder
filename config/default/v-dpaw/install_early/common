@@ -1,7 +1,6 @@
 lightdm
 lightdm-gtk-greeter
 onboard
-network-manager
 network-manager-gnome
 modemmanager
 python3

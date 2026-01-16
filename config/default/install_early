@@ -14,9 +14,6 @@ first-boot-setup
 # For getting dialogs when we install or reconfigure stuff later on the device
 dialog
 
-# Other useful stuff which is needed before first boot
-ifupdown
-
 # Other useful stuff
 net-tools
 i2c-tools
@@ -30,8 +27,8 @@ consolation
 
 plymouth- # Make sure plymouth isn't installed. It interferes with the console onscreen keyboard
 
-# "Fix" interface hotplugging
-netplug
+# For networking stuff
+network-manager
 
 # Keep the time synced
 ntpsec
