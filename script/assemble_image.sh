@@ -93,16 +93,15 @@ export rootdev="$tmp"/part-root
 [ -f "$bootdev" ]
 [ -f "$rootdev" ]
 
-PARTUUID_boot="$(. "$tmp/pinfo-boot"; echo "$PARTUUID")"
-PARTUUID_root="$(. "$tmp/pinfo-root"; echo "$PARTUUID")"
-
 export rmkld=
 export mkfsoptions=
 case "$FSTYPE" in
   ext?)
       rmkld=1
-      mkfsoptions="$mkfsoptions -L root -E discard -O encrypt -U $PARTUUID_root -d ."
-      echo "UUID=$PARTUUID_root" >> "$tmp/pinfo-root"
+      UUID_root="$(. "$tmp/pinfo-root"; echo "$PARTUUID")"
+      if [ -z "$UUID_root" ]; then UUID_root="$(cat /proc/sys/kernel/random/uuid)"; fi
+      mkfsoptions="$mkfsoptions -L root -E discard -O encrypt -U $UUID_root -d ."
+      echo "UUID=$UUID_root" >> "$tmp/pinfo-root"
     ;;
   f2fs) mkfsoptions="$mkfsoptions -l root -O extra_attr,inode_checksum,compression,inode_crtime,lost_found,encrypt" ;; # Can't enable "quota", sload.f2fs doesn't handle it properly...
   vfat) mkfsoptions="$bootmkfsoptions -n root" ;;
@@ -113,8 +112,10 @@ export bootmkfsoptions=
 case "$BOOT_FSTYPE" in
   ext?)
       bmkld=1
-      bootmkfsoptions="$bootmkfsoptions -L boot -E discard -U $PARTUUID_boot -d ./$BOOT_DIR/"
-      echo "UUID=$PARTUUID_boot" >> "$tmp/pinfo-boot"
+      UUID_boot="$(. "$tmp/pinfo-boot"; echo "$PARTUUID")"
+      if [ -z "$UUID_boot" ]; then UUID_boot="$(cat /proc/sys/kernel/random/uuid)"; fi
+      bootmkfsoptions="$bootmkfsoptions -L boot -E discard -U $UUID_boot -d ./$BOOT_DIR/"
+      echo "UUID=$UUID_boot" >> "$tmp/pinfo-boot"
     ;;
   f2fs) bootmkfsoptions="$bootmkfsoptions -l boot -O inode_checksum,compression,inode_crtime,lost_found" ;;
   vfat) bootmkfsoptions="$bootmkfsoptions -n boot -F 32" ;;
