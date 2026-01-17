@@ -87,10 +87,11 @@ do
   fi
 done
 
-export bootdev="$tmp"/part-boot
+if [ -f "$tmp"/part-boot ]
+  then export bootdev="$tmp"/part-boot
+fi
 export rootdev="$tmp"/part-root
 
-[ -f "$bootdev" ]
 [ -f "$rootdev" ]
 
 export rmkld=
@@ -109,7 +110,8 @@ esac
 
 export bmkld=
 export bootmkfsoptions=
-case "$BOOT_FSTYPE" in
+if [ -n "$bootdev" ]
+then case "$BOOT_FSTYPE" in
   ext?)
       bmkld=1
       UUID_boot="$(. "$tmp/pinfo-boot"; echo "$PARTUUID")"
@@ -119,9 +121,9 @@ case "$BOOT_FSTYPE" in
     ;;
   f2fs) bootmkfsoptions="$bootmkfsoptions -l boot -O inode_checksum,compression,inode_crtime,lost_found" ;;
   vfat) bootmkfsoptions="$bootmkfsoptions -n boot -F 32" ;;
-esac
+esac; fi
 
-if [ -z "$bmkld" ]
+if [ -z "$bmkld" ] && [ -n "$bootdev" ]
   then "mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$bootdev"
 fi
 if [ -z "$rmkld" ]
@@ -160,18 +162,23 @@ imgdir="$tmp" OLDPATH="$PATH" CHNS_EXTRA='(
   PATH="$OLDPATH"
   umount -lr proc || true
   set -x
-  # Format boot partitions. May already load rootfs.
-  if [ -n "$bmkld" ]
-    then "mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$imgdir/part-boot"
-    else "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
+  if [ -f "$imgdir/part-boot" ]
+  then
+    # Format boot partitions. May already load rootfs.
+    if [ -n "$bmkld" ]
+      then "mkfs.$BOOT_FSTYPE" $bootmkfsoptions "$imgdir/part-boot"
+      else "sload.$BOOT_FSTYPE" -P -f "./$BOOT_DIR/" "$imgdir/part-boot"
+    fi
+    mount -t tmpfs none "./$BOOT_DIR/"
   fi
-  mount -t tmpfs none "./$BOOT_DIR/"
   # Format root partitions. May already load rootfs.
   if [ -n "$rmkld" ]
     then "mkfs.$FSTYPE" $mkfsoptions "$imgdir/part-root"
     else "sload.$FSTYPE" -P -f "./" "$imgdir/part-root"
   fi
-  umount "./$BOOT_DIR/"
+  if [ -f "$imgdir/part-boot" ]
+    then umount "./$BOOT_DIR/"
+  fi
 )' chns "$rootfsdir" update-initramfs -u
 
 # Unmount & remove fuse loop devices

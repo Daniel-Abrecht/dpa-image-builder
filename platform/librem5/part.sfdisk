@@ -7,7 +7,7 @@ grain: 4MiB
 
 # Protective partition for Cortex M4 firmware and ARM trusted platform + uboot bootloader
 start=4, size=4092, type=59EB2C4A-6F39-4E7E-8A7A-2C32F189FA8F, name=firmware, attrs="RequiredPartition,62,63"
-# /boot/ partition
-size=1GiB, type=BC13C2FF-59E6-4262-A352-B275FD6F7172, name=boot, bootable
+# /boot/ partition - We don't add one, because they tend to run full. If you uncomment it, make sure no to include 
+# size=1GiB, type=BC13C2FF-59E6-4262-A352-B275FD6F7172, name=boot, bootable, attrs="LegacyBIOSBootable"
 # / partition, use remaining space
-type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE, name=root
+type=B921B045-1DF0-41C3-AF44-4C6F280D3FAE, name=root, attrs="LegacyBIOSBootable"
