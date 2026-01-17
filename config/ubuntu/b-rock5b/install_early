@@ -1,2 +1,5 @@
 !linux-image-arm64
+!firmware-misc-nonfree
+!firmware-brcm80211
+linux-firmware
 linux-generic
